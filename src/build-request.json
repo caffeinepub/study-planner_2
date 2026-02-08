@@ -1,124 +1,49 @@
 {
   "kind": "build_request",
-  "title": "Critical UI-only restoration for Study Planner task list (buttons, task cards)",
-  "priority": "high",
+  "title": "Add Daily view progress bar in Study Planner (match Weekly)",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Keep the existing Study Planner progress bar exactly as-is: do not restyle it and do not move it. It must remain directly below the task panel heading text (\"Your Weekly Study Tasks\" / \"Your Daily Study Tasks\") and directly above the task list, and must keep showing the percentage text (e.g., \"38%\").",
+      "text": "In `frontend/src/pages/StudyPlannerPage.tsx`, add a progress bar to the **Daily** view that matches the existing **Weekly** progress bar style exactly, and place it directly under the \"Your Daily Study Tasks\" heading and above the daily task list, without moving any existing buttons or changing spacing/layout elsewhere.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "recent-messages"
         ],
         "quotes": [
-          "1) PROGRESS BAR\n✔ Progress bar is CORRECT.\n✔ Keep it exactly where it is:\n   - Below \"Your Weekly Study Tasks\"\n   - Above the task list\n✔ Keep percentage text (e.g. 38%)\n❌ Do NOT restyle it\n❌ Do NOT move it"
+          "ADD DAILY PROGRESS BAR (NO OTHER CHANGES)\n\nGOAL:\nShow progress bar in DAILY view same as WEEKLY view.\n\nWHAT TO ADD:\n1) Add a progress bar in \"Daily\" tab.\n2) Position it EXACTLY under:\n   \"Your Daily Study Tasks\" heading\n   and ABOVE the daily task list.\n3) Progress calculation:\n   (Completed daily tasks / Total daily tasks) × 100\n4) Progress bar style MUST match weekly progress bar.\n\nSTRICT RULES:\n- Do NOT move any existing buttons.\n- Do NOT change layout spacing.\n- Do NOT resize task cards.\n- Do NOT affect weekly progress bar.\n- Do NOT touch summary card.\n- Do NOT change colors, fonts, or icons.\n- Do NOT add new sections.\n\nIMPORTANT:\n- Daily progress shows ONLY daily tasks.\n- Weekly progress shows ONLY weekly tasks.\n- Both must work independently."
         ]
       },
       "acceptanceCriteria": [
-        "Progress bar block remains inside the task list panel header area, below the heading/description and above the task list.",
-        "Progress bar visuals (label, percent text, bar height/colors/rounding) are unchanged from the current implementation.",
-        "No other UI element is inserted between the progress bar and the task list."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "In the Study Planner task list panel header, group ALL action buttons together at the top-right in a single row: Sort (label must remain exactly \"Sort by Date & Time\" / \"Sort by Default\" depending on current mode), Clear, Download TXT, and Download PDF. Do not place any of these buttons at the bottom of the panel, do not split them into multiple rows, and do not change button names or icons.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "2) BUTTON POSITION FIX\nMove ALL action buttons back to the TOP section:\n\nButtons that MUST appear together at the top-right:\n- Sort (Sort by Date & Time / Default)\n- Clear\n- Download TXT\n- Download PDF\n\n❌ Do NOT place any buttons at the bottom\n❌ Do NOT split buttons into different rows\n❌ Do NOT change button names\n❌ Do NOT change button icons"
-        ]
-      },
-      "acceptanceCriteria": [
-        "All four buttons (Sort, Clear, Download TXT, Download PDF) render together in the top-right area of the task list CardHeader, in one horizontal row with consistent spacing.",
-        "No action buttons (Sort/Clear/Download TXT/Download PDF) appear anywhere else in the task list card (including the bottom).",
-        "Button text labels and icons match the current ones exactly (no renaming, no icon swap)."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Remove any large/filled background colors within each task card in the Study Planner task list. Task cards must use the neutral/light default card background. Subject color must appear only as a small pill-style Subject badge/tag, and priority must appear only as a small badge (High/Medium/Low). Do not use any full-width colored blocks or bright colored card backgrounds (including orange/green/purple).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "3) TASK CARD COLOR FIX\nREMOVE the large background colors inside task cards.\n\n❌ No full-width colored blocks\n❌ No bright orange / green / purple backgrounds\n\n✔ Keep ONLY:\n- Subject color as a small badge/tag (pill style)\n- Priority badge (High / Medium / Low)\n✔ Task card background must return to neutral / light default"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Each task card container background uses the default neutral/light Card styling (no subject-colored card background and no full-width color fills).",
-        "Subject color is represented only by the existing pill-style SubjectBadge component (or equivalent pill badge), not by card-level background/strips.",
-        "Priority is displayed as a small badge only; no card-level background or emphasis is added based on priority."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Restore the Study Planner task card layout/structure to the original compact layout: checkbox on the left; subject + badges; topic text; duration + date/time in small text; and a delete (trash) icon on the right. Do not introduce redesigned/expanded cards or any additional per-task visual emphasis.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "4) TASK CARD STRUCTURE (RESTORE)\nEach task must look like before:\n- Checkbox on the left\n- Subject + badges\n- Topic text\n- Duration + date/time in small text\n- Delete icon on the right\n\n❌ No redesign\n❌ No card expansion\n❌ No visual emphasis per task"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Each rendered task row/card has a left-aligned checkbox, central content block (subject badge + priority badge + topic + metadata), and a right-aligned delete icon button.",
-        "Topic text appears as the main line of text for the task (not hidden behind expandable UI).",
-        "Duration and optional date/time are shown as smaller, secondary text beneath/near the topic line.",
-        "No expandable/collapsible behavior or additional emphasis styling is added per task."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Apply the global UI constraints for this fix in StudyPlannerPage: do not move the Daily/Weekly toggle, do not change the Add Task form, do not change existing spacing/alignment beyond what is strictly necessary to restore the specified original layout, do not introduce animations, and do not introduce any new styling patterns.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "5) GLOBAL RULES\n- Do NOT move Daily / Weekly toggle\n- Do NOT change Add Task form\n- Do NOT change spacing or alignment\n- Do NOT introduce animations\n- Do NOT introduce new styles"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Daily/Weekly toggle remains in its current location and retains its current appearance/behavior.",
-        "Add Task form fields, labels, ordering, and styling remain unchanged.",
-        "No new animations/transitions are introduced (including on buttons or task cards).",
-        "Any layout adjustments are limited to restoring button placement/grouping and restoring the prior task card structure/colors."
+        "When the Daily tab is selected, a progress bar is visible directly under the \"Your Daily Study Tasks\" heading and above the daily task list.",
+        "Daily progress percent is computed as (completed daily tasks / total daily tasks) × 100 (0% when there are 0 daily tasks).",
+        "The Daily progress bar styling (colors, size, typography, spacing) matches the existing Weekly progress bar exactly.",
+        "Daily progress only reflects Daily tasks; Weekly progress only reflects Weekly tasks; switching tabs updates each independently.",
+        "No existing buttons move position; task card sizes remain unchanged; no spacing/layout shifts occur outside the added Daily progress bar element.",
+        "The Weekly progress bar remains unchanged in appearance and behavior.",
+        "The summary card remains untouched."
       ]
     }
   ],
   "constraints": [
-    "UI correction only: do not change backend logic, frontend business logic, data models, storage/localStorage behavior, sorting behavior, progress calculation, or task functionality.",
-    "Do not remove the progress bar.",
-    "Do not change button names or icons.",
-    "Do not edit immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui/*."
+    "Make no changes other than adding the Daily progress bar.",
+    "Do not move any existing buttons.",
+    "Do not change layout spacing.",
+    "Do not resize task cards.",
+    "Do not affect the Weekly progress bar implementation or UI.",
+    "Do not touch the summary card.",
+    "Do not change colors, fonts, or icons.",
+    "Do not add new sections.",
+    "If any layout shifts or UI breaks, rollback and reapply only this change."
   ],
   "nonGoals": [
-    "Adding new Study Planner features (filters, new exports, new task fields, new views).",
-    "Changing progress calculation or adding interactivity to the progress bar.",
-    "Redesigning the Study Planner page theme or updating global typography/colors."
+    "Backend changes (no Motoko changes required).",
+    "Changing progress bar design or introducing a new progress bar style.",
+    "Adding new dashboard/summary sections or altering existing Study Planner structure."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

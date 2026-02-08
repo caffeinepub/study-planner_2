@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Plus, Trash2, Download, AlertCircle, Info, ArrowUpDown, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { useAddTask, useToggleTaskCompletion, useDeleteTask, useGetStudyTasks, type StudyTask } from '@/hooks/useQueries';
 import { useInternetIdentity } from '@/hooks/useInternetIdentity';
@@ -31,6 +32,7 @@ import {
   clearAllGuestTasks,
   type GuestStudyTask,
 } from '@/utils/studyPlannerGuestStorage';
+import { parseDurationToMinutes, formatMinutesToDuration } from '@/utils/studyPlannerDuration';
 
 type ViewType = 'daily' | 'weekly';
 
@@ -326,6 +328,13 @@ export default function StudyPlannerPage() {
   const totalCount = sortedTasks.length;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
+  // Weekly Summary calculations
+  const pendingCount = totalCount - completedCount;
+  const totalStudyMinutes = sortedTasks.reduce((sum, task) => {
+    return sum + parseDurationToMinutes(task.duration);
+  }, 0);
+  const totalStudyTime = formatMinutesToDuration(totalStudyMinutes);
+
   const taskPanelHeading = currentView === 'daily' ? 'Your Daily Study Tasks' : 'Your Weekly Study Tasks';
 
   return (
@@ -372,7 +381,7 @@ export default function StudyPlannerPage() {
           </button>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
           {/* Add Task Form */}
           <Card className="border-2">
             <CardHeader>
@@ -502,7 +511,7 @@ export default function StudyPlannerPage() {
                 {isSubmitting || addTaskMutation.isPending ? (
                   <>
                     <span className="animate-spin mr-2">⏳</span>
-                    Adding...
+                    Adding Task...
                   </>
                 ) : (
                   <>
@@ -515,160 +524,208 @@ export default function StudyPlannerPage() {
           </Card>
 
           {/* Task List */}
-          <Card className="border-2 flex flex-col">
+          <Card className="border-2">
             <CardHeader>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <CardTitle>{taskPanelHeading}</CardTitle>
-                  <CardDescription>
-                    {sortedTasks.length === 0
-                      ? 'No tasks yet. Add your first task!'
-                      : `${completedCount} of ${totalCount} tasks completed`}
-                  </CardDescription>
-                </div>
+              <div className="flex items-center justify-between">
+                <CardTitle>{taskPanelHeading}</CardTitle>
                 <div className="flex items-center gap-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="icon"
                         onClick={handleSortChange}
+                        className="h-8 w-8"
                       >
                         <ArrowUpDown className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      {sortMode === 'default' ? 'Sort by Date & Time' : 'Sort by Default'}
+                      <p>Sort by Date & Time</p>
                     </TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="icon"
                         onClick={handleClearAllTasks}
+                        className="h-8 w-8"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Clear</TooltipContent>
+                    <TooltipContent>
+                      <p>Clear All Tasks</p>
+                    </TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="icon"
                         onClick={handleDownloadTxt}
+                        className="h-8 w-8"
                       >
                         <FileText className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Download TXT</TooltipContent>
+                    <TooltipContent>
+                      <p>Download TXT</p>
+                    </TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="icon"
                         onClick={handleDownloadPdf}
+                        className="h-8 w-8"
                       >
                         <Download className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Download PDF</TooltipContent>
+                    <TooltipContent>
+                      <p>Download PDF</p>
+                    </TooltipContent>
                   </Tooltip>
                 </div>
               </div>
 
-              {/* Progress Bar */}
-              {totalCount > 0 && (
-                <div className="space-y-2">
+              {/* Progress Bar for Daily View */}
+              {currentView === 'daily' && (
+                <div className="mt-4 space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Progress</span>
-                    <span className="font-medium">{progressPercent}%</span>
+                    <span className="font-semibold text-primary">{progressPercent}%</span>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary transition-all duration-300"
-                      style={{ width: `${progressPercent}%` }}
-                    />
+                  <Progress value={progressPercent} className="h-2" />
+                </div>
+              )}
+
+              {/* Progress Bar for Weekly View */}
+              {currentView === 'weekly' && (
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Progress</span>
+                    <span className="font-semibold text-primary">{progressPercent}%</span>
                   </div>
+                  <Progress value={progressPercent} className="h-2" />
                 </div>
               )}
             </CardHeader>
 
-            <CardContent className="flex-1 overflow-hidden">
-              <div className="max-h-[500px] overflow-y-auto space-y-3 pr-2">
-                {tasksLoading && isAuthenticated ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Loading tasks...
-                  </div>
-                ) : sortedTasks.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>No tasks yet.</p>
-                    <p className="text-sm mt-1">Add your first task to get started!</p>
-                  </div>
-                ) : (
-                  sortedTasks.map((task) => {
+            <CardContent>
+              {tasksLoading && isAuthenticated ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <span className="animate-spin inline-block">⏳</span>
+                  <p className="mt-2">Loading tasks...</p>
+                </div>
+              ) : sortedTasks.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No tasks yet. Add your first task to get started!</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                  {sortedTasks.map((task) => {
                     const taskId = task.id;
-                    const dateTimeStr = formatTaskDateTime(task.date, task.time);
+                    const indicatorColor = getIndicatorColorClass(task.subject);
 
                     return (
-                      <Card key={String(taskId)} className="p-4">
-                        <div className="flex items-start gap-3">
-                          <Checkbox
-                            checked={task.isCompleted}
-                            onCheckedChange={() => handleToggleComplete(taskId)}
-                            className="mt-1"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <SubjectBadge subject={task.subject} />
-                              {task.priority && (
-                                <Badge
-                                  variant={
-                                    task.priority === 'High'
-                                      ? 'destructive'
-                                      : task.priority === 'Medium'
-                                      ? 'default'
-                                      : 'secondary'
-                                  }
-                                  className="text-xs"
+                      <Card key={String(taskId)} className="relative overflow-hidden">
+                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${indicatorColor}`} />
+                        <CardContent className="p-4 pl-5">
+                          <div className="flex items-start gap-3">
+                            <Checkbox
+                              checked={task.isCompleted}
+                              onCheckedChange={() => handleToggleComplete(taskId)}
+                              className="mt-1"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <div className="flex-1 min-w-0">
+                                  <h4
+                                    className={`font-semibold text-sm mb-1 ${
+                                      task.isCompleted ? 'line-through text-muted-foreground' : ''
+                                    }`}
+                                  >
+                                    {task.topic}
+                                  </h4>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <SubjectBadge subject={task.subject} />
+                                    <Badge variant="outline" className="text-xs">
+                                      {task.duration}
+                                    </Badge>
+                                    {task.priority && (
+                                      <Badge
+                                        variant={
+                                          task.priority === 'High'
+                                            ? 'destructive'
+                                            : task.priority === 'Medium'
+                                            ? 'default'
+                                            : 'secondary'
+                                        }
+                                        className="text-xs"
+                                      >
+                                        {task.priority}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {(task.date || task.time) && (
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {formatTaskDateTime(task.date, task.time)}
+                                    </p>
+                                  )}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteTask(taskId)}
+                                  className="h-8 w-8 shrink-0"
                                 >
-                                  {task.priority}
-                                </Badge>
-                              )}
-                            </div>
-                            <p className={`text-sm font-medium ${task.isCompleted ? 'line-through text-muted-foreground' : ''}`}>
-                              {task.topic}
-                            </p>
-                            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                              <span>{task.duration}</span>
-                              {dateTimeStr && (
-                                <>
-                                  <span>•</span>
-                                  <span>{dateTimeStr}</span>
-                                </>
-                              )}
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteTask(taskId)}
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        </CardContent>
                       </Card>
                     );
-                  })
-                )}
-              </div>
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
+
+        {/* Weekly Summary Card */}
+        {currentView === 'weekly' && sortedTasks.length > 0 && (
+          <Card className="mt-6 border-2">
+            <CardHeader>
+              <CardTitle className="text-lg">Weekly Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-4 bg-muted rounded-lg">
+                  <p className="text-2xl font-bold text-primary">{totalCount}</p>
+                  <p className="text-sm text-muted-foreground">Total Tasks</p>
+                </div>
+                <div className="text-center p-4 bg-muted rounded-lg">
+                  <p className="text-2xl font-bold text-green-600">{completedCount}</p>
+                  <p className="text-sm text-muted-foreground">Completed</p>
+                </div>
+                <div className="text-center p-4 bg-muted rounded-lg">
+                  <p className="text-2xl font-bold text-orange-600">{pendingCount}</p>
+                  <p className="text-sm text-muted-foreground">Pending</p>
+                </div>
+                <div className="text-center p-4 bg-muted rounded-lg">
+                  <p className="text-2xl font-bold text-blue-600">{totalStudyTime}</p>
+                  <p className="text-sm text-muted-foreground">Total Time</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </TooltipProvider>
   );
