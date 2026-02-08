@@ -1,0 +1,110 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-keep-the-existing-study-planner-progress-bar-exactly-as-is-do-not-restyle-it-and-do-not-move-it-it-must-remain-directly-below-the-task-panel-heading-text-your-weekly-study-tasks-your-daily-study-tasks-and-directly-above-the-task-list-and-must-keep-showing-the-percentage-text-e-g-38",
+      "featureTitle": "Keep the existing Study Planner progress bar exactly as-is: do not restyle it and do not move it. It must remain directly below the task panel heading text (\"Your Weekly Study Tasks\" / \"Your Daily Study Tasks\") and directly above the task list, and must keep showing the percentage text (e.g., \"38%\").",
+      "files": [
+        "frontend/src/pages/StudyPlannerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-in-the-study-planner-task-list-panel-header-group-all-action-buttons-together-at-the-top-right-in-a-single-row-sort-label-must-remain-exactly-sort-by-date-time-sort-by-default-depending-on-current-mode-clear-download-txt-and-download-pdf-do-not-place-any-of-these-buttons-at-the-bottom-of-the-panel-do-not-split-them-into-multiple-rows-and-do-not-change-button-names-or-icons",
+      "featureTitle": "In the Study Planner task list panel header, group ALL action buttons together at the top-right in a single row: Sort (label must remain exactly \"Sort by Date & Time\" / \"Sort by Default\" depending on current mode), Clear, Download TXT, and Download PDF. Do not place any of these buttons at the bottom of the panel, do not split them into multiple rows, and do not change button names or icons.",
+      "files": [
+        "frontend/src/pages/StudyPlannerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-any-large-filled-background-colors-within-each-task-card-in-the-study-planner-task-list-task-cards-must-use-the-neutral-light-default-card-background-subject-color-must-appear-only-as-a-small-pill-style-subject-badge-tag-and-priority-must-appear-only-as-a-small-badge-high-medium-low-do-not-use-any-full-width-colored-blocks-or-bright-colored-card-backgrounds-including-orange-green-purple",
+      "featureTitle": "Remove any large/filled background colors within each task card in the Study Planner task list. Task cards must use the neutral/light default card background. Subject color must appear only as a small pill-style Subject badge/tag, and priority must appear only as a small badge (High/Medium/Low). Do not use any full-width colored blocks or bright colored card backgrounds (including orange/green/purple).",
+      "files": [
+        "frontend/src/pages/StudyPlannerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-restore-the-study-planner-task-card-layout-structure-to-the-original-compact-layout-checkbox-on-the-left-subject-badges-topic-text-duration-date-time-in-small-text-and-a-delete-trash-icon-on-the-right-do-not-introduce-redesigned-expanded-cards-or-any-additional-per-task-visual-emphasis",
+      "featureTitle": "Restore the Study Planner task card layout/structure to the original compact layout: checkbox on the left; subject + badges; topic text; duration + date/time in small text; and a delete (trash) icon on the right. Do not introduce redesigned/expanded cards or any additional per-task visual emphasis.",
+      "files": [
+        "frontend/src/pages/StudyPlannerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-apply-the-global-ui-constraints-for-this-fix-in-studyplannerpage-do-not-move-the-daily-weekly-toggle-do-not-change-the-add-task-form-do-not-change-existing-spacing-alignment-beyond-what-is-strictly-necessary-to-restore-the-specified-original-layout-do-not-introduce-animations-and-do-not-introduce-any-new-styling-patterns",
+      "featureTitle": "Apply the global UI constraints for this fix in StudyPlannerPage: do not move the Daily/Weekly toggle, do not change the Add Task form, do not change existing spacing/alignment beyond what is strictly necessary to restore the specified original layout, do not introduce animations, and do not introduce any new styling patterns.",
+      "files": [
+        "frontend/src/pages/StudyPlannerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

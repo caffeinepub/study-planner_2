@@ -1,0 +1,89 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Study Planner UI-only restoration (progress bar, header buttons, task cards)",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Preserve the existing progress bar styling and placement directly under the task panel heading and above the task list.",
+      "acceptanceCriteria": [
+        "Progress bar block remains inside the task list panel header area, below the heading/description and above the task list.",
+        "Progress bar visuals (label, percent text, bar height/colors/rounding) are unchanged from the current implementation.",
+        "No other UI element is inserted between the progress bar and the task list."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/StudyPlannerPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the progress bar JSX block remains exactly in its current location (within the task list CardHeader, below the heading/description and above the task list) and keep its existing classes/structure and percentage text rendering unchanged while implementing other header/task-list UI fixes."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Group Sort, Clear, Download TXT, and Download PDF buttons together in a single top-right header row without changing labels or icons.",
+      "acceptanceCriteria": [
+        "All four buttons (Sort, Clear, Download TXT, Download PDF) render together in the top-right area of the task list CardHeader, in one horizontal row with consistent spacing.",
+        "No action buttons (Sort/Clear/Download TXT/Download PDF) appear anywhere else in the task list card (including the bottom).",
+        "Button text labels and icons match the current ones exactly (no renaming, no icon swap)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/StudyPlannerPage.tsx",
+          "operation": "modify",
+          "description": "Update the task list CardHeader layout so all four action buttons (Sort by Date & Time/Sort by Default, Clear, Download TXT, Download PDF) render together at the top-right in one row; remove any duplicated/relocated instances elsewhere in the card; preserve existing button text strings and lucide-react icons exactly as currently used."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Remove any subject/priority-based full-card background colors and keep subject/priority represented only as small badges.",
+      "acceptanceCriteria": [
+        "Each task card container background uses the default neutral/light Card styling (no subject-colored card background and no full-width color fills).",
+        "Subject color is represented only by the existing pill-style SubjectBadge component (or equivalent pill badge), not by card-level background/strips.",
+        "Priority is displayed as a small badge only; no card-level background or emphasis is added based on priority."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/StudyPlannerPage.tsx",
+          "operation": "modify",
+          "description": "Adjust the task item container and any inner wrappers to use the default/neutral Card styling (remove any conditional subjectColor/priority-driven background classes, gradients, or full-width color strips); ensure subject color appears only via the existing SubjectBadge pill and priority appears only as a small badge element (no container background changes)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Restore compact task row structure with left checkbox, central content, and right delete icon (no expanded/extra emphasis).",
+      "acceptanceCriteria": [
+        "Each rendered task row/card has a left-aligned checkbox, central content block (subject badge + priority badge + topic + metadata), and a right-aligned delete icon button.",
+        "Topic text appears as the main line of text for the task (not hidden behind expandable UI).",
+        "Duration and optional date/time are shown as smaller, secondary text beneath/near the topic line.",
+        "No expandable/collapsible behavior or additional emphasis styling is added per task."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/StudyPlannerPage.tsx",
+          "operation": "modify",
+          "description": "Refactor the per-task render markup inside the task list to match the original compact structure: left Checkbox, center block containing SubjectBadge + small priority badge + topic as primary line + duration/date-time as secondary small text, and a right-aligned delete (Trash2) icon button; remove any expanded/re-designed per-task layout elements while keeping all task functionality intact."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Apply global UI constraints: do not move the Daily/Weekly toggle, do not change Add Task form, avoid new styles/animations, and limit spacing changes to necessary restoration.",
+      "acceptanceCriteria": [
+        "Daily/Weekly toggle remains in its current location and retains its current appearance/behavior.",
+        "Add Task form fields, labels, ordering, and styling remain unchanged.",
+        "No new animations/transitions are introduced (including on buttons or task cards).",
+        "Any layout adjustments are limited to restoring button placement/grouping and restoring the prior task card structure/colors."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/StudyPlannerPage.tsx",
+          "operation": "modify",
+          "description": "Constrain all edits to the task list panel header/button row and task item rendering only; explicitly avoid changes to the Daily/Weekly toggle section and the Add Task form; remove/avoid any newly introduced transition/animation classes (keep existing behavior) and keep spacing/alignment changes minimal and only as required to restore the specified original layout."
+        }
+      ]
+    }
+  ]
+}

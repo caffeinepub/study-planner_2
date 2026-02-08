@@ -1,0 +1,81 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-08T04:14:21.567Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 5,
+    "implemented": 5,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Keep the existing Study Planner progress bar exactly as-is: do not restyle it and do not move it. It must remain directly below the task panel heading text (\"Your Weekly Study Tasks\" / \"Your Daily Study Tasks\") and directly above the task list, and must keep showing the percentage text (e.g., \"38%\").",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "In the Study Planner task list panel header, group ALL action buttons together at the top-right in a single row: Sort (label must remain exactly \"Sort by Date & Time\" / \"Sort by Default\" depending on current mode), Clear, Download TXT, and Download PDF. Do not place any of these buttons at the bottom of the panel, do not split them into multiple rows, and do not change button names or icons.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Remove any large/filled background colors within each task card in the Study Planner task list. Task cards must use the neutral/light default card background. Subject color must appear only as a small pill-style Subject badge/tag, and priority must appear only as a small badge (High/Medium/Low). Do not use any full-width colored blocks or bright colored card backgrounds (including orange/green/purple).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Restore the Study Planner task card layout/structure to the original compact layout: checkbox on the left; subject + badges; topic text; duration + date/time in small text; and a delete (trash) icon on the right. Do not introduce redesigned/expanded cards or any additional per-task visual emphasis.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Apply the global UI constraints for this fix in StudyPlannerPage: do not move the Daily/Weekly toggle, do not change the Add Task form, do not change existing spacing/alignment beyond what is strictly necessary to restore the specified original layout, do not introduce animations, and do not introduce any new styling patterns.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/pages/StudyPlannerPage.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

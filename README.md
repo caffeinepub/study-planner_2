@@ -1,2 +1,3 @@
-# study-planner_2
-Exported from Caffeine project: Rollback unintended Study Planner UI regressions and add Weekly Summary card in Weekly mode only
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`
