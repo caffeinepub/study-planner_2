@@ -1,18 +1,51 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T11:08:10.248Z",
+  "generatedAt": "2026-02-08T11:17:34.153Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "In `frontend/src/pages/StudyPlannerPage.tsx`, add a progress bar to the **Daily** view that matches the existing **Weekly** progress bar style exactly, and place it directly under the \"Your Daily Study Tasks\" heading and above the daily task list, without moving any existing buttons or changing spacing/layout elsewhere.",
+        "summary": "In `frontend/src/pages/StudyPlannerPage.tsx`, render the existing Study Planner progress bar UI in the Daily view so it is visible when the Daily tab is active, using the same progress bar component and styling currently used for the Weekly progress bar.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Place the Daily progress bar exactly under the \"Your Daily Study Tasks\" heading and above the daily task list, using the same spacing/margins as the Weekly progress bar placement, without moving or restructuring any other UI elements.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Compute and display the Daily progress percentage using Daily tasks only (completed daily tasks / total daily tasks × 100), and apply the visibility rules: hide the Daily progress bar when there are 0 daily tasks; show the progress bar (including percentage) when there is at least 1 daily task.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "If the Daily progress bar still does not render after binding it to the Daily tab state, add targeted console logging (no UI changes) in `StudyPlannerPage.tsx` to log the render condition inputs (currentView, daily total, daily completed, computed percent) so the condition can be verified in the browser console.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/StudyPlannerPage.tsx"

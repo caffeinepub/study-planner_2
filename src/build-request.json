@@ -1,49 +1,108 @@
 {
   "kind": "build_request",
-  "title": "Add Daily view progress bar in Study Planner (match Weekly)",
-  "priority": "normal",
+  "title": "Fix Daily tab progress bar rendering in Study Planner",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "In `frontend/src/pages/StudyPlannerPage.tsx`, add a progress bar to the **Daily** view that matches the existing **Weekly** progress bar style exactly, and place it directly under the \"Your Daily Study Tasks\" heading and above the daily task list, without moving any existing buttons or changing spacing/layout elsewhere.",
+      "text": "In `frontend/src/pages/StudyPlannerPage.tsx`, render the existing Study Planner progress bar UI in the Daily view so it is visible when the Daily tab is active, using the same progress bar component and styling currently used for the Weekly progress bar.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-4"
         ],
         "quotes": [
-          "ADD DAILY PROGRESS BAR (NO OTHER CHANGES)\n\nGOAL:\nShow progress bar in DAILY view same as WEEKLY view.\n\nWHAT TO ADD:\n1) Add a progress bar in \"Daily\" tab.\n2) Position it EXACTLY under:\n   \"Your Daily Study Tasks\" heading\n   and ABOVE the daily task list.\n3) Progress calculation:\n   (Completed daily tasks / Total daily tasks) × 100\n4) Progress bar style MUST match weekly progress bar.\n\nSTRICT RULES:\n- Do NOT move any existing buttons.\n- Do NOT change layout spacing.\n- Do NOT resize task cards.\n- Do NOT affect weekly progress bar.\n- Do NOT touch summary card.\n- Do NOT change colors, fonts, or icons.\n- Do NOT add new sections.\n\nIMPORTANT:\n- Daily progress shows ONLY daily tasks.\n- Weekly progress shows ONLY weekly tasks.\n- Both must work independently."
+          "FIX: DAILY PROGRESS BAR NOT VISIBLE\n\nPROBLEM:\nDaily progress logic exists but progress bar UI is not rendering\nin Daily tab.\n\nTASK:\nAttach and render the SAME progress bar component for DAILY view.\n\nWHAT TO DO:\n1) Use the existing progress bar component.\n2) Render it inside the \"Your Daily Study Tasks\" section.\n3) Show it ONLY when Daily tab is active.\n4) Calculate progress using DAILY tasks only."
         ]
       },
       "acceptanceCriteria": [
-        "When the Daily tab is selected, a progress bar is visible directly under the \"Your Daily Study Tasks\" heading and above the daily task list.",
-        "Daily progress percent is computed as (completed daily tasks / total daily tasks) × 100 (0% when there are 0 daily tasks).",
-        "The Daily progress bar styling (colors, size, typography, spacing) matches the existing Weekly progress bar exactly.",
-        "Daily progress only reflects Daily tasks; Weekly progress only reflects Weekly tasks; switching tabs updates each independently.",
-        "No existing buttons move position; task card sizes remain unchanged; no spacing/layout shifts occur outside the added Daily progress bar element.",
-        "The Weekly progress bar remains unchanged in appearance and behavior.",
-        "The summary card remains untouched."
+        "When the Daily tab is active, the progress bar is rendered using the same component currently used for the Weekly progress bar (e.g., the existing `Progress` component usage) and visually matches Weekly progress bar styling.",
+        "When the Weekly tab is active, the Weekly progress bar remains unchanged in implementation and appearance.",
+        "The Daily progress bar is not rendered when Weekly tab is active."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Place the Daily progress bar exactly under the \"Your Daily Study Tasks\" heading and above the daily task list, using the same spacing/margins as the Weekly progress bar placement, without moving or restructuring any other UI elements.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "PLACEMENT:\n- Position EXACTLY under:\n  \"Your Daily Study Tasks\" heading\n- Above daily task list\n- Same spacing as weekly progress bar\n\nSTRICT RULES:\n- Do NOT change Weekly progress bar.\n- Do NOT move buttons (sort, download, clear).\n- Do NOT resize task cards.\n- Do NOT add new containers.\n- Do NOT change CSS globally.\n- Do NOT affect layout of left form section.\n\nIMPORTANT:\nThis is a RENDER FIX, not a redesign."
+        ]
+      },
+      "acceptanceCriteria": [
+        "In Daily view, the progress bar appears immediately below the \"Your Daily Study Tasks\" heading and above the first daily task card in the list.",
+        "The action buttons (Sort, Download, Clear) remain in their current positions and are not moved.",
+        "Task card sizing and the left \"Add Study Task\" form layout are unchanged.",
+        "No new wrapper containers are introduced solely to position the progress bar (reuse existing structure).",
+        "No global CSS changes are made (no edits that affect other pages/components)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Compute and display the Daily progress percentage using Daily tasks only (completed daily tasks / total daily tasks × 100), and apply the visibility rules: hide the Daily progress bar when there are 0 daily tasks; show the progress bar (including percentage) when there is at least 1 daily task.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "CONDITIONS:\n- If daily tasks = 0 → hide progress bar\n- If daily tasks > 0 → show progress %"
+        ]
+      },
+      "acceptanceCriteria": [
+        "With 0 tasks in Daily view, no progress bar is rendered in the Daily task panel.",
+        "With N>0 tasks in Daily view, the progress bar is rendered and the percentage equals `round((completedDaily / totalDaily) * 100)` (consistent with existing Weekly behavior).",
+        "Progress updates immediately when daily tasks are checked/unchecked/added/deleted."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "If the Daily progress bar still does not render after binding it to the Daily tab state, add targeted console logging (no UI changes) in `StudyPlannerPage.tsx` to log the render condition inputs (currentView, daily total, daily completed, computed percent) so the condition can be verified in the browser console.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "If Daily progress bar still not visible:\nLOG the render condition and rebind it to Daily tab state."
+        ]
+      },
+      "acceptanceCriteria": [
+        "When running the app and switching to Daily view, the console logs include `currentView` and the values used to decide whether the Daily progress bar should render (daily total/completed/percent).",
+        "Logs are limited to the progress bar render condition and do not introduce new UI elements or modify styling/layout."
       ]
     }
   ],
   "constraints": [
-    "Make no changes other than adding the Daily progress bar.",
-    "Do not move any existing buttons.",
-    "Do not change layout spacing.",
-    "Do not resize task cards.",
-    "Do not affect the Weekly progress bar implementation or UI.",
-    "Do not touch the summary card.",
-    "Do not change colors, fonts, or icons.",
-    "Do not add new sections.",
-    "If any layout shifts or UI breaks, rollback and reapply only this change."
+    "Do not change the Weekly progress bar implementation or behavior.",
+    "Do not move the existing task action buttons (sort, download, clear).",
+    "Do not resize or restyle task cards.",
+    "Do not add new containers for layout restructuring in the task panel.",
+    "Do not change CSS globally (no changes to `frontend/src/index.css`, `frontend/index.css`, or shared theme tokens) as part of this fix.",
+    "Do not affect the layout of the left \"Add Study Task\" form section."
   ],
   "nonGoals": [
-    "Backend changes (no Motoko changes required).",
-    "Changing progress bar design or introducing a new progress bar style.",
-    "Adding new dashboard/summary sections or altering existing Study Planner structure."
+    "Redesigning the Study Planner UI.",
+    "Changing Weekly Summary card behavior or placement.",
+    "Adding new features beyond making the Daily progress bar render correctly.",
+    "Backend changes or schema migrations."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

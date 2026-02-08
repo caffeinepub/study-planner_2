@@ -1,22 +1,46 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Add a Daily view progress bar identical in style to the Weekly progress bar, calculated from daily tasks only, positioned directly under the \"Your Daily Study Tasks\" heading and above the daily task list, with no other UI/layout changes.",
+  "summary": "Study tasks app with Weekly/Daily tabs and progress bars; current focus is fixing Daily tab progress bar rendering using the existing component.",
   "architectural_notes": [
-    "Daily progress calculation must use ONLY daily tasks; Weekly progress calculation must use ONLY weekly tasks; both operate independently.",
-    "Daily progress bar must match Weekly progress bar styling exactly and must not affect Weekly progress bar implementation.",
-    "UI constraints: do not move existing buttons, change spacing, resize task cards, touch summary card, change colors/fonts/icons, or add new sections."
+    "Reuse the existing progress bar component for Daily view; do not modify the Weekly progress bar.",
+    "Daily progress bar render conditions: only when Daily tab is active and dailyTasks.length > 0; compute progress from Daily tasks only.",
+    "UI placement constraint: render directly under 'Your Daily Study Tasks' heading and above the daily task list with the same spacing as the weekly progress bar; avoid new containers and avoid global CSS changes."
   ],
   "known_issues": [
-    "Build/run failed previously with an AI/build error; user requested to retry."
+    "Daily progress bar UI is not rendering/visible in the Daily tab even though daily progress logic exists."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-in-frontend-src-pages-studyplannerpage-tsx-add-a-progress-bar-to-the-daily-view-that-matches-the-existing-weekly-progress-bar-style-exactly-and-place-it-directly-under-the-your-daily-study-tasks-heading-and-above-the-daily-task-list-without-moving-any-existing-buttons-or-changing-spacing-layout-elsewhere",
-      "title": "In `frontend/src/pages/StudyPlannerPage.tsx`, add a progress bar to the **Daily** view that matches the existing **Weekly** progress bar style exactly, and place it directly under the \"Your Daily Study Tasks\" heading and above the daily task list, without moving any existing buttons or changing spacing/layout elsewhere.",
+      "id": "feature-in-frontend-src-pages-studyplannerpage-tsx-render-the-existing-study-planner-progress-bar-ui-in-the-daily-view-so-it-is-visible-when-the-daily-tab-is-active-using-the-same-progress-bar-component-and-styling-currently-used-for-the-weekly-progress-bar",
+      "title": "In `frontend/src/pages/StudyPlannerPage.tsx`, render the existing Study Planner progress bar UI in the Daily view so it is visible when the Daily tab is active, using the same progress bar component and styling currently used for the Weekly progress bar.",
       "reqIds": [
         "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-place-the-daily-progress-bar-exactly-under-the-your-daily-study-tasks-heading-and-above-the-daily-task-list-using-the-same-spacing-margins-as-the-weekly-progress-bar-placement-without-moving-or-restructuring-any-other-ui-elements",
+      "title": "Place the Daily progress bar exactly under the \"Your Daily Study Tasks\" heading and above the daily task list, using the same spacing/margins as the Weekly progress bar placement, without moving or restructuring any other UI elements.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-compute-and-display-the-daily-progress-percentage-using-daily-tasks-only-completed-daily-tasks-total-daily-tasks-100-and-apply-the-visibility-rules-hide-the-daily-progress-bar-when-there-are-0-daily-tasks-show-the-progress-bar-including-percentage-when-there-is-at-least-1-daily-task",
+      "title": "Compute and display the Daily progress percentage using Daily tasks only (completed daily tasks / total daily tasks × 100), and apply the visibility rules: hide the Daily progress bar when there are 0 daily tasks; show the progress bar (including percentage) when there is at least 1 daily task.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-if-the-daily-progress-bar-still-does-not-render-after-binding-it-to-the-daily-tab-state-add-targeted-console-logging-no-ui-changes-in-studyplannerpage-tsx-to-log-the-render-condition-inputs-currentview-daily-total-daily-completed-computed-percent-so-the-condition-can-be-verified-in-the-browser-console",
+      "title": "If the Daily progress bar still does not render after binding it to the Daily tab state, add targeted console logging (no UI changes) in `StudyPlannerPage.tsx` to log the render condition inputs (currentView, daily total, daily completed, computed percent) so the condition can be verified in the browser console.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -24,12 +48,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add a progress bar to the Daily tab (same style as Weekly), placed under \"Your Daily Study Tasks\" and above the daily task list; compute (completed daily tasks / total daily tasks) × 100; Daily and Weekly progress must be independent; no other layout/style changes.",
+      "summary": "Fix: render existing progress bar in Daily tab under 'Your Daily Study Tasks' heading; show only when Daily tab active; compute using daily tasks only; hide when no daily tasks",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Add Daily view progress bar in Study Planner (match Weekly)",
+  "projectName": "Fix Daily tab progress bar rendering in Study Planner",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

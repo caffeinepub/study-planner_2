@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-frontend-src-pages-studyplannerpage-tsx-add-a-progress-bar-to-the-daily-view-that-matches-the-existing-weekly-progress-bar-style-exactly-and-place-it-directly-under-the-your-daily-study-tasks-heading-and-above-the-daily-task-list-without-moving-any-existing-buttons-or-changing-spacing-layout-elsewhere",
-      "featureTitle": "In `frontend/src/pages/StudyPlannerPage.tsx`, add a progress bar to the **Daily** view that matches the existing **Weekly** progress bar style exactly, and place it directly under the \"Your Daily Study Tasks\" heading and above the daily task list, without moving any existing buttons or changing spacing/layout elsewhere.",
+      "featureId": "feature-in-frontend-src-pages-studyplannerpage-tsx-render-the-existing-study-planner-progress-bar-ui-in-the-daily-view-so-it-is-visible-when-the-daily-tab-is-active-using-the-same-progress-bar-component-and-styling-currently-used-for-the-weekly-progress-bar",
+      "featureTitle": "In `frontend/src/pages/StudyPlannerPage.tsx`, render the existing Study Planner progress bar UI in the Daily view so it is visible when the Daily tab is active, using the same progress bar component and styling currently used for the Weekly progress bar.",
       "files": [
         "frontend/src/pages/StudyPlannerPage.tsx"
       ],
@@ -19,6 +19,69 @@
       ],
       "testIds": [
         "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-place-the-daily-progress-bar-exactly-under-the-your-daily-study-tasks-heading-and-above-the-daily-task-list-using-the-same-spacing-margins-as-the-weekly-progress-bar-placement-without-moving-or-restructuring-any-other-ui-elements",
+      "featureTitle": "Place the Daily progress bar exactly under the \"Your Daily Study Tasks\" heading and above the daily task list, using the same spacing/margins as the Weekly progress bar placement, without moving or restructuring any other UI elements.",
+      "files": [
+        "frontend/src/pages/StudyPlannerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-compute-and-display-the-daily-progress-percentage-using-daily-tasks-only-completed-daily-tasks-total-daily-tasks-100-and-apply-the-visibility-rules-hide-the-daily-progress-bar-when-there-are-0-daily-tasks-show-the-progress-bar-including-percentage-when-there-is-at-least-1-daily-task",
+      "featureTitle": "Compute and display the Daily progress percentage using Daily tasks only (completed daily tasks / total daily tasks × 100), and apply the visibility rules: hide the Daily progress bar when there are 0 daily tasks; show the progress bar (including percentage) when there is at least 1 daily task.",
+      "files": [
+        "frontend/src/pages/StudyPlannerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-if-the-daily-progress-bar-still-does-not-render-after-binding-it-to-the-daily-tab-state-add-targeted-console-logging-no-ui-changes-in-studyplannerpage-tsx-to-log-the-render-condition-inputs-currentview-daily-total-daily-completed-computed-percent-so-the-condition-can-be-verified-in-the-browser-console",
+      "featureTitle": "If the Daily progress bar still does not render after binding it to the Daily tab state, add targeted console logging (no UI changes) in `StudyPlannerPage.tsx` to log the render condition inputs (currentView, daily total, daily completed, computed percent) so the condition can be verified in the browser console.",
+      "files": [
+        "frontend/src/pages/StudyPlannerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

@@ -328,6 +328,19 @@ export default function StudyPlannerPage() {
   const totalCount = sortedTasks.length;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
+  // Debug logging for Daily progress bar render condition
+  useEffect(() => {
+    if (currentView === 'daily') {
+      console.log('[Daily Progress Bar Debug]', {
+        currentView,
+        totalCount,
+        completedCount,
+        progressPercent,
+        shouldRender: totalCount > 0,
+      });
+    }
+  }, [currentView, totalCount, completedCount, progressPercent]);
+
   // Weekly Summary calculations
   const pendingCount = totalCount - completedCount;
   const totalStudyMinutes = sortedTasks.reduce((sum, task) => {
@@ -592,23 +605,12 @@ export default function StudyPlannerPage() {
                 </div>
               </div>
 
-              {/* Progress Bar for Daily View */}
-              {currentView === 'daily' && (
+              {/* Progress Bar - Rendered for both Daily and Weekly views */}
+              {totalCount > 0 && (
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Progress</span>
-                    <span className="font-semibold text-primary">{progressPercent}%</span>
-                  </div>
-                  <Progress value={progressPercent} className="h-2" />
-                </div>
-              )}
-
-              {/* Progress Bar for Weekly View */}
-              {currentView === 'weekly' && (
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Progress</span>
-                    <span className="font-semibold text-primary">{progressPercent}%</span>
+                    <span className="font-medium">{progressPercent}%</span>
                   </div>
                   <Progress value={progressPercent} className="h-2" />
                 </div>
@@ -616,20 +618,16 @@ export default function StudyPlannerPage() {
             </CardHeader>
 
             <CardContent>
-              {tasksLoading && isAuthenticated ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <span className="animate-spin inline-block">⏳</span>
-                  <p className="mt-2">Loading tasks...</p>
-                </div>
-              ) : sortedTasks.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>No tasks yet. Add your first task to get started!</p>
-                </div>
-              ) : (
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                  {sortedTasks.map((task) => {
+              <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                {sortedTasks.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No tasks yet. Add your first task to get started!</p>
+                  </div>
+                ) : (
+                  sortedTasks.map((task) => {
                     const taskId = task.id;
                     const indicatorColor = getIndicatorColorClass(task.subject);
+                    const formattedDateTime = formatTaskDateTime(task.date, task.time);
 
                     return (
                       <Card key={String(taskId)} className="relative overflow-hidden">
@@ -642,67 +640,61 @@ export default function StudyPlannerPage() {
                               className="mt-1"
                             />
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2 mb-2">
-                                <div className="flex-1 min-w-0">
-                                  <h4
-                                    className={`font-semibold text-sm mb-1 ${
-                                      task.isCompleted ? 'line-through text-muted-foreground' : ''
-                                    }`}
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <SubjectBadge subject={task.subject} />
+                                {task.priority && (
+                                  <Badge
+                                    variant={
+                                      task.priority === 'High'
+                                        ? 'destructive'
+                                        : task.priority === 'Medium'
+                                        ? 'default'
+                                        : 'secondary'
+                                    }
+                                    className="text-xs"
                                   >
-                                    {task.topic}
-                                  </h4>
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <SubjectBadge subject={task.subject} />
-                                    <Badge variant="outline" className="text-xs">
-                                      {task.duration}
-                                    </Badge>
-                                    {task.priority && (
-                                      <Badge
-                                        variant={
-                                          task.priority === 'High'
-                                            ? 'destructive'
-                                            : task.priority === 'Medium'
-                                            ? 'default'
-                                            : 'secondary'
-                                        }
-                                        className="text-xs"
-                                      >
-                                        {task.priority}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  {(task.date || task.time) && (
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                      {formatTaskDateTime(task.date, task.time)}
-                                    </p>
-                                  )}
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleDeleteTask(taskId)}
-                                  className="h-8 w-8 shrink-0"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                                    {task.priority}
+                                  </Badge>
+                                )}
+                              </div>
+                              <p
+                                className={`font-medium mb-1 ${
+                                  task.isCompleted ? 'line-through text-muted-foreground' : ''
+                                }`}
+                              >
+                                {task.topic}
+                              </p>
+                              <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
+                                <span>⏱️ {task.duration}</span>
+                                {formattedDateTime && (
+                                  <span>📅 {formattedDateTime}</span>
+                                )}
                               </div>
                             </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteTask(taskId)}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
                     );
-                  })}
-                </div>
-              )}
+                  })
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Weekly Summary Card */}
-        {currentView === 'weekly' && sortedTasks.length > 0 && (
+        {/* Weekly Summary Card - Only shown in weekly view */}
+        {currentView === 'weekly' && totalCount > 0 && (
           <Card className="mt-6 border-2">
             <CardHeader>
-              <CardTitle className="text-lg">Weekly Summary</CardTitle>
+              <CardTitle>Weekly Summary</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

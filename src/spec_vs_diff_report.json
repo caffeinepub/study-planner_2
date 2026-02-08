@@ -1,49 +1,80 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T11:08:10.245Z",
-  "summary": "Diff indicates a Daily progress bar was added, but it also suggests multiple additional Study Planner UI/layout changes beyond the requested Daily-only progress bar addition, which violates the stated constraints.",
+  "generatedAt": "2026-02-08T11:17:34.151Z",
+  "summary": "The diff summary does not provide enough concrete code evidence (due to truncation) to verify that the Daily progress bar is rendered/placed/computed per requirements or that targeted console logging was added. Additionally, the included file summary text indicates multiple UI/behavior changes beyond the requested Daily progress bar fix.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Make no changes other than adding the Daily progress bar; do not move any existing buttons; do not change layout spacing; do not resize task cards; do not affect the Weekly progress bar; do not touch the summary card.",
-      "reason": "The diff summary text describes additional UI/layout changes (e.g., regrouping action buttons, changing task card styling, adding/changing a Weekly Summary Card, layout grid tweaks) which indicates changes beyond only adding the Daily progress bar.",
+      "requirement": "Render the existing Study Planner progress bar UI in the Daily view (only when Daily tab active) using the same Progress component/styling as Weekly, without changing Weekly behavior.",
+      "reason": "The provided StudyPlannerPage.tsx snippet is truncated before any progress bar render logic; it only shows imports/state/filtering and does not evidence conditional rendering tied to the Daily tab nor preservation of Weekly behavior.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "frontend/src/pages/StudyPlannerPage.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Place the Daily progress bar exactly under the 'Your Daily Study Tasks' heading and above the daily task list, matching Weekly spacing, without moving buttons/cards/layout or adding new positioning wrappers.",
+      "reason": "No JSX/markup around the 'Your Daily Study Tasks' heading or task list is visible in the truncated diff, so placement, spacing, and non-movement constraints cannot be verified.",
+      "evidence": [
+        "frontend/src/pages/StudyPlannerPage.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Compute Daily progress using Daily tasks only and hide the bar when there are 0 Daily tasks; show with rounded percent when N>0; update immediately on task changes.",
+      "reason": "The diff snippet does not show the daily/weekly progress calculations, render condition (daily total > 0), or percentage rounding, so the computation and visibility rules cannot be confirmed.",
+      "evidence": [
+        "frontend/src/pages/StudyPlannerPage.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "If still not rendering, add targeted console logging in StudyPlannerPage.tsx to log currentView, daily total, daily completed, computed percent (no UI changes).",
+      "reason": "No console logging statements are visible in the truncated StudyPlannerPage.tsx diff excerpt, so this requirement cannot be verified as implemented.",
+      "evidence": [
+        "frontend/src/pages/StudyPlannerPage.tsx (truncated)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Regrouping/moving action buttons (Sort/Clear/Download TXT/PDF) into a top-right grouped header area.",
-      "reason": "Not requested; request explicitly constrained to only add the Daily progress bar and not move existing buttons.",
+      "description": "Re-grouping/moving task action buttons (Sort/Clear/Download) to the top-right of the task list header.",
+      "reason": "The BuildRequest explicitly forbids moving the existing task action buttons; the modified file summary claims the buttons are grouped together at the top-right.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
     },
     {
-      "description": "Task card styling changes (neutral/light default Card styling; subject color represented only by a pill-style SubjectBadge; priority shown as small Badge components).",
-      "reason": "Not requested; request explicitly forbids changing colors/fonts/icons and resizing task cards or altering layout outside the added progress bar element.",
+      "description": "Restyling task cards (e.g., neutral/light default Card styling; subject color only via small pill SubjectBadge; priority as small Badge components).",
+      "reason": "The BuildRequest forbids resizing/restyling task cards; the modified file summary describes card styling changes.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
     },
     {
-      "description": "Weekly Summary Card behavior/UI being present/modified (\"Weekly Summary Card displayed only in weekly mode below the task list\" with computed totals).",
-      "reason": "Not requested; request explicitly says not to touch the summary card.",
+      "description": "Changing the two-column grid layout behavior via `lg:items-start` to prevent the left 'Add Study Task' form from stretching.",
+      "reason": "The BuildRequest forbids affecting the layout of the left 'Add Study Task' form section; the file summary describes a layout change impacting that section.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
     },
     {
-      "description": "Layout grid change using `lg:items-start` to prevent the left form from stretching vertically.",
-      "reason": "Not requested; request explicitly forbids layout/spacing shifts outside inserting the Daily progress bar element.",
+      "description": "Extending duration options up to 6 hours.",
+      "reason": "Not requested as part of the Daily progress bar rendering fix; the file summary claims duration options were extended.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Adding/altering a fixed-height scrollable task list container (max-h-[500px] with overflow-y-auto).",
+      "reason": "Not requested and may constitute layout restructuring in the task panel, which the BuildRequest disallows; the file summary claims such a container exists/was introduced.",
       "evidence": [
         "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.58,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/src/pages/StudyPlannerPage.tsx",
