@@ -17,6 +17,7 @@ import { useStudyPlannerSort } from '@/hooks/useStudyPlannerSort';
 import { useStudyPlannerSubjectFilter } from '@/hooks/useStudyPlannerSubjectFilter';
 import { SubjectBadge } from '@/components/studyPlanner/SubjectBadge';
 import { SubjectFilterDropdown } from '@/components/studyPlanner/SubjectFilterDropdown';
+import { ProgressChartsSection } from '@/components/studyPlanner/ProgressChartsSection';
 import { getPersistedSubjectColor, getIndicatorColorClass } from '@/utils/subjectColorMapping';
 import { exportTasksToPdf } from '@/utils/studyPlannerPdfExport';
 import { exportTasksToTxt } from '@/utils/studyPlannerTxtExport';
@@ -135,6 +136,11 @@ export default function StudyPlannerPage() {
       .map(([subject, count]) => ({ subject, count }))
       .sort((a, b) => a.subject.localeCompare(b.subject));
   }, [filteredTasks]);
+
+  // Extract unique subjects from subjectCounts
+  const uniqueSubjects = useMemo(() => {
+    return subjectCounts.map(sc => sc.subject);
+  }, [subjectCounts]);
 
   // View toggle handler
   const handleViewChange = (view: ViewType) => {
@@ -506,7 +512,17 @@ export default function StudyPlannerPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="taskDate">Date (optional)</Label>
+                  <Label htmlFor="taskDate" className="flex items-center gap-2">
+                    Date
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Optional: Set a specific date for this task</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <Input
                     id="taskDate"
                     type="date"
@@ -516,7 +532,17 @@ export default function StudyPlannerPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="taskTime">Time (optional)</Label>
+                  <Label htmlFor="taskTime" className="flex items-center gap-2">
+                    Time
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Optional: Set a specific time for this task</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
                   <Input
                     id="taskTime"
                     type="time"
@@ -531,7 +557,7 @@ export default function StudyPlannerPage() {
                 className="w-full"
                 disabled={isSubmitting || addTaskMutation.isPending}
               >
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="h-4 w-4 mr-2" />
                 {isSubmitting || addTaskMutation.isPending ? 'Adding...' : 'Add Task'}
               </Button>
             </CardContent>
@@ -540,206 +566,217 @@ export default function StudyPlannerPage() {
           {/* Task List */}
           <Card className="border-2">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                {taskPanelHeading}
-              </CardTitle>
-              <CardDescription>
-                {totalCount === 0
-                  ? 'No tasks yet. Add your first task!'
-                  : `${completedCount} of ${totalCount} tasks completed`}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Progress Bar */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Progress</span>
-                  <span className="font-medium">{progressPercent}%</span>
-                </div>
-                <Progress value={progressPercent} className="h-2" />
-              </div>
-
-              {/* Action Buttons Row */}
-              <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  {taskPanelHeading}
+                </CardTitle>
                 <div className="flex items-center gap-2">
-                  <Label className="text-sm font-medium">Filter:</Label>
                   <SubjectFilterDropdown
-                    subjects={SUBJECTS}
+                    subjects={uniqueSubjects}
                     subjectCounts={subjectCounts}
                     selectedSubject={subjectFilter}
                     onSelectSubject={setSubjectFilter}
                   />
-                </div>
-                <div className="flex items-center gap-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="icon"
                         onClick={handleSortChange}
+                        className="h-8 w-8"
                       >
                         <ArrowUpDown className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Sort by Date & Time</p>
+                      <p>{sortMode === 'default' ? 'Sort by date & time' : 'Sort by creation order'}</p>
                     </TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
-                        size="sm"
-                        onClick={handleClearAllTasks}
-                        disabled={totalCount === 0}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Clear All Tasks</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
+                        size="icon"
                         onClick={handleDownloadTxt}
-                        disabled={totalCount === 0}
+                        className="h-8 w-8"
                       >
                         <FileText className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Download TXT</p>
+                      <p>Download as TXT</p>
                     </TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="icon"
                         onClick={handleDownloadPdf}
-                        disabled={totalCount === 0}
+                        className="h-8 w-8"
                       >
                         <Download className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Download PDF</p>
+                      <p>Download as PDF</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleClearAllTasks}
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Clear all tasks</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
               </div>
+              <CardDescription>
+                {totalCount === 0
+                  ? 'No tasks yet. Add your first task above!'
+                  : `${completedCount} of ${totalCount} tasks completed`}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Progress Bar */}
+              {totalCount > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Progress</span>
+                    <span className="font-medium">{progressPercent}%</span>
+                  </div>
+                  <Progress value={progressPercent} className="h-2" />
+                </div>
+              )}
 
               {/* Task Cards */}
-              <div className="max-h-[500px] overflow-y-auto space-y-3 pr-2">
-                {tasksLoading && isAuthenticated ? (
+              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                {sortedTasks.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    Loading tasks...
-                  </div>
-                ) : sortedTasks.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    {subjectFilter
-                      ? `No ${subjectFilter} tasks found. Try a different filter or add a new task.`
-                      : 'No tasks yet. Add your first task to get started!'}
+                    <p>No tasks to display</p>
+                    {subjectFilter && (
+                      <p className="text-sm mt-2">
+                        Try clearing the subject filter
+                      </p>
+                    )}
                   </div>
                 ) : (
                   sortedTasks.map((task) => {
-                    const taskId = task.id;
+                    const taskId = typeof task.id === 'bigint' ? task.id : BigInt(task.id);
                     const indicatorColor = getIndicatorColorClass(task.subject);
 
                     return (
-                      <Card key={String(taskId)} className="relative overflow-hidden">
-                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${indicatorColor}`} />
-                        <CardContent className="p-4 pl-5">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <div
+                        key={taskId.toString()}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          task.isCompleted
+                            ? 'bg-muted/50 border-muted'
+                            : 'bg-card border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`w-1 h-full rounded-full ${indicatorColor} flex-shrink-0`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <SubjectBadge subject={task.subject} />
+                                {task.priority && (
+                                  <Badge
+                                    variant="outline"
+                                    className={`text-xs ${
+                                      task.priority === 'High'
+                                        ? 'border-red-500 text-red-700 dark:text-red-400'
+                                        : task.priority === 'Medium'
+                                        ? 'border-yellow-500 text-yellow-700 dark:text-yellow-400'
+                                        : 'border-green-500 text-green-700 dark:text-green-400'
+                                    }`}
+                                  >
+                                    {task.priority}
+                                  </Badge>
+                                )}
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDeleteTask(taskId)}
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive flex-shrink-0"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <h3
+                              className={`font-medium mb-1 ${
+                                task.isCompleted ? 'line-through text-muted-foreground' : ''
+                              }`}
+                            >
+                              {task.topic}
+                            </h3>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                              <span>{task.duration}</span>
+                              {(task.date || task.time) && (
+                                <span>{formatTaskDateTime(task.date, task.time)}</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
                               <Checkbox
+                                id={`task-${taskId}`}
                                 checked={task.isCompleted}
                                 onCheckedChange={() => handleToggleComplete(taskId)}
-                                className="mt-1"
                               />
-                              <div className="flex-1 min-w-0 space-y-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <SubjectBadge subject={task.subject} />
-                                  {task.priority && (
-                                    <Badge
-                                      variant={
-                                        task.priority === 'High'
-                                          ? 'destructive'
-                                          : task.priority === 'Medium'
-                                          ? 'default'
-                                          : 'secondary'
-                                      }
-                                      className="text-xs"
-                                    >
-                                      {task.priority}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p
-                                  className={`font-medium ${
-                                    task.isCompleted ? 'line-through text-muted-foreground' : ''
-                                  }`}
-                                >
-                                  {task.topic}
-                                </p>
-                                <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
-                                  <span>⏱️ {task.duration}</span>
-                                  {(task.date || task.time) && (
-                                    <span>📅 {formatTaskDateTime(task.date, task.time)}</span>
-                                  )}
-                                </div>
-                              </div>
+                              <Label
+                                htmlFor={`task-${taskId}`}
+                                className="text-sm cursor-pointer"
+                              >
+                                {task.isCompleted ? 'Completed' : 'Mark as complete'}
+                              </Label>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteTask(taskId)}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </div>
                     );
                   })
                 )}
               </div>
-
-              {/* Weekly Summary Card */}
-              {totalCount > 0 && (
-                <Card className="bg-muted/50 border-2">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Summary</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Total Tasks</p>
-                        <p className="text-lg font-semibold">{totalCount}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Completed</p>
-                        <p className="text-lg font-semibold text-green-600">{completedCount}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Pending</p>
-                        <p className="text-lg font-semibold text-orange-600">{pendingCount}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Study Time</p>
-                        <p className="text-lg font-semibold">{totalStudyTime}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </CardContent>
           </Card>
+        </div>
+
+        {/* Summary Section */}
+        <div className="mt-6">
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle>Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/50 dark:border-blue-800/30">
+                  <div className="text-3xl font-bold text-blue-700 dark:text-blue-400">{totalCount}</div>
+                  <div className="text-sm text-blue-600 dark:text-blue-500 mt-1">Total Tasks</div>
+                </div>
+                <div className="p-4 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200/50 dark:border-green-800/30">
+                  <div className="text-3xl font-bold text-green-700 dark:text-green-400">{completedCount}</div>
+                  <div className="text-sm text-green-600 dark:text-green-500 mt-1">Completed</div>
+                </div>
+                <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200/50 dark:border-purple-800/30">
+                  <div className="text-3xl font-bold text-purple-700 dark:text-purple-400">{totalStudyTime}</div>
+                  <div className="text-sm text-purple-600 dark:text-purple-500 mt-1">Total Study Time</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Progress Charts Section */}
+        <div className="mt-6">
+          <ProgressChartsSection tasks={filteredTasks} viewType={currentView} />
         </div>
       </div>
     </TooltipProvider>

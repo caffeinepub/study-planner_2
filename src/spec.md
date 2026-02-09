@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Improve the Study Planner subject filter by persisting the last selected subject per view (Daily vs Weekly) and enhancing the dropdown with in-menu search and per-mode subject task counts, without any layout changes.
+**Goal:** Add an add-only “Progress Charts” section to the Study Planner page that shows Daily and Weekly progress charts derived from existing task data.
 
 **Planned changes:**
-- Persist the selected subject filter to localStorage when changed, using separate saved values for Daily and Weekly views.
-- Restore and apply the saved subject filter on page load and when switching between Daily ↔ Weekly, initializing filter state synchronously from localStorage to avoid flicker.
-- Enhance the existing subject filter dropdown content to include an in-dropdown search input that filters subjects by name as the user types.
-- Display each subject option label with the task count for the currently active mode, formatted like `Math (5)`, without increasing dropdown width or changing page layout.
+- Add a new UI section titled exactly "Progress Charts" rendered strictly below the existing Summary section, without modifying any existing UI elements.
+- In Daily mode, display a compact chart (donut or bar) for completed vs pending tasks for today, plus a highlighted total study time value calculated from existing task durations.
+- In Weekly mode, display a Mon–Sun chart with 7 labeled buckets showing daily study hours computed from existing tasks’ durations and completion status.
+- Ensure charts auto-update immediately as tasks are added, deleted, cleared, or completion is toggled, using only existing frontend task state (guest/local utilities or already-fetched authenticated tasks) with no new backend work and no new storage for chart data.
 
-**User-visible outcome:** The subject filter remembers your last selection separately for Daily and Weekly views (including after refresh), and the dropdown lets you search subjects and see mode-accurate task counts next to each subject name—all without any layout shifts.
+**User-visible outcome:** The Study Planner page includes a new "Progress Charts" section below Summary that shows an automatically updating Daily completed-vs-pending + total study time view and a Weekly Mon–Sun study-hours chart, without any changes to the rest of the planner UI.

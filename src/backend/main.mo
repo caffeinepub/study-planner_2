@@ -11,8 +11,6 @@ import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 
-
-
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -90,8 +88,8 @@ actor {
     viewType : ?StudyPlannerView;
     subjectColor : ?Text;
     created : Time.Time;
-    date : ?Time.Time; // Added date field
-    time : ?OptionalTime; // Added time field
+    date : ?Time.Time;
+    time : ?OptionalTime;
   };
 
   type StudyPlannerView = {
@@ -108,6 +106,7 @@ actor {
   let featureRequests = Map.empty<FeatureRequestId, FeatureRequest>();
 
   public shared ({ caller }) func submitFeatureRequest(message : Text, email : ?Text) : async () {
+    // No authorization check - any user including guests can submit feature requests
     let id = nextFeatureRequestId;
     nextFeatureRequestId += 1;
 
@@ -164,6 +163,7 @@ actor {
   };
 
   public query ({ caller }) func getAllAnnouncements() : async [Announcement] {
+    // No authorization check - any user including guests can view announcements
     announcements.values().toArray();
   };
 
@@ -284,10 +284,12 @@ actor {
   };
 
   public query ({ caller }) func getAssignment(id : AssignmentId) : async ?Assignment {
+    // No authorization check - any user including guests can view assignments
     assignments.get(id);
   };
 
   public query ({ caller }) func getAllAssignments() : async [Assignment] {
+    // No authorization check - any user including guests can view assignments
     assignments.values().toArray();
   };
 
@@ -301,6 +303,9 @@ actor {
   let userTasks = Map.empty<Principal, List.List<StudyTask>>();
 
   public shared ({ caller }) func setView(view : StudyPlannerView) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can set view preferences");
+    };
     userViewPreferences.add(caller, view);
   };
 
@@ -314,6 +319,9 @@ actor {
     date : ?Time.Time,
     time : ?OptionalTime,
   ) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can add tasks");
+    };
     validateTaskFields(subject, topic, duration);
 
     let newTask : StudyTask = {
@@ -347,6 +355,9 @@ actor {
   };
 
   public shared ({ caller }) func toggleTaskCompletion(taskId : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can toggle task completion");
+    };
     let existingTasks = switch (userTasks.get(caller)) {
       case (null) { Runtime.trap("No tasks found for this user") };
       case (?tasks) { tasks };
@@ -370,6 +381,9 @@ actor {
   };
 
   public query ({ caller }) func getTaskCount() : async Nat {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get task count");
+    };
     switch (userTasks.get(caller)) {
       case (null) { 0 };
       case (?tasks) { tasks.size() };
@@ -377,6 +391,9 @@ actor {
   };
 
   public shared ({ caller }) func deleteTask(taskId : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete tasks");
+    };
     let existingTasks = switch (userTasks.get(caller)) {
       case (null) { Runtime.trap("No tasks found for this user") };
       case (?tasks) { tasks };
@@ -392,6 +409,9 @@ actor {
   };
 
   public shared ({ caller }) func undoLastTask() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can undo tasks");
+    };
     let existingTasks = switch (userTasks.get(caller)) {
       case (null) { Runtime.trap("No tasks found for this user") };
       case (?tasks) { tasks };
@@ -420,6 +440,9 @@ actor {
   };
 
   public shared ({ caller }) func dragDropReorder(newOrder : [Nat]) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can reorder tasks");
+    };
     let existingTasks = switch (userTasks.get(caller)) {
       case (null) { Runtime.trap("No tasks found for this user") };
       case (?tasks) {
@@ -472,6 +495,9 @@ actor {
     date : ?Time.Time,
     time : ?OptionalTime,
   ) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update tasks");
+    };
     validateTaskFields(subject, topic, duration);
 
     switch (userTasks.get(caller)) {
@@ -541,6 +567,9 @@ actor {
   };
 
   public query ({ caller }) func getTasks() : async [StudyTaskPublic] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get tasks");
+    };
     switch (userTasks.get(caller)) {
       case (null) { [] };
       case (?tasks) {
@@ -566,6 +595,9 @@ actor {
   };
 
   public query ({ caller }) func getFilteredTasks(view : ?StudyPlannerView) : async [StudyTaskPublic] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get filtered tasks");
+    };
     switch (userTasks.get(caller)) {
       case (null) { [] };
       case (?tasks) {

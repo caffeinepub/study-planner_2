@@ -1,28 +1,43 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Task tracking UI with Daily/Weekly views; improve the existing subject-wise filter non-disruptively (no layout/structure changes) with persistence, in-dropdown search, and per-mode subject task counts.",
+  "summary": "Study task app: add an ADD-ONLY \"Progress Charts\" section below the existing Summary section, supporting Daily and Weekly toggles, using existing local task data and auto-updating when tasks change, without modifying any existing UI elements.",
   "architectural_notes": [
-    "Strict non-disruptive scope: do not modify UI layout/grid/spacing/card sizes/section positions; do not move progress bar/summary/task list; do not add new sections/wrappers—only enhance filter behavior/controls.",
-    "Subject filter selection must persist independently for Daily and Weekly modes.",
-    "Filtering UX must be instant/smooth with no flicker or re-render jumps; existing task list rendering logic must remain unchanged."
+    "ADD-ONLY UI change: do not modify/move/resize/redesign any existing UI elements (Add Study Task form, task cards, buttons, Summary section); only append a new \"Progress Charts\" section below Summary.",
+    "Charts must compute from existing local task data only (no backend/login/new storage) and auto-update when tasks are added/completed."
   ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-persist-and-restore-the-last-selected-subject-filter-in-the-study-planner-task-list-using-localstorage-without-changing-any-existing-layout-structure-details-when-a-user-selects-a-subject-in-the-subject-wise-filter-dropdown-task-list-filter-save-it-to-localstorage-on-page-reload-restore-and-apply-the-saved-subject-filter-when-switching-daily-weekly-views-automatically-restore-and-apply-the-last-selected-subject-for-the-newly-active-view-daily-and-weekly-must-persist-independently-e-g-separate-storage-keys-per-view-if-no-saved-subject-exists-for-a-view-keep-the-current-default-behavior-unchanged-initialize-the-filter-state-synchronously-from-storage-like-usestudyplannerview-to-avoid-flicker-re-render-jumps",
-      "title": "Persist and restore the last selected subject filter in the Study Planner task list, using localStorage, without changing any existing layout/structure.\n\nDetails:\n- When a user selects a subject in the subject-wise filter dropdown (task list filter), save it to localStorage.\n- On page reload, restore and apply the saved subject filter.\n- When switching Daily ↔ Weekly views, automatically restore and apply the last selected subject for the newly active view.\n- Daily and Weekly must persist independently (e.g., separate storage keys per view).\n- If no saved subject exists for a view, keep the current default behavior unchanged.\n- Initialize the filter state synchronously from storage (like `useStudyPlannerView`) to avoid flicker/re-render jumps.",
+      "id": "feature-add-a-new-ui-section-titled-progress-charts-to-the-study-planner-page-that-is-rendered-strictly-below-the-existing-summary-section-without-changing-moving-resizing-restyling-or-otherwise-modifying-any-existing-ui-elements-including-the-add-study-task-form-task-cards-buttons-like-download-sort-clear-and-the-existing-summary-section",
+      "title": "Add a new UI section titled \"Progress Charts\" to the Study Planner page that is rendered strictly below the existing Summary section, without changing, moving, resizing, restyling, or otherwise modifying any existing UI elements (including the Add Study Task form, task cards, buttons like download/sort/clear, and the existing Summary section).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-enhance-the-existing-subject-wise-filter-dropdown-in-the-study-planner-task-list-to-support-in-dropdown-search-and-show-per-subject-task-counts-without-increasing-dropdown-width-or-changing-layout-details-add-a-search-input-inside-the-dropdown-content-that-filters-the-subject-options-by-name-as-the-user-types-render-each-subject-option-with-a-count-badge-in-the-label-formatted-exactly-like-math-5-task-counts-must-reflect-the-currently-active-mode-daily-or-weekly-i-e-computed-from-the-tasks-belonging-to-the-active-view-filtering-interactions-must-feel-instant-and-smooth-with-no-flicker-keep-the-existing-task-list-rendering-logic-unchanged-only-enhance-the-filter-control-and-how-it-selects-applies-the-filter",
-      "title": "Enhance the existing subject-wise filter dropdown in the Study Planner task list to support in-dropdown search and show per-subject task counts, without increasing dropdown width or changing layout.\n\nDetails:\n- Add a search input inside the dropdown content that filters the subject options by name as the user types.\n- Render each subject option with a count badge in the label, formatted exactly like: `Math (5)`.\n- Task counts must reflect the currently active mode (Daily or Weekly), i.e., computed from the tasks belonging to the active view.\n- Filtering interactions must feel instant and smooth, with no flicker.\n- Keep the existing task list rendering logic unchanged (only enhance the filter control and how it selects/applies the filter).",
+      "id": "feature-implement-daily-mode-progress-visualization-in-the-progress-charts-section-using-only-the-already-available-in-memory-local-task-data-for-the-active-view-show-completed-vs-pending-tasks-and-show-total-study-time-for-the-day-using-a-clean-compact-chart-donut-or-bar-with-soft-non-distracting-colorful-accents-similar-to-the-existing-summary-cards-and-visually-highlighted-numbers-labels",
+      "title": "Implement Daily-mode progress visualization in the \"Progress Charts\" section using only the already-available in-memory/local task data for the active view: show completed vs pending tasks and show total study time for the day, using a clean compact chart (donut or bar) with soft, non-distracting colorful accents similar to the existing Summary cards, and visually highlighted numbers/labels.",
       "reqIds": [
         "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-weekly-mode-progress-visualization-in-the-progress-charts-section-show-a-mon-sun-weekly-chart-that-visualizes-daily-study-hours-calculated-from-existing-task-durations-and-completion-status-and-ensure-the-section-automatically-updates-when-tasks-change",
+      "title": "Implement Weekly-mode progress visualization in the \"Progress Charts\" section: show a Mon–Sun weekly chart that visualizes daily study hours calculated from existing task durations and completion status, and ensure the section automatically updates when tasks change.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-new-charts-derive-only-from-existing-frontend-task-state-guest-tasks-from-localstorage-utilities-or-authenticated-tasks-already-fetched-for-the-active-view-and-do-not-introduce-any-new-backend-methods-login-requirements-or-new-persisted-storage-for-charting",
+      "title": "Ensure the new charts derive only from existing frontend task state (guest tasks from localStorage utilities or authenticated tasks already fetched for the active view) and do not introduce any new backend methods, login requirements, or new persisted storage for charting.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -30,18 +45,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Persist and restore last selected subject filter per mode (Daily vs Weekly) using local storage (or equivalent), applying it on reload and when switching views without changing layout.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Enhance subject filter dropdown with in-dropdown search and display subject task counts (per active mode) without affecting dropdown width/layout; keep filtering instant with no flicker and no changes to task list rendering logic.",
+      "summary": "Add new \"Progress Charts\" section below Summary with Daily (completed vs pending + total study time) and Weekly (Mon–Sun study hours) charts using existing local task data; auto-updates; must not modify/move/resize any existing UI.",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Study Planner: Persist subject filter per view + add in-dropdown search and per-mode task counts (no layout changes)",
+  "projectName": "Add an add-only “Progress Charts” section below Summary in Study Planner (Daily + Weekly)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

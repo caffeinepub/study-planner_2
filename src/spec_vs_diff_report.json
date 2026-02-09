@@ -1,33 +1,42 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T15:57:38.715Z",
-  "summary": "Diff adds a per-view (Daily/Weekly) localStorage-backed subject filter hook with synchronous initialization, and introduces a new SubjectFilterDropdown component that includes an in-dropdown search input and appears to support per-subject counts via provided props. However, the diff summary is truncated, so some REQ-2 specifics (exact label formatting and per-mode count computation wiring in StudyPlannerPage) cannot be fully verified from the provided evidence.",
+  "generatedAt": "2026-02-09T03:39:28.932Z",
+  "summary": "The diff adds new frontend components for a \"Progress Charts\" section with Daily and Weekly charts, and integrates the section into StudyPlannerPage. However, the backend (Motoko) was modified despite REQ-4 explicitly requiring no backend changes, and the Weekly chart implementation does not clearly incorporate completion status as required.",
   "missing_requirements": [
     {
-      "id": "REQ-2",
-      "requirement": "Render each subject option with a count in the label formatted exactly like: `Math (5)`, with counts reflecting the currently active mode (Daily or Weekly).",
-      "reason": "SubjectFilterDropdown accepts `subjectCounts` and looks up counts, but the truncated diff does not show the actual option label string rendering (e.g., `Subject (count)`) nor the StudyPlannerPage logic that computes `subjectCounts` from tasks for the active view.",
+      "id": "REQ-3",
+      "requirement": "Weekly-mode progress visualization should calculate daily study hours using existing task durations and completion status.",
+      "reason": "WeeklyProgressChart sums durations for tasks within the current week but does not reference task completion status (e.g., isCompleted) at all, so the required completion-status-based calculation is not implemented (or at least not evidenced).",
       "evidence": [
-        "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx (truncated)",
-        "frontend/src/pages/StudyPlannerPage.tsx (truncated)"
+        "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "No changes are made to the Motoko backend to support these charts (charts must derive only from existing frontend task state; no new backend methods/storage).",
+      "reason": "The diff includes modifications to backend/main.mo, which violates the explicit acceptance criterion that no backend changes are made for this feature.",
+      "evidence": [
+        "backend/main.mo"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Adds an empty-search-results message (`No subjects found`) inside the dropdown.",
-      "reason": "REQ-2 requests in-dropdown search and per-subject task counts but does not request a dedicated empty state message.",
+      "description": "Backend (Motoko) changes unrelated to the requested frontend-only Progress Charts addition.",
+      "reason": "The BuildRequest explicitly forbids backend changes for this feature (REQ-4), but backend/main.mo was modified.",
       "evidence": [
-        "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx"
+        "backend/main.mo"
       ]
     }
   ],
-  "confidence": 0.6,
+  "confidence": 0.72,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx",
-    "frontend/src/hooks/useStudyPlannerSubjectFilter.ts",
+    "frontend/src/components/studyPlanner/DailyProgressChart.tsx",
+    "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
+    "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx",
     "frontend/src/pages/StudyPlannerPage.tsx",
     "project_state.json"
   ]

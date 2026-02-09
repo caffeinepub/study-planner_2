@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-persist-and-restore-the-last-selected-subject-filter-in-the-study-planner-task-list-using-localstorage-without-changing-any-existing-layout-structure-details-when-a-user-selects-a-subject-in-the-subject-wise-filter-dropdown-task-list-filter-save-it-to-localstorage-on-page-reload-restore-and-apply-the-saved-subject-filter-when-switching-daily-weekly-views-automatically-restore-and-apply-the-last-selected-subject-for-the-newly-active-view-daily-and-weekly-must-persist-independently-e-g-separate-storage-keys-per-view-if-no-saved-subject-exists-for-a-view-keep-the-current-default-behavior-unchanged-initialize-the-filter-state-synchronously-from-storage-like-usestudyplannerview-to-avoid-flicker-re-render-jumps",
-      "featureTitle": "Persist and restore the last selected subject filter in the Study Planner task list, using localStorage, without changing any existing layout/structure.\n\nDetails:\n- When a user selects a subject in the subject-wise filter dropdown (task list filter), save it to localStorage.\n- On page reload, restore and apply the saved subject filter.\n- When switching Daily ↔ Weekly views, automatically restore and apply the last selected subject for the newly active view.\n- Daily and Weekly must persist independently (e.g., separate storage keys per view).\n- If no saved subject exists for a view, keep the current default behavior unchanged.\n- Initialize the filter state synchronously from storage (like `useStudyPlannerView`) to avoid flicker/re-render jumps.",
+      "featureId": "feature-add-a-new-ui-section-titled-progress-charts-to-the-study-planner-page-that-is-rendered-strictly-below-the-existing-summary-section-without-changing-moving-resizing-restyling-or-otherwise-modifying-any-existing-ui-elements-including-the-add-study-task-form-task-cards-buttons-like-download-sort-clear-and-the-existing-summary-section",
+      "featureTitle": "Add a new UI section titled \"Progress Charts\" to the Study Planner page that is rendered strictly below the existing Summary section, without changing, moving, resizing, restyling, or otherwise modifying any existing UI elements (including the Add Study Task form, task cards, buttons like download/sort/clear, and the existing Summary section).",
       "files": [
-        "frontend/src/hooks/useStudyPlannerSubjectFilter.ts",
+        "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
         "frontend/src/pages/StudyPlannerPage.tsx"
       ],
       "components": [
@@ -24,11 +24,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-enhance-the-existing-subject-wise-filter-dropdown-in-the-study-planner-task-list-to-support-in-dropdown-search-and-show-per-subject-task-counts-without-increasing-dropdown-width-or-changing-layout-details-add-a-search-input-inside-the-dropdown-content-that-filters-the-subject-options-by-name-as-the-user-types-render-each-subject-option-with-a-count-badge-in-the-label-formatted-exactly-like-math-5-task-counts-must-reflect-the-currently-active-mode-daily-or-weekly-i-e-computed-from-the-tasks-belonging-to-the-active-view-filtering-interactions-must-feel-instant-and-smooth-with-no-flicker-keep-the-existing-task-list-rendering-logic-unchanged-only-enhance-the-filter-control-and-how-it-selects-applies-the-filter",
-      "featureTitle": "Enhance the existing subject-wise filter dropdown in the Study Planner task list to support in-dropdown search and show per-subject task counts, without increasing dropdown width or changing layout.\n\nDetails:\n- Add a search input inside the dropdown content that filters the subject options by name as the user types.\n- Render each subject option with a count badge in the label, formatted exactly like: `Math (5)`.\n- Task counts must reflect the currently active mode (Daily or Weekly), i.e., computed from the tasks belonging to the active view.\n- Filtering interactions must feel instant and smooth, with no flicker.\n- Keep the existing task list rendering logic unchanged (only enhance the filter control and how it selects/applies the filter).",
+      "featureId": "feature-implement-daily-mode-progress-visualization-in-the-progress-charts-section-using-only-the-already-available-in-memory-local-task-data-for-the-active-view-show-completed-vs-pending-tasks-and-show-total-study-time-for-the-day-using-a-clean-compact-chart-donut-or-bar-with-soft-non-distracting-colorful-accents-similar-to-the-existing-summary-cards-and-visually-highlighted-numbers-labels",
+      "featureTitle": "Implement Daily-mode progress visualization in the \"Progress Charts\" section using only the already-available in-memory/local task data for the active view: show completed vs pending tasks and show total study time for the day, using a clean compact chart (donut or bar) with soft, non-distracting colorful accents similar to the existing Summary cards, and visually highlighted numbers/labels.",
       "files": [
-        "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx",
-        "frontend/src/pages/StudyPlannerPage.tsx"
+        "frontend/src/components/studyPlanner/DailyProgressChart.tsx",
+        "frontend/src/components/studyPlanner/ProgressChartsSection.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -42,6 +42,50 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-weekly-mode-progress-visualization-in-the-progress-charts-section-show-a-mon-sun-weekly-chart-that-visualizes-daily-study-hours-calculated-from-existing-task-durations-and-completion-status-and-ensure-the-section-automatically-updates-when-tasks-change",
+      "featureTitle": "Implement Weekly-mode progress visualization in the \"Progress Charts\" section: show a Mon–Sun weekly chart that visualizes daily study hours calculated from existing task durations and completion status, and ensure the section automatically updates when tasks change.",
+      "files": [
+        "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
+        "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-new-charts-derive-only-from-existing-frontend-task-state-guest-tasks-from-localstorage-utilities-or-authenticated-tasks-already-fetched-for-the-active-view-and-do-not-introduce-any-new-backend-methods-login-requirements-or-new-persisted-storage-for-charting",
+      "featureTitle": "Ensure the new charts derive only from existing frontend task state (guest tasks from localStorage utilities or authenticated tasks already fetched for the active view) and do not introduce any new backend methods, login requirements, or new persisted storage for charting.",
+      "files": [
+        "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
+        "frontend/src/pages/StudyPlannerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

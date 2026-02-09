@@ -1,50 +1,78 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T15:57:38.719Z",
+  "generatedAt": "2026-02-09T03:39:28.935Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Persist and restore the last selected subject filter in the Study Planner task list, using localStorage, without changing any existing layout/structure.\n\nDetails:\n- When a user selects a subject in the subject-wise filter dropdown (task list filter), save it to localStorage.\n- On page reload, restore and apply the saved subject filter.\n- When switching Daily ↔ Weekly views, automatically restore and apply the last selected subject for the newly active view.\n- Daily and Weekly must persist independently (e.g., separate storage keys per view).\n- If no saved subject exists for a view, keep the current default behavior unchanged.\n- Initialize the filter state synchronously from storage (like `useStudyPlannerView`) to avoid flicker/re-render jumps.",
+        "summary": "Add a new UI section titled \"Progress Charts\" to the Study Planner page that is rendered strictly below the existing Summary section, without changing, moving, resizing, restyling, or otherwise modifying any existing UI elements (including the Add Study Task form, task cards, buttons like download/sort/clear, and the existing Summary section).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useStudyPlannerSubjectFilter.ts",
+          "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
           "frontend/src/pages/StudyPlannerPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useStudyPlannerSubjectFilter.ts",
+          "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
           "frontend/src/pages/StudyPlannerPage.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Enhance the existing subject-wise filter dropdown in the Study Planner task list to support in-dropdown search and show per-subject task counts, without increasing dropdown width or changing layout.\n\nDetails:\n- Add a search input inside the dropdown content that filters the subject options by name as the user types.\n- Render each subject option with a count badge in the label, formatted exactly like: `Math (5)`.\n- Task counts must reflect the currently active mode (Daily or Weekly), i.e., computed from the tasks belonging to the active view.\n- Filtering interactions must feel instant and smooth, with no flicker.\n- Keep the existing task list rendering logic unchanged (only enhance the filter control and how it selects/applies the filter).",
+        "summary": "Implement Daily-mode progress visualization in the \"Progress Charts\" section using only the already-available in-memory/local task data for the active view: show completed vs pending tasks and show total study time for the day, using a clean compact chart (donut or bar) with soft, non-distracting colorful accents similar to the existing Summary cards, and visually highlighted numbers/labels.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx",
-          "frontend/src/pages/StudyPlannerPage.tsx"
+          "frontend/src/components/studyPlanner/DailyProgressChart.tsx",
+          "frontend/src/components/studyPlanner/ProgressChartsSection.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx",
-          "frontend/src/pages/StudyPlannerPage.tsx"
+          "frontend/src/components/studyPlanner/DailyProgressChart.tsx",
+          "frontend/src/components/studyPlanner/ProgressChartsSection.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Implement Weekly-mode progress visualization in the \"Progress Charts\" section: show a Mon–Sun weekly chart that visualizes daily study hours calculated from existing task durations and completion status, and ensure the section automatically updates when tasks change.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx",
+          "frontend/src/components/studyPlanner/ProgressChartsSection.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx",
+          "frontend/src/components/studyPlanner/ProgressChartsSection.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Ensure the new charts derive only from existing frontend task state (guest tasks from localStorage utilities or authenticated tasks already fetched for the active view) and do not introduce any new backend methods, login requirements, or new persisted storage for charting.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx",
+          "frontend/src/components/studyPlanner/ProgressChartsSection.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StudyPlannerPage.tsx",
+          "frontend/src/components/studyPlanner/ProgressChartsSection.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx",
-    "frontend/src/hooks/useStudyPlannerSubjectFilter.ts",
+    "frontend/src/components/studyPlanner/DailyProgressChart.tsx",
+    "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
+    "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx",
     "frontend/src/pages/StudyPlannerPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
