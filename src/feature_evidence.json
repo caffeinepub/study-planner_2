@@ -2,9 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-frontend-src-pages-studyplannerpage-tsx-render-the-existing-study-planner-progress-bar-ui-in-the-daily-view-so-it-is-visible-when-the-daily-tab-is-active-using-the-same-progress-bar-component-and-styling-currently-used-for-the-weekly-progress-bar",
-      "featureTitle": "In `frontend/src/pages/StudyPlannerPage.tsx`, render the existing Study Planner progress bar UI in the Daily view so it is visible when the Daily tab is active, using the same progress bar component and styling currently used for the Weekly progress bar.",
+      "featureId": "feature-persist-and-restore-the-last-selected-subject-filter-in-the-study-planner-task-list-using-localstorage-without-changing-any-existing-layout-structure-details-when-a-user-selects-a-subject-in-the-subject-wise-filter-dropdown-task-list-filter-save-it-to-localstorage-on-page-reload-restore-and-apply-the-saved-subject-filter-when-switching-daily-weekly-views-automatically-restore-and-apply-the-last-selected-subject-for-the-newly-active-view-daily-and-weekly-must-persist-independently-e-g-separate-storage-keys-per-view-if-no-saved-subject-exists-for-a-view-keep-the-current-default-behavior-unchanged-initialize-the-filter-state-synchronously-from-storage-like-usestudyplannerview-to-avoid-flicker-re-render-jumps",
+      "featureTitle": "Persist and restore the last selected subject filter in the Study Planner task list, using localStorage, without changing any existing layout/structure.\n\nDetails:\n- When a user selects a subject in the subject-wise filter dropdown (task list filter), save it to localStorage.\n- On page reload, restore and apply the saved subject filter.\n- When switching Daily ↔ Weekly views, automatically restore and apply the last selected subject for the newly active view.\n- Daily and Weekly must persist independently (e.g., separate storage keys per view).\n- If no saved subject exists for a view, keep the current default behavior unchanged.\n- Initialize the filter state synchronously from storage (like `useStudyPlannerView`) to avoid flicker/re-render jumps.",
       "files": [
+        "frontend/src/hooks/useStudyPlannerSubjectFilter.ts",
         "frontend/src/pages/StudyPlannerPage.tsx"
       ],
       "components": [
@@ -23,9 +24,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-place-the-daily-progress-bar-exactly-under-the-your-daily-study-tasks-heading-and-above-the-daily-task-list-using-the-same-spacing-margins-as-the-weekly-progress-bar-placement-without-moving-or-restructuring-any-other-ui-elements",
-      "featureTitle": "Place the Daily progress bar exactly under the \"Your Daily Study Tasks\" heading and above the daily task list, using the same spacing/margins as the Weekly progress bar placement, without moving or restructuring any other UI elements.",
+      "featureId": "feature-enhance-the-existing-subject-wise-filter-dropdown-in-the-study-planner-task-list-to-support-in-dropdown-search-and-show-per-subject-task-counts-without-increasing-dropdown-width-or-changing-layout-details-add-a-search-input-inside-the-dropdown-content-that-filters-the-subject-options-by-name-as-the-user-types-render-each-subject-option-with-a-count-badge-in-the-label-formatted-exactly-like-math-5-task-counts-must-reflect-the-currently-active-mode-daily-or-weekly-i-e-computed-from-the-tasks-belonging-to-the-active-view-filtering-interactions-must-feel-instant-and-smooth-with-no-flicker-keep-the-existing-task-list-rendering-logic-unchanged-only-enhance-the-filter-control-and-how-it-selects-applies-the-filter",
+      "featureTitle": "Enhance the existing subject-wise filter dropdown in the Study Planner task list to support in-dropdown search and show per-subject task counts, without increasing dropdown width or changing layout.\n\nDetails:\n- Add a search input inside the dropdown content that filters the subject options by name as the user types.\n- Render each subject option with a count badge in the label, formatted exactly like: `Math (5)`.\n- Task counts must reflect the currently active mode (Daily or Weekly), i.e., computed from the tasks belonging to the active view.\n- Filtering interactions must feel instant and smooth, with no flicker.\n- Keep the existing task list rendering logic unchanged (only enhance the filter control and how it selects/applies the filter).",
       "files": [
+        "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx",
         "frontend/src/pages/StudyPlannerPage.tsx"
       ],
       "components": [
@@ -40,48 +42,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-compute-and-display-the-daily-progress-percentage-using-daily-tasks-only-completed-daily-tasks-total-daily-tasks-100-and-apply-the-visibility-rules-hide-the-daily-progress-bar-when-there-are-0-daily-tasks-show-the-progress-bar-including-percentage-when-there-is-at-least-1-daily-task",
-      "featureTitle": "Compute and display the Daily progress percentage using Daily tasks only (completed daily tasks / total daily tasks × 100), and apply the visibility rules: hide the Daily progress bar when there are 0 daily tasks; show the progress bar (including percentage) when there is at least 1 daily task.",
-      "files": [
-        "frontend/src/pages/StudyPlannerPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "camera@1.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-if-the-daily-progress-bar-still-does-not-render-after-binding-it-to-the-daily-tab-state-add-targeted-console-logging-no-ui-changes-in-studyplannerpage-tsx-to-log-the-render-condition-inputs-currentview-daily-total-daily-completed-computed-percent-so-the-condition-can-be-verified-in-the-browser-console",
-      "featureTitle": "If the Daily progress bar still does not render after binding it to the Daily tab state, add targeted console logging (no UI changes) in `StudyPlannerPage.tsx` to log the render condition inputs (currentView, daily total, daily completed, computed percent) so the condition can be verified in the browser console.",
-      "files": [
-        "frontend/src/pages/StudyPlannerPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "camera@1.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

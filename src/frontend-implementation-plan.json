@@ -1,70 +1,51 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Study Planner Daily tab progress bar rendering",
+  "title": "Study Planner: per-view persisted subject filter + searchable subject dropdown with per-mode counts",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Render the same existing Study Planner progress bar UI in the Daily view when the Daily tab is active, matching the Weekly progress bar component and styling.",
+      "summary": "Persist and restore the task-list subject filter independently for Daily and Weekly views using synchronous localStorage initialization to avoid flicker, without changing layout.",
       "acceptanceCriteria": [
-        "When the Daily tab is active, the progress bar is rendered using the same component currently used for the Weekly progress bar (e.g., the existing `Progress` component usage) and visually matches Weekly progress bar styling.",
-        "When the Weekly tab is active, the Weekly progress bar remains unchanged in implementation and appearance.",
-        "The Daily progress bar is not rendered when Weekly tab is active."
+        "Selecting a subject in Daily view, switching to Weekly and back to Daily keeps the Daily subject selection unchanged and applied.",
+        "Selecting a subject in Weekly view, switching to Daily and back to Weekly keeps the Weekly subject selection unchanged and applied.",
+        "Refreshing the page restores the previously selected subject filter for the currently active view (Daily or Weekly).",
+        "No visual flicker or layout shift occurs when restoring the saved subject filter (state initialized from localStorage synchronously).",
+        "No changes to grid, spacing, card sizes, or section positions (progress bar, summary cards, and task list remain exactly where they are)."
       ],
       "file_operations": [
         {
+          "path": "frontend/src/hooks/useStudyPlannerSubjectFilter.ts",
+          "operation": "create",
+          "description": "Create a dedicated hook that mirrors the synchronous localStorage initialization pattern used by useStudyPlannerView, but for the Study Planner task-list subject filter; store Daily and Weekly selections independently via separate storage keys and expose a simple API keyed by the active view to support instant restore on view switch (no flicker)."
+        },
+        {
           "path": "frontend/src/pages/StudyPlannerPage.tsx",
           "operation": "modify",
-          "description": "Add conditional rendering for a Daily progress bar inside the Daily task panel when `currentView === 'daily'`, reusing the existing shadcn-ui `Progress` component (already used for Weekly). Ensure the Weekly progress bar code path remains unchanged. Verify the component's usage instructions before implementing."
+          "description": "Wire the new per-view subject-filter persistence into the existing Study Planner task list filter: (1) initialize subject filter state synchronously from localStorage for the active view, (2) persist updates on selection changes, (3) on Daily↔Weekly switch, restore and apply the last subject selection for the newly active view, and (4) apply the selected subject filter to the existing task list filtering pipeline without altering any layout/structure or task card rendering logic."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Place the Daily progress bar directly under the \"Your Daily Study Tasks\" heading and above the daily task list with identical spacing to the Weekly progress bar placement, without moving other UI elements or introducing new layout wrappers.",
+      "summary": "Enhance the existing task-list subject filter dropdown with in-dropdown search and per-subject task counts for the active mode (Daily/Weekly) while keeping dropdown width and page layout unchanged.",
       "acceptanceCriteria": [
-        "In Daily view, the progress bar appears immediately below the \"Your Daily Study Tasks\" heading and above the first daily task card in the list.",
-        "The action buttons (Sort, Download, Clear) remain in their current positions and are not moved.",
-        "Task card sizing and the left \"Add Study Task\" form layout are unchanged.",
-        "No new wrapper containers are introduced solely to position the progress bar (reuse existing structure).",
-        "No global CSS changes are made (no edits that affect other pages/components)."
+        "Opening the subject filter dropdown shows a search input within the dropdown content.",
+        "Typing in the search input filters the visible subject options by name without changing dropdown width or causing layout shift.",
+        "Each subject option displays the subject name plus the correct task count for the currently active view (Daily or Weekly) in the option label (e.g., `Physics (2)`).",
+        "Switching Daily ↔ Weekly updates the counts shown in the dropdown to match the active view.",
+        "No changes to the positioning of the progress bar, summary cards, or task list; no new page sections/wrappers are introduced."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/StudyPlannerPage.tsx",
-          "operation": "modify",
-          "description": "Insert the Daily progress bar markup immediately below the existing task panel heading (the `CardTitle` showing \"Your Daily Study Tasks\") and above the mapped daily task list, mirroring the Weekly progress bar spacing/margins by reusing the same className(s)/structure already used for Weekly. Do not move the existing action buttons block or restructure the header layout. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Compute and display Daily progress percentage from Daily tasks only and apply visibility rules (hide for 0 daily tasks; show for at least 1).",
-      "acceptanceCriteria": [
-        "With 0 tasks in Daily view, no progress bar is rendered in the Daily task panel.",
-        "With N>0 tasks in Daily view, the progress bar is rendered and the percentage equals `round((completedDaily / totalDaily) * 100)` (consistent with existing Weekly behavior).",
-        "Progress updates immediately when daily tasks are checked/unchecked/added/deleted."
-      ],
-      "file_operations": [
+          "path": "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx",
+          "operation": "create",
+          "description": "Implement a focused subject-filter dropdown component that preserves the current trigger sizing/width while adding (a) an input inside the dropdown content for searching subjects by name and (b) option labels that include active-mode task counts formatted exactly as `Subject (N)`. Use shadcn-ui primitives (e.g., Select/Popover/Command/Input as appropriate) to keep styling consistent; verify the component's usage instructions before implementing."
+        },
         {
           "path": "frontend/src/pages/StudyPlannerPage.tsx",
           "operation": "modify",
-          "description": "Ensure Daily progress values are derived strictly from the Daily task collection (the tasks displayed in Daily view): compute `dailyTotal`, `dailyCompleted`, and `dailyPercent = Math.round((dailyCompleted / dailyTotal) * 100)`; render the progress bar (and percentage text if present for Weekly) only when `currentView === 'daily' && dailyTotal > 0`. Keep Weekly calculations/behavior unchanged and ensure updates naturally re-render on task mutations."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Add targeted console logging for Daily progress bar render-condition inputs to debug visibility without any UI changes.",
-      "acceptanceCriteria": [
-        "When running the app and switching to Daily view, the console logs include `currentView` and the values used to decide whether the Daily progress bar should render (daily total/completed/percent).",
-        "Logs are limited to the progress bar render condition and do not introduce new UI elements or modify styling/layout."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/StudyPlannerPage.tsx",
-          "operation": "modify",
-          "description": "Add minimal, targeted `console.log`/`console.debug` statements near the Daily progress bar conditional render (or in a small effect keyed to `currentView` and the daily progress inputs) to log: `currentView`, `dailyTotal`, `dailyCompleted`, and `dailyPercent`. Avoid any UI/styling changes and keep logs scoped to the Daily progress bar condition."
+          "description": "Replace/enhance the existing task-list subject filter control by wiring in SubjectFilterDropdown while keeping the surrounding markup, spacing, and widths unchanged: compute per-subject counts from the tasks belonging to the currently active view (Daily/Weekly), pass counts + current selection + selection handler to the dropdown, and ensure search/filter interactions are instant with no flicker; verify the component's usage instructions before implementing."
         }
       ]
     }

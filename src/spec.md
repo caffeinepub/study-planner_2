@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the Study Planner so the Daily tab shows the same progress bar UI as Weekly, correctly reflecting Daily-task completion.
+**Goal:** Improve the Study Planner subject filter by persisting the last selected subject per view (Daily vs Weekly) and enhancing the dropdown with in-menu search and per-mode subject task counts, without any layout changes.
 
 **Planned changes:**
-- In `frontend/src/pages/StudyPlannerPage.tsx`, render the existing progress bar component in the Daily view, visible only when the Daily tab is active and matching the Weekly progress bar styling.
-- Place the Daily progress bar directly under the "Your Daily Study Tasks" heading and above the daily task list, using the same spacing/margins as the Weekly progress bar placement, without moving other UI elements.
-- Compute Daily progress from Daily tasks only and hide the progress bar when there are 0 daily tasks; show it (with percentage) when there is at least 1 daily task.
-- If the Daily progress bar still does not render after binding to Daily tab state, add targeted console logging in `StudyPlannerPage.tsx` for `currentView`, daily totals/completed, and computed percent (no UI/styling changes).
+- Persist the selected subject filter to localStorage when changed, using separate saved values for Daily and Weekly views.
+- Restore and apply the saved subject filter on page load and when switching between Daily ↔ Weekly, initializing filter state synchronously from localStorage to avoid flicker.
+- Enhance the existing subject filter dropdown content to include an in-dropdown search input that filters subjects by name as the user types.
+- Display each subject option label with the task count for the currently active mode, formatted like `Math (5)`, without increasing dropdown width or changing page layout.
 
-**User-visible outcome:** When the Daily tab is active and there is at least one daily task, users see a progress bar under "Your Daily Study Tasks" showing Daily completion percentage; Weekly view remains unchanged.
+**User-visible outcome:** The subject filter remembers your last selection separately for Daily and Weekly views (including after refresh), and the dropdown lets you search subjects and see mode-accurate task counts next to each subject name—all without any layout shifts.

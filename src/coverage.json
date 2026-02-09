@@ -1,56 +1,38 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T11:17:34.153Z",
+  "generatedAt": "2026-02-08T15:57:38.719Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "In `frontend/src/pages/StudyPlannerPage.tsx`, render the existing Study Planner progress bar UI in the Daily view so it is visible when the Daily tab is active, using the same progress bar component and styling currently used for the Weekly progress bar.",
+        "summary": "Persist and restore the last selected subject filter in the Study Planner task list, using localStorage, without changing any existing layout/structure.\n\nDetails:\n- When a user selects a subject in the subject-wise filter dropdown (task list filter), save it to localStorage.\n- On page reload, restore and apply the saved subject filter.\n- When switching Daily ↔ Weekly views, automatically restore and apply the last selected subject for the newly active view.\n- Daily and Weekly must persist independently (e.g., separate storage keys per view).\n- If no saved subject exists for a view, keep the current default behavior unchanged.\n- Initialize the filter state synchronously from storage (like `useStudyPlannerView`) to avoid flicker/re-render jumps.",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/hooks/useStudyPlannerSubjectFilter.ts",
           "frontend/src/pages/StudyPlannerPage.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/hooks/useStudyPlannerSubjectFilter.ts",
           "frontend/src/pages/StudyPlannerPage.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Place the Daily progress bar exactly under the \"Your Daily Study Tasks\" heading and above the daily task list, using the same spacing/margins as the Weekly progress bar placement, without moving or restructuring any other UI elements.",
+        "summary": "Enhance the existing subject-wise filter dropdown in the Study Planner task list to support in-dropdown search and show per-subject task counts, without increasing dropdown width or changing layout.\n\nDetails:\n- Add a search input inside the dropdown content that filters the subject options by name as the user types.\n- Render each subject option with a count badge in the label, formatted exactly like: `Math (5)`.\n- Task counts must reflect the currently active mode (Daily or Weekly), i.e., computed from the tasks belonging to the active view.\n- Filtering interactions must feel instant and smooth, with no flicker.\n- Keep the existing task list rendering logic unchanged (only enhance the filter control and how it selects/applies the filter).",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx",
           "frontend/src/pages/StudyPlannerPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/StudyPlannerPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Compute and display the Daily progress percentage using Daily tasks only (completed daily tasks / total daily tasks × 100), and apply the visibility rules: hide the Daily progress bar when there are 0 daily tasks; show the progress bar (including percentage) when there is at least 1 daily task.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/StudyPlannerPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/StudyPlannerPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "If the Daily progress bar still does not render after binding it to the Daily tab state, add targeted console logging (no UI changes) in `StudyPlannerPage.tsx` to log the render condition inputs (currentView, daily total, daily completed, computed percent) so the condition can be verified in the browser console.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/StudyPlannerPage.tsx"
-        ],
-        "matchedFiles": [
+          "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx",
           "frontend/src/pages/StudyPlannerPage.tsx"
         ]
       }
@@ -61,6 +43,8 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/components/studyPlanner/SubjectFilterDropdown.tsx",
+    "frontend/src/hooks/useStudyPlannerSubjectFilter.ts",
     "frontend/src/pages/StudyPlannerPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",

@@ -1,108 +1,63 @@
 {
   "kind": "build_request",
-  "title": "Fix Daily tab progress bar rendering in Study Planner",
-  "priority": "high",
+  "title": "Study Planner: Persist subject filter per view + add in-dropdown search and per-mode task counts (no layout changes)",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "In `frontend/src/pages/StudyPlannerPage.tsx`, render the existing Study Planner progress bar UI in the Daily view so it is visible when the Daily tab is active, using the same progress bar component and styling currently used for the Weekly progress bar.",
+      "text": "Persist and restore the last selected subject filter in the Study Planner task list, using localStorage, without changing any existing layout/structure.\n\nDetails:\n- When a user selects a subject in the subject-wise filter dropdown (task list filter), save it to localStorage.\n- On page reload, restore and apply the saved subject filter.\n- When switching Daily ↔ Weekly views, automatically restore and apply the last selected subject for the newly active view.\n- Daily and Weekly must persist independently (e.g., separate storage keys per view).\n- If no saved subject exists for a view, keep the current default behavior unchanged.\n- Initialize the filter state synchronously from storage (like `useStudyPlannerView`) to avoid flicker/re-render jumps.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "FIX: DAILY PROGRESS BAR NOT VISIBLE\n\nPROBLEM:\nDaily progress logic exists but progress bar UI is not rendering\nin Daily tab.\n\nTASK:\nAttach and render the SAME progress bar component for DAILY view.\n\nWHAT TO DO:\n1) Use the existing progress bar component.\n2) Render it inside the \"Your Daily Study Tasks\" section.\n3) Show it ONLY when Daily tab is active.\n4) Calculate progress using DAILY tasks only."
+          "REMEMBER LAST SELECTED SUBJECT FILTER\n   - When a user selects a subject from the filter dropdown,\n     store the selected value in local storage (or equivalent persistent state)\n   - On page reload OR when switching between Daily ↔ Weekly views,\n     automatically restore and apply the last selected subject\n   - If no subject was previously selected, default behavior remains unchanged\n   - This must work independently for Daily and Weekly modes if applicable"
         ]
       },
       "acceptanceCriteria": [
-        "When the Daily tab is active, the progress bar is rendered using the same component currently used for the Weekly progress bar (e.g., the existing `Progress` component usage) and visually matches Weekly progress bar styling.",
-        "When the Weekly tab is active, the Weekly progress bar remains unchanged in implementation and appearance.",
-        "The Daily progress bar is not rendered when Weekly tab is active."
+        "Selecting a subject in Daily view, switching to Weekly and back to Daily keeps the Daily subject selection unchanged and applied.",
+        "Selecting a subject in Weekly view, switching to Daily and back to Weekly keeps the Weekly subject selection unchanged and applied.",
+        "Refreshing the page restores the previously selected subject filter for the currently active view (Daily or Weekly).",
+        "No visual flicker or layout shift occurs when restoring the saved subject filter (state initialized from localStorage synchronously).",
+        "No changes to grid, spacing, card sizes, or section positions (progress bar, summary cards, and task list remain exactly where they are)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Place the Daily progress bar exactly under the \"Your Daily Study Tasks\" heading and above the daily task list, using the same spacing/margins as the Weekly progress bar placement, without moving or restructuring any other UI elements.",
+      "text": "Enhance the existing subject-wise filter dropdown in the Study Planner task list to support in-dropdown search and show per-subject task counts, without increasing dropdown width or changing layout.\n\nDetails:\n- Add a search input inside the dropdown content that filters the subject options by name as the user types.\n- Render each subject option with a count badge in the label, formatted exactly like: `Math (5)`.\n- Task counts must reflect the currently active mode (Daily or Weekly), i.e., computed from the tasks belonging to the active view.\n- Filtering interactions must feel instant and smooth, with no flicker.\n- Keep the existing task list rendering logic unchanged (only enhance the filter control and how it selects/applies the filter).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "PLACEMENT:\n- Position EXACTLY under:\n  \"Your Daily Study Tasks\" heading\n- Above daily task list\n- Same spacing as weekly progress bar\n\nSTRICT RULES:\n- Do NOT change Weekly progress bar.\n- Do NOT move buttons (sort, download, clear).\n- Do NOT resize task cards.\n- Do NOT add new containers.\n- Do NOT change CSS globally.\n- Do NOT affect layout of left form section.\n\nIMPORTANT:\nThis is a RENDER FIX, not a redesign."
+          "2. SEARCH + SUBJECT COUNT IN FILTER DROPDOWN\n   - Add a search input inside the subject filter dropdown\n     to allow users to quickly search subjects by name\n   - Display subject names with task count badges, e.g.:\n       Math (5)\n       Physics (2)\n   - Counts must reflect the currently active mode (Daily or Weekly)\n   - This enhancement must not increase dropdown width or affect layout\n\nUX RULES:\n- Filtering must feel instant and smooth\n- No visual flicker or re-render jumps\n- Existing task list rendering logic must remain unchanged"
         ]
       },
       "acceptanceCriteria": [
-        "In Daily view, the progress bar appears immediately below the \"Your Daily Study Tasks\" heading and above the first daily task card in the list.",
-        "The action buttons (Sort, Download, Clear) remain in their current positions and are not moved.",
-        "Task card sizing and the left \"Add Study Task\" form layout are unchanged.",
-        "No new wrapper containers are introduced solely to position the progress bar (reuse existing structure).",
-        "No global CSS changes are made (no edits that affect other pages/components)."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Compute and display the Daily progress percentage using Daily tasks only (completed daily tasks / total daily tasks × 100), and apply the visibility rules: hide the Daily progress bar when there are 0 daily tasks; show the progress bar (including percentage) when there is at least 1 daily task.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "CONDITIONS:\n- If daily tasks = 0 → hide progress bar\n- If daily tasks > 0 → show progress %"
-        ]
-      },
-      "acceptanceCriteria": [
-        "With 0 tasks in Daily view, no progress bar is rendered in the Daily task panel.",
-        "With N>0 tasks in Daily view, the progress bar is rendered and the percentage equals `round((completedDaily / totalDaily) * 100)` (consistent with existing Weekly behavior).",
-        "Progress updates immediately when daily tasks are checked/unchecked/added/deleted."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "If the Daily progress bar still does not render after binding it to the Daily tab state, add targeted console logging (no UI changes) in `StudyPlannerPage.tsx` to log the render condition inputs (currentView, daily total, daily completed, computed percent) so the condition can be verified in the browser console.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "If Daily progress bar still not visible:\nLOG the render condition and rebind it to Daily tab state."
-        ]
-      },
-      "acceptanceCriteria": [
-        "When running the app and switching to Daily view, the console logs include `currentView` and the values used to decide whether the Daily progress bar should render (daily total/completed/percent).",
-        "Logs are limited to the progress bar render condition and do not introduce new UI elements or modify styling/layout."
+        "Opening the subject filter dropdown shows a search input within the dropdown content.",
+        "Typing in the search input filters the visible subject options by name without changing dropdown width or causing layout shift.",
+        "Each subject option displays the subject name plus the correct task count for the currently active view (Daily or Weekly) in the option label (e.g., `Physics (2)`).",
+        "Switching Daily ↔ Weekly updates the counts shown in the dropdown to match the active view.",
+        "No changes to the positioning of the progress bar, summary cards, or task list; no new page sections/wrappers are introduced."
       ]
     }
   ],
   "constraints": [
-    "Do not change the Weekly progress bar implementation or behavior.",
-    "Do not move the existing task action buttons (sort, download, clear).",
-    "Do not resize or restyle task cards.",
-    "Do not add new containers for layout restructuring in the task panel.",
-    "Do not change CSS globally (no changes to `frontend/src/index.css`, `frontend/index.css`, or shared theme tokens) as part of this fix.",
-    "Do not affect the layout of the left \"Add Study Task\" form section."
+    "Do not modify UI layout, grid, spacing, card height/width, or section positions.",
+    "Do not move the progress bar, summary cards, or task list.",
+    "Do not add new sections or wrappers; only enhance the existing filter behavior and controls.",
+    "Filtering must feel instant and smooth with no visual flicker or re-render jumps.",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Redesigning the Study Planner UI.",
-    "Changing Weekly Summary card behavior or placement.",
-    "Adding new features beyond making the Daily progress bar render correctly.",
-    "Backend changes or schema migrations."
+    "Do not change backend APIs or data models for this upgrade.",
+    "Do not change task card rendering, sorting behavior, or progress bar computation/placement beyond applying the existing subject filter.",
+    "Do not add new Study Planner sections, panels, or reorganize the page."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }
