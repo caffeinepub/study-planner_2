@@ -1,118 +1,47 @@
 {
   "kind": "build_request",
-  "title": "Add an add-only “Progress Charts” section below Summary in Study Planner (Daily + Weekly)",
-  "priority": "normal",
+  "title": "Fix Weekly Progress Chart calculations to use current-week tasks and live task data",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a new UI section titled \"Progress Charts\" to the Study Planner page that is rendered strictly below the existing Summary section, without changing, moving, resizing, restyling, or otherwise modifying any existing UI elements (including the Add Study Task form, task cards, buttons like download/sort/clear, and the existing Summary section).",
+      "text": "Fix Weekly Progress Chart data calculation and binding so it displays non-zero values by computing stats from the same tasks array used by Daily Progress Chart, filtering those tasks to the current week (Monday 00:00:00.000 through Sunday 23:59:59.999 local time), and aggregating counts and completed-time correctly.\n\nImplementation requirements:\n- In `frontend/src/components/studyPlanner/WeeklyProgressChart.tsx`, compute `currentWeekTasks` by filtering `tasks` where the task date falls within the current week.\n- Ensure the task date is read from the same field used today (`task.date`) but correctly normalized for both backend tasks and guest tasks:\n  - Backend tasks use an optional date shape from the generated candid types (e.g., `[] | [Time]`), so unwrap the optional before passing into `normalizeTaskDate`.\n  - Guest tasks may use `number | undefined` for `date`; continue supporting that.\n- Weekly task counts must be derived from `currentWeekTasks`:\n  - `Total Tasks` = `currentWeekTasks.length`\n  - `Completed` = tasks in `currentWeekTasks` with `isCompleted === true`\n  - `Pending` = tasks in `currentWeekTasks` with `isCompleted === false`\n- Weekly total time must be the sum of study time for ONLY completed tasks in `currentWeekTasks` (not all weekly tasks). Use existing duration parsing/formatting utilities so minutes/hours are handled consistently.\n- Ensure the computed values are the ones bound to the existing Weekly Progress Chart UI (donut chart + stats grid) without changing any UI, colors, layout, or text.\n- Ensure the weekly chart recalculates immediately when tasks change (add/delete/toggle complete) by keeping calculations derived directly from the `tasks` prop and React memoization dependencies.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "ADD a NEW section called \"Progress Charts\" WITHOUT changing, resizing,\nmoving, or redesigning ANY existing UI elements.",
-          "Only ADD a new section below the existing Summary section"
+          "FIX WEEKLY PROGRESS CHART DATA CALCULATION",
+          "1. Use the SAME task data source used by Daily Progress Chart.",
+          "2. Apply a CURRENT WEEK filter: - Include only tasks whose date falls between startOfWeek (Monday) and endOfWeek (Sunday).",
+          "4. Weekly total time: - Sum study time of ONLY completed weekly tasks.",
+          "Strict Rules: - Do NOT change chart UI, colors, layout, or text. - Do NOT modify Daily Progress Chart logic. - Do NOT touch Weekly Summary section. - Only fix weekly calculation & data binding."
         ]
       },
       "acceptanceCriteria": [
-        "The Study Planner page renders an additional section with heading text exactly \"Progress Charts\".",
-        "The \"Progress Charts\" section is placed below the existing Summary section in the DOM/layout flow.",
-        "No existing components are modified in size, spacing, colors, layout, or position (Add Study Task form unchanged; task cards unchanged; existing buttons unchanged; Summary unchanged)."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Implement Daily-mode progress visualization in the \"Progress Charts\" section using only the already-available in-memory/local task data for the active view: show completed vs pending tasks and show total study time for the day, using a clean compact chart (donut or bar) with soft, non-distracting colorful accents similar to the existing Summary cards, and visually highlighted numbers/labels.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "DAILY MODE:\n- Show a daily progress chart based on today's tasks\n- Visualize completed vs pending tasks\n- Show total study time for the day\n- Use a clean, compact chart (donut or bar)",
-          "DESIGN REQUIREMENTS:\n- Use soft, colorful accents similar to Summary cards\n- Numbers and labels should be visually highlighted\n- Charts must look clean, minimal, and readable\n- Do NOT use strong or distracting colors",
-          "DATA RULES:\n- Use existing local task data only\n- No login, no backend, no new storage\n- Charts must auto-update when tasks are added or completed"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When the Daily toggle is active, the \"Progress Charts\" section displays a compact chart representing the ratio of completed vs pending tasks for today’s tasks.",
-        "When the Daily toggle is active, the section displays a total study time value computed from the same task durations being shown in the planner (using the existing duration parsing/formatting utilities).",
-        "Displayed completed/pending counts and total study time update immediately when a task is added, deleted, cleared, or its completion is toggled (guest and authenticated modes) without requiring a page refresh.",
-        "No backend calls/endpoints are added for charts; no new persistence/storage mechanism is added for chart data.",
-        "Chart colors remain soft/minimal (no harsh/high-saturation palette) and match the general accent feel of the Summary cards."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Implement Weekly-mode progress visualization in the \"Progress Charts\" section: show a Mon–Sun weekly chart that visualizes daily study hours calculated from existing task durations and completion status, and ensure the section automatically updates when tasks change.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "WEEKLY MODE:\n- Show a weekly progress chart (Mon–Sun)\n- Visualize daily study hours\n- Calculate from existing task durations and completion status",
-          "FEATURE REQUIREMENTS:\n2. The section must work for BOTH Daily and Weekly toggles",
-          "DATA RULES:\n- Use existing local task data only\n- No login, no backend, no new storage\n- Charts must auto-update when tasks are added or completed"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When the Weekly toggle is active, the \"Progress Charts\" section displays a Mon–Sun chart (7 labeled buckets) of study hours.",
-        "Daily values are computed from existing tasks and their duration fields (minutes summed and presented as hours, e.g., 1.5h), using existing duration parsing utilities.",
-        "The weekly chart updates immediately when tasks are added, deleted, cleared, or completion is toggled.",
-        "The weekly chart uses soft, readable styling and minimal visual clutter (clean axes/labels; no distracting colors)."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Ensure the new charts derive only from existing frontend task state (guest tasks from localStorage utilities or authenticated tasks already fetched for the active view) and do not introduce any new backend methods, login requirements, or new persisted storage for charting.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Use existing local task data only",
-          "No login, no backend, no new storage",
-          "Charts must auto-update when tasks are added or completed"
-        ]
-      },
-      "acceptanceCriteria": [
-        "No changes are made to the Motoko backend to support these charts.",
-        "No new localStorage keys or other persistence are introduced specifically for chart data.",
-        "Charts compute directly from the same task list state already used to render the planner, and reflect changes as that state changes."
+        "With at least one task dated within the current week, Weekly Progress Chart no longer shows static 0 values and displays correct Total/Completed/Pending counts.",
+        "Weekly Progress Chart total time equals the sum of durations for completed tasks within the current week only (pending tasks do not contribute to total time).",
+        "Weekly Progress Chart filtering uses Monday as the start of week and Sunday as the end of week (local time).",
+        "Weekly Progress Chart updates immediately after: adding a task, deleting a task, toggling completion on/off, without requiring a page refresh.",
+        "Daily Progress Chart logic remains unchanged.",
+        "Weekly Summary section remains unchanged, including its calculations and UI.",
+        "No visual/UI changes occur in Weekly Progress Chart other than the numbers updating correctly."
       ]
     }
   ],
   "constraints": [
-    "ADD-ONLY: do not change, resize, move, or redesign any existing UI elements on the Study Planner page.",
-    "Do not modify the Add Study Task form in any way.",
-    "Do not modify task card size, layout, colors, or spacing.",
-    "Do not move any existing buttons (download, sort, clear, etc.).",
-    "Do not move or redesign the existing Summary section.",
-    "Use only existing local/in-memory task data; do not add backend functionality for charts; do not add new storage for chart data.",
-    "All user-facing text must be in English.",
-    "Do not edit files under frontend/src/components/ui or other immutablePaths listed in SYSTEM_CONTEXT (compose them instead)."
+    "Do not change Weekly Progress Chart UI, colors, layout, or text.",
+    "Do not modify `frontend/src/components/studyPlanner/DailyProgressChart.tsx` logic.",
+    "Do not touch the Weekly Summary section in `StudyPlannerPage` (or elsewhere).",
+    "Only change weekly calculation and data binding."
   ],
   "nonGoals": [
-    "Adding new analytics pages, filters, or drill-down interactions beyond the requested Daily/Weekly charts.",
-    "Introducing third-party chart libraries or complex animations.",
-    "Changing how tasks are stored, fetched, sorted, filtered, exported, or displayed outside of adding the new section."
+    "Adding new chart types, animations, or interactions.",
+    "Changing how tasks are created/stored/synced beyond what is required for weekly chart calculation correctness."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

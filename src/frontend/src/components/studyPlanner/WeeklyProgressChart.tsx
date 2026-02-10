@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { parseDurationToMinutes } from '@/utils/studyPlannerDuration';
+import { parseDurationToMinutes, formatMinutesToDuration } from '@/utils/studyPlannerDuration';
+import { normalizeTaskDate, isDateInCurrentWeek } from '@/utils/studyPlannerWeek';
 import type { StudyTask } from '@/hooks/useQueries';
 import type { GuestStudyTask } from '@/utils/studyPlannerGuestStorage';
 
@@ -8,47 +9,36 @@ interface WeeklyProgressChartProps {
   tasks: Array<StudyTask | GuestStudyTask>;
 }
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
 export function WeeklyProgressChart({ tasks }: WeeklyProgressChartProps) {
-  const weeklyData = useMemo(() => {
-    // Initialize hours for each day
-    const dayHours = new Array(7).fill(0);
-    
-    // Get current week's Monday
-    const now = new Date();
-    const currentDay = now.getDay();
-    const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
-    const monday = new Date(now);
-    monday.setDate(now.getDate() + mondayOffset);
-    monday.setHours(0, 0, 0, 0);
-
-    // Sum up study hours for each day
-    tasks.forEach((task) => {
-      if (!task.date) return;
-      
-      const taskDate = new Date(Number(task.date) / 1000000); // Convert nanoseconds to milliseconds
-      taskDate.setHours(0, 0, 0, 0);
-      
-      // Calculate day index (0 = Monday, 6 = Sunday)
-      const daysDiff = Math.floor((taskDate.getTime() - monday.getTime()) / (1000 * 60 * 60 * 24));
-      
-      if (daysDiff >= 0 && daysDiff < 7) {
-        const minutes = parseDurationToMinutes(task.duration);
-        dayHours[daysDiff] += minutes / 60; // Convert to hours
-      }
+  const stats = useMemo(() => {
+    // Filter to current week only (Monday-Sunday)
+    const currentWeekTasks = tasks.filter((task) => {
+      const taskDate = normalizeTaskDate(task.date);
+      if (!taskDate) return false;
+      return isDateInCurrentWeek(taskDate);
     });
 
-    const maxHours = Math.max(...dayHours, 1);
+    const completed = currentWeekTasks.filter((t) => t.isCompleted).length;
+    const pending = currentWeekTasks.length - completed;
     
-    return dayHours.map((hours, index) => ({
-      day: DAYS[index],
-      hours: Math.round(hours * 10) / 10, // Round to 1 decimal
-      heightPercent: (hours / maxHours) * 100,
-    }));
-  }, [tasks]);
+    // Sum study time of ONLY completed weekly tasks
+    const totalMinutes = currentWeekTasks
+      .filter((task) => task.isCompleted)
+      .reduce((sum, task) => sum + parseDurationToMinutes(task.duration), 0);
+    const totalTime = formatMinutesToDuration(totalMinutes);
+    
+    const completedPercent = currentWeekTasks.length > 0 ? (completed / currentWeekTasks.length) * 100 : 0;
+    const pendingPercent = currentWeekTasks.length > 0 ? (pending / currentWeekTasks.length) * 100 : 0;
 
-  const totalHours = weeklyData.reduce((sum, day) => sum + day.hours, 0);
+    return {
+      completed,
+      pending,
+      totalTime,
+      completedPercent,
+      pendingPercent,
+      totalTasks: currentWeekTasks.length,
+    };
+  }, [tasks]);
 
   return (
     <Card className="border-2">
@@ -56,36 +46,69 @@ export function WeeklyProgressChart({ tasks }: WeeklyProgressChartProps) {
         <CardTitle className="text-lg">Weekly Progress</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Bar Chart */}
-        <div className="h-48 flex items-end justify-between gap-2 px-2">
-          {weeklyData.map((day, index) => (
-            <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
-              {/* Bar */}
-              <div className="w-full flex flex-col items-center justify-end h-40">
-                <div
-                  className="w-full rounded-t-lg transition-all duration-300"
-                  style={{
-                    height: `${day.heightPercent}%`,
-                    background: `linear-gradient(to top, oklch(0.70 0.15 ${220 + index * 15}), oklch(0.80 0.12 ${220 + index * 15}))`,
-                    minHeight: day.hours > 0 ? '8px' : '0px',
-                  }}
+        {/* Donut Chart */}
+        <div className="flex items-center justify-center">
+          <div className="relative w-48 h-48">
+            <svg viewBox="0 0 100 100" className="transform -rotate-90">
+              {/* Background circle */}
+              <circle
+                cx="50"
+                cy="50"
+                r="40"
+                fill="none"
+                stroke="oklch(0.95 0.01 var(--hue))"
+                strokeWidth="12"
+              />
+              {/* Completed arc */}
+              {stats.completed > 0 && (
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke="oklch(0.75 0.15 150)"
+                  strokeWidth="12"
+                  strokeDasharray={`${stats.completedPercent * 2.513} 251.3`}
+                  strokeLinecap="round"
                 />
-              </div>
-              {/* Label */}
-              <div className="text-center">
-                <div className="text-xs font-medium text-muted-foreground">{day.day}</div>
-                <div className="text-xs font-bold text-foreground">{day.hours}h</div>
-              </div>
+              )}
+              {/* Pending arc */}
+              {stats.pending > 0 && (
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke="oklch(0.80 0.12 60)"
+                  strokeWidth="12"
+                  strokeDasharray={`${stats.pendingPercent * 2.513} 251.3`}
+                  strokeDashoffset={`-${stats.completedPercent * 2.513}`}
+                  strokeLinecap="round"
+                />
+              )}
+            </svg>
+            {/* Center text */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-3xl font-bold">{stats.totalTasks}</div>
+              <div className="text-sm text-muted-foreground">Tasks</div>
             </div>
-          ))}
+          </div>
         </div>
 
-        {/* Total Summary */}
-        <div className="text-center p-4 rounded-lg bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20 border border-purple-200/50 dark:border-purple-800/30">
-          <div className="text-3xl font-bold text-purple-700 dark:text-purple-400">
-            {Math.round(totalHours * 10) / 10}h
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center p-3 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200/50 dark:border-green-800/30">
+            <div className="text-2xl font-bold text-green-700 dark:text-green-400">{stats.completed}</div>
+            <div className="text-xs text-green-600 dark:text-green-500 mt-1">Completed</div>
           </div>
-          <div className="text-sm text-purple-600 dark:text-purple-500 mt-1">Total Study Time This Week</div>
+          <div className="text-center p-3 rounded-lg bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 border border-amber-200/50 dark:border-amber-800/30">
+            <div className="text-2xl font-bold text-amber-700 dark:text-amber-400">{stats.pending}</div>
+            <div className="text-xs text-amber-600 dark:text-amber-500 mt-1">Pending</div>
+          </div>
+          <div className="text-center p-3 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/50 dark:border-blue-800/30">
+            <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">{stats.totalTime}</div>
+            <div className="text-xs text-blue-600 dark:text-blue-500 mt-1">Total Time</div>
+          </div>
         </div>
       </CardContent>
     </Card>

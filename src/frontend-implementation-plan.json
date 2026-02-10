@@ -1,92 +1,25 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Study Planner: Add Progress Charts section (Daily + Weekly) below Summary",
+  "title": "Fix Weekly Progress Chart to compute current-week stats from live task data",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add an add-only \"Progress Charts\" UI section strictly below the existing Summary section on the Study Planner page.",
+      "summary": "Correct Weekly Progress Chart calculations to derive counts and total time from the same live tasks array as Daily Progress Chart, filtered to the current local week (Mon–Sun) with proper backend/guest date normalization and completed-time aggregation.",
       "acceptanceCriteria": [
-        "The Study Planner page renders an additional section with heading text exactly \"Progress Charts\".",
-        "The \"Progress Charts\" section is placed below the existing Summary section in the DOM/layout flow.",
-        "No existing components are modified in size, spacing, colors, layout, or position (Add Study Task form unchanged; task cards unchanged; existing buttons unchanged; Summary unchanged)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
-          "operation": "create",
-          "description": "Create an add-only Study Planner section component that renders a heading exactly \"Progress Charts\" and a compact container for Daily/Weekly chart content without altering any existing Study Planner UI. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/StudyPlannerPage.tsx",
-          "operation": "modify",
-          "description": "Wire the new ProgressChartsSection into the Study Planner page by rendering it strictly after the existing Summary section (below it in DOM/layout flow) while leaving all existing JSX, styling, spacing, and components unchanged aside from the minimal insertion/import. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Show Daily-mode completed vs pending tasks plus total study time using a compact, soft-accent chart derived from current task state.",
-      "acceptanceCriteria": [
-        "When the Daily toggle is active, the \"Progress Charts\" section displays a compact chart representing the ratio of completed vs pending tasks for today’s tasks.",
-        "When the Daily toggle is active, the section displays a total study time value computed from the same task durations being shown in the planner (using the existing duration parsing/formatting utilities).",
-        "Displayed completed/pending counts and total study time update immediately when a task is added, deleted, cleared, or its completion is toggled (guest and authenticated modes) without requiring a page refresh.",
-        "No backend calls/endpoints are added for charts; no new persistence/storage mechanism is added for chart data.",
-        "Chart colors remain soft/minimal (no harsh/high-saturation palette) and match the general accent feel of the Summary cards."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/studyPlanner/DailyProgressChart.tsx",
-          "operation": "create",
-          "description": "Implement a compact Daily-mode chart (donut or bar) that visualizes completed vs pending counts and displays total study time computed from the provided task list using existing duration utilities (parseDurationToMinutes, formatMinutesToDuration), with soft, non-distracting accents similar to Summary cards. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
-          "operation": "modify",
-          "description": "Render DailyProgressChart when the current view is Daily; pass the same already-rendered task list state for the active view (and any active filters) so counts and total study time auto-update immediately on task mutations without refresh. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Show Weekly-mode Mon–Sun study-hours chart derived from existing task durations and completion status, auto-updating with task changes.",
-      "acceptanceCriteria": [
-        "When the Weekly toggle is active, the \"Progress Charts\" section displays a Mon–Sun chart (7 labeled buckets) of study hours.",
-        "Daily values are computed from existing tasks and their duration fields (minutes summed and presented as hours, e.g., 1.5h), using existing duration parsing utilities.",
-        "The weekly chart updates immediately when tasks are added, deleted, cleared, or completion is toggled.",
-        "The weekly chart uses soft, readable styling and minimal visual clutter (clean axes/labels; no distracting colors)."
+        "With at least one task dated within the current week, Weekly Progress Chart no longer shows static 0 values and displays correct Total/Completed/Pending counts.",
+        "Weekly Progress Chart total time equals the sum of durations for completed tasks within the current week only (pending tasks do not contribute to total time).",
+        "Weekly Progress Chart filtering uses Monday as the start of week and Sunday as the end of week (local time).",
+        "Weekly Progress Chart updates immediately after: adding a task, deleting a task, toggling completion on/off, without requiring a page refresh.",
+        "Daily Progress Chart logic remains unchanged.",
+        "Weekly Summary section remains unchanged, including its calculations and UI.",
+        "No visual/UI changes occur in Weekly Progress Chart other than the numbers updating correctly."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx",
-          "operation": "create",
-          "description": "Implement a Weekly-mode Mon–Sun chart (7 labeled buckets) that computes per-day study hours from existing task duration strings using existing duration utilities and incorporates completion status in the calculation, with minimal/clean labels and soft accents. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
           "operation": "modify",
-          "description": "Render WeeklyProgressChart when the current view is Weekly; pass the active-view task list so the chart recomputes immediately as task state updates (guest local tasks or authenticated fetched tasks already in state). Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Ensure charts compute only from existing frontend task state and do not add new persistence/storage or new login requirements.",
-      "acceptanceCriteria": [
-        "No changes are made to the Motoko backend to support these charts.",
-        "No new localStorage keys or other persistence are introduced specifically for chart data.",
-        "Charts compute directly from the same task list state already used to render the planner, and reflect changes as that state changes."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/StudyPlannerPage.tsx",
-          "operation": "modify",
-          "description": "Ensure ProgressChartsSection receives only the existing in-memory task list already used for rendering the planner (guest tasks loaded via existing guest storage utilities or authenticated tasks already fetched for the active view), and that no new persistence keys or chart-specific storage is introduced. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/studyPlanner/ProgressChartsSection.tsx",
-          "operation": "modify",
-          "description": "Keep all chart computations purely derived from props/state (no new storage, no new data fetching) so charts auto-update as the existing task list state changes. Verify the component's usage instructions before implementing."
+          "description": "Update weekly stats derivation to: (1) compute currentWeekTasks by filtering the provided tasks prop to the current week using task.date normalized to a Date; (2) unwrap backend optional date shapes (e.g., [] | [Time]) before calling normalizeTaskDate while still supporting guest number | undefined dates; (3) bind Total/Completed/Pending counts to currentWeekTasks-derived values; (4) compute weekly total time by summing parseDurationToMinutes(duration) for completed tasks in currentWeekTasks only, then format with formatMinutesToDuration; (5) keep all calculations derived directly from tasks with correct useMemo dependencies so updates happen immediately after add/delete/toggle. Do not change any UI, colors, layout, or text."
         }
       ]
     }

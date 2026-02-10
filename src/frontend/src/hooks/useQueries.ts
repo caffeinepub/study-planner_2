@@ -193,7 +193,7 @@ export function useGetStudyTasks(enabled: boolean, viewType?: 'daily' | 'weekly'
   });
 }
 
-export function useToggleTaskCompletion() {
+export function useToggleTaskCompletion(viewType?: 'daily' | 'weekly') {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
@@ -202,13 +202,40 @@ export function useToggleTaskCompletion() {
       if (!actor) throw new Error('Actor not available');
       return actor.toggleTaskCompletion(taskId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['studyTasks'] });
+    onMutate: async (taskId: bigint) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['studyTasks', viewType] });
+
+      // Snapshot the previous value
+      const previousTasks = queryClient.getQueryData<StudyTask[]>(['studyTasks', viewType]);
+
+      // Optimistically update to the new value
+      if (previousTasks) {
+        queryClient.setQueryData<StudyTask[]>(
+          ['studyTasks', viewType],
+          previousTasks.map((task) =>
+            task.id === taskId ? { ...task, isCompleted: !task.isCompleted } : task
+          )
+        );
+      }
+
+      // Return a context object with the snapshotted value
+      return { previousTasks };
+    },
+    onError: (err, taskId, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['studyTasks', viewType], context.previousTasks);
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we're in sync with the server
+      queryClient.invalidateQueries({ queryKey: ['studyTasks', viewType] });
     },
   });
 }
 
-export function useDeleteTask() {
+export function useDeleteTask(viewType?: 'daily' | 'weekly') {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
@@ -217,8 +244,33 @@ export function useDeleteTask() {
       if (!actor) throw new Error('Actor not available');
       return actor.deleteTask(taskId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['studyTasks'] });
+    onMutate: async (taskId: bigint) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['studyTasks', viewType] });
+
+      // Snapshot the previous value
+      const previousTasks = queryClient.getQueryData<StudyTask[]>(['studyTasks', viewType]);
+
+      // Optimistically update to the new value
+      if (previousTasks) {
+        queryClient.setQueryData<StudyTask[]>(
+          ['studyTasks', viewType],
+          previousTasks.filter((task) => task.id !== taskId)
+        );
+      }
+
+      // Return a context object with the snapshotted value
+      return { previousTasks };
+    },
+    onError: (err, taskId, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousTasks) {
+        queryClient.setQueryData(['studyTasks', viewType], context.previousTasks);
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we're in sync with the server
+      queryClient.invalidateQueries({ queryKey: ['studyTasks', viewType] });
     },
   });
 }
