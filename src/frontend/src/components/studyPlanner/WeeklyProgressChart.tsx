@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { parseDurationToMinutes, formatMinutesToDuration } from '@/utils/studyPlannerDuration';
-import { normalizeTaskDate, isDateInCurrentWeek } from '@/utils/studyPlannerWeek';
+import { unwrapOptionalDate, normalizeTaskDate, isDateInCurrentWeek } from '@/utils/studyPlannerWeek';
 import type { StudyTask } from '@/hooks/useQueries';
 import type { GuestStudyTask } from '@/utils/studyPlannerGuestStorage';
 
@@ -13,13 +13,17 @@ export function WeeklyProgressChart({ tasks }: WeeklyProgressChartProps) {
   const stats = useMemo(() => {
     // Filter to current week only (Monday-Sunday)
     const currentWeekTasks = tasks.filter((task) => {
-      const taskDate = normalizeTaskDate(task.date);
+      // First unwrap any Candid optional array representation
+      const unwrappedDate = unwrapOptionalDate(task.date as any);
+      // Then normalize to JavaScript Date
+      const taskDate = normalizeTaskDate(unwrappedDate);
       if (!taskDate) return false;
       return isDateInCurrentWeek(taskDate);
     });
 
+    const totalTasks = currentWeekTasks.length;
     const completed = currentWeekTasks.filter((t) => t.isCompleted).length;
-    const pending = currentWeekTasks.length - completed;
+    const pending = totalTasks - completed;
     
     // Sum study time of ONLY completed weekly tasks
     const totalMinutes = currentWeekTasks
@@ -27,16 +31,16 @@ export function WeeklyProgressChart({ tasks }: WeeklyProgressChartProps) {
       .reduce((sum, task) => sum + parseDurationToMinutes(task.duration), 0);
     const totalTime = formatMinutesToDuration(totalMinutes);
     
-    const completedPercent = currentWeekTasks.length > 0 ? (completed / currentWeekTasks.length) * 100 : 0;
-    const pendingPercent = currentWeekTasks.length > 0 ? (pending / currentWeekTasks.length) * 100 : 0;
+    const completedPercent = totalTasks > 0 ? (completed / totalTasks) * 100 : 0;
+    const pendingPercent = totalTasks > 0 ? (pending / totalTasks) * 100 : 0;
 
     return {
+      totalTasks,
       completed,
       pending,
       totalTime,
       completedPercent,
       pendingPercent,
-      totalTasks: currentWeekTasks.length,
     };
   }, [tasks]);
 

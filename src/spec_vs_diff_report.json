@@ -1,32 +1,30 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T03:26:06.929Z",
-  "summary": "WeeklyProgressChart.tsx was updated to compute weekly stats from the `tasks` prop using `useMemo`, filter tasks to the current week, and bind computed totals/completed/pending/totalTime to the existing UI. However, the diff does not show the required unwrapping of backend optional date values before passing to `normalizeTaskDate`. Two ancillary files were also modified without being requested.",
-  "missing_requirements": [
-    {
-      "id": "REQ-1",
-      "requirement": "Backend tasks use an optional date shape (e.g., [] | [Time]); unwrap the optional before passing into `normalizeTaskDate` when computing `currentWeekTasks`.",
-      "reason": "The implementation calls `normalizeTaskDate(task.date)` directly. The diff shows no unwrapping/normalization step for the candid optional date shape prior to calling `normalizeTaskDate`, so the specific requirement is not evidenced as implemented.",
-      "evidence": [
-        "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-10T03:33:43.097Z",
+  "summary": "The diff implements the requested Weekly Progress Chart data fix by unwrapping optional backend date shapes before normalization and recalculating all weekly stats from the filtered current-week task list reactively on `tasks` changes. Some additional non-requested changes update meta/state summary files.",
+  "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Updated repository metadata/documentation files (`frontend-file-summaries.txt`, `project_state.json`) unrelated to weekly chart calculation changes.",
-      "reason": "BuildRequest constraints focus on fixing weekly calculation/data binding in `WeeklyProgressChart.tsx` (and explicitly avoiding other areas). The diff includes modifications to summary/state files that are not requested by the BuildRequest.",
+      "description": "Added/updated project tracking metadata indicating new feature requests (AR-1/AR-2) and statuses in project_state.json.",
+      "reason": "The BuildRequest only asked to fix Weekly Progress Chart logic; it did not request modifying repository project tracking/state files.",
       "evidence": [
-        "frontend-file-summaries.txt",
         "project_state.json"
+      ]
+    },
+    {
+      "description": "Updated repository-wide frontend file summary documentation.",
+      "reason": "The BuildRequest did not request updating documentation/summaries; only code changes to fix Weekly Progress Chart calculations/binding were requested.",
+      "evidence": [
+        "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.68,
+  "confidence": 0.72,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx",
+    "frontend/src/utils/studyPlannerWeek.ts",
     "project_state.json"
   ]
 }

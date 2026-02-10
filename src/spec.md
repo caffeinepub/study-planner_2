@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the Weekly Progress Chart so it calculates and displays correct current-week task counts and total completed study time using live task data.
+**Goal:** Fix the Study Planner Weekly Progress chart so it reflects real task data for the current week by correctly interpreting backend task `date` values and recalculating metrics from the filtered weekly task list.
 
 **Planned changes:**
-- Update `frontend/src/components/studyPlanner/WeeklyProgressChart.tsx` to derive `currentWeekTasks` by filtering the existing `tasks` prop to the local-time current week (Monday 00:00:00.000 through Sunday 23:59:59.999).
-- Normalize task date handling so both backend optional date shapes (unwrap `[] | [Time]`) and guest task date values (`number | undefined`) are supported before passing into existing date-normalization logic.
-- Recompute and bind Weekly Progress Chart stats from `currentWeekTasks` only: Total, Completed, Pending, and total time summed from completed tasks only using existing duration utilities.
-- Ensure the Weekly Progress Chart recalculates immediately on task changes by keeping computations derived directly from the `tasks` prop with correct memoization dependencies.
+- Update Weekly Progress chart date handling to unwrap backend optional/variant `date` values (e.g., `[] | [Time]`) into a usable `Time`/JavaScript `Date` before calling the existing `normalizeTaskDate`.
+- Ensure the Weekly Progress chart derives all displayed metrics (total tasks, completed, pending, total time) exclusively from the `currentWeekTasks` filtered by the existing local-time week boundaries (Monday start through Sunday end).
+- Make Weekly Progress chart calculations reactive to `tasks` prop changes so add/delete/toggle completion immediately updates the chart values without refresh.
 
-**User-visible outcome:** Weekly Progress Chart no longer shows static zero values; it updates immediately to show accurate current-week totals (Total/Completed/Pending) and total completed study time without any UI/text/layout changes.
+**User-visible outcome:** In Weekly view, the Weekly Progress chart shows correct non-zero counts and time totals for tasks dated within the current week (including backend tasks with optional `date`), and updates instantly when tasks are added, deleted, or completed.

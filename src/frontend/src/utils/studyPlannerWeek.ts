@@ -6,6 +6,29 @@
 import type { Time } from '@/backend';
 
 /**
+ * Unwrap backend optional date values that may be represented as Candid optional arrays.
+ * Handles: [] | [Time], Time, number, undefined, null
+ * Returns: Time | number | undefined | null (ready for normalizeTaskDate)
+ */
+export function unwrapOptionalDate(
+  date: Time | number | undefined | null | [] | [Time]
+): Time | number | undefined | null {
+  // Handle null/undefined
+  if (date == null) return null;
+  
+  // Handle Candid optional array representation: [] means None, [value] means Some(value)
+  if (Array.isArray(date)) {
+    if (date.length === 0) return null;
+    if (date.length === 1) return date[0];
+    // Unexpected array length, treat as null
+    return null;
+  }
+  
+  // Already unwrapped: Time (bigint) or number
+  return date;
+}
+
+/**
  * Normalize a task date value to a JavaScript Date object.
  * Handles both backend bigint (nanoseconds) and guest number (milliseconds).
  * Returns null for invalid/missing dates.

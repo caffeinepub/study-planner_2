@@ -2,8 +2,30 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-weekly-progress-chart-data-calculation-and-binding-so-it-displays-non-zero-values-by-computing-stats-from-the-same-tasks-array-used-by-daily-progress-chart-filtering-those-tasks-to-the-current-week-monday-00-00-00-000-through-sunday-23-59-59-999-local-time-and-aggregating-counts-and-completed-time-correctly-implementation-requirements-in-frontend-src-components-studyplanner-weeklyprogresschart-tsx-compute-currentweektasks-by-filtering-tasks-where-the-task-date-falls-within-the-current-week-ensure-the-task-date-is-read-from-the-same-field-used-today-task-date-but-correctly-normalized-for-both-backend-tasks-and-guest-tasks-backend-tasks-use-an-optional-date-shape-from-the-generated-candid-types-e-g-time-so-unwrap-the-optional-before-passing-into-normalizetaskdate-guest-tasks-may-use-number-undefined-for-date-continue-supporting-that-weekly-task-counts-must-be-derived-from-currentweektasks-total-tasks-currentweektasks-length-completed-tasks-in-currentweektasks-with-iscompleted-true-pending-tasks-in-currentweektasks-with-iscompleted-false-weekly-total-time-must-be-the-sum-of-study-time-for-only-completed-tasks-in-currentweektasks-not-all-weekly-tasks-use-existing-duration-parsing-formatting-utilities-so-minutes-hours-are-handled-consistently-ensure-the-computed-values-are-the-ones-bound-to-the-existing-weekly-progress-chart-ui-donut-chart-stats-grid-without-changing-any-ui-colors-layout-or-text-ensure-the-weekly-chart-recalculates-immediately-when-tasks-change-add-delete-toggle-complete-by-keeping-calculations-derived-directly-from-the-tasks-prop-and-react-memoization-dependencies",
-      "featureTitle": "Fix Weekly Progress Chart data calculation and binding so it displays non-zero values by computing stats from the same tasks array used by Daily Progress Chart, filtering those tasks to the current week (Monday 00:00:00.000 through Sunday 23:59:59.999 local time), and aggregating counts and completed-time correctly.\n\nImplementation requirements:\n- In `frontend/src/components/studyPlanner/WeeklyProgressChart.tsx`, compute `currentWeekTasks` by filtering `tasks` where the task date falls within the current week.\n- Ensure the task date is read from the same field used today (`task.date`) but correctly normalized for both backend tasks and guest tasks:\n  - Backend tasks use an optional date shape from the generated candid types (e.g., `[] | [Time]`), so unwrap the optional before passing into `normalizeTaskDate`.\n  - Guest tasks may use `number | undefined` for `date`; continue supporting that.\n- Weekly task counts must be derived from `currentWeekTasks`:\n  - `Total Tasks` = `currentWeekTasks.length`\n  - `Completed` = tasks in `currentWeekTasks` with `isCompleted === true`\n  - `Pending` = tasks in `currentWeekTasks` with `isCompleted === false`\n- Weekly total time must be the sum of study time for ONLY completed tasks in `currentWeekTasks` (not all weekly tasks). Use existing duration parsing/formatting utilities so minutes/hours are handled consistently.\n- Ensure the computed values are the ones bound to the existing Weekly Progress Chart UI (donut chart + stats grid) without changing any UI, colors, layout, or text.\n- Ensure the weekly chart recalculates immediately when tasks change (add/delete/toggle complete) by keeping calculations derived directly from the `tasks` prop and React memoization dependencies.",
+      "featureId": "feature-fix-weekly-progress-chart-so-it-correctly-includes-backend-tasks-in-the-current-week-filter-by-properly-handling-the-backend-task-date-optional-variant-shape-before-calling-normalizetaskdate-backend-candid-optional-time-like-time-must-be-unwrapped-to-time",
+      "featureTitle": "Fix Weekly Progress Chart so it correctly includes backend tasks in the current-week filter by properly handling the backend task `date` optional/variant shape before calling `normalizeTaskDate` (backend candid optional time like `[] | [Time]` must be unwrapped to `Time`).",
+      "files": [
+        "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx",
+        "frontend/src/utils/studyPlannerWeek.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-weekly-progress-chart-calculations-and-bindings-total-tasks-completed-pending-and-total-time-are-derived-exclusively-from-the-filtered-currentweektasks-array-and-recalculate-immediately-when-the-tasks-prop-changes-add-delete-toggle-completion",
+      "featureTitle": "Ensure Weekly Progress Chart calculations and bindings (total tasks, completed, pending, and total time) are derived exclusively from the filtered `currentWeekTasks` array and recalculate immediately when the `tasks` prop changes (add/delete/toggle completion).",
       "files": [
         "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx"
       ],
@@ -18,7 +40,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-2"
       ],
       "confidence": "high"
     }
