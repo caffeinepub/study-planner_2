@@ -1,70 +1,44 @@
 {
   "kind": "build_request",
-  "title": "Fix Weekly Progress Chart not reflecting real task data (optional date handling)",
+  "title": "Lighten visual weight of Topic/Date/Time fields in Study Planner form",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix Weekly Progress Chart so it correctly includes backend tasks in the current-week filter by properly handling the backend task `date` optional/variant shape before calling `normalizeTaskDate` (backend candid optional time like `[] | [Time]` must be unwrapped to `Time`).",
+      "text": "Adjust the Study Planner “Add Study Task” form so that the Topic, Date, and Time fields appear visually lighter without changing layout structure or component sizing: (a) set the input text font weight to normal (400) for the Topic input and the Date/Time inputs, (b) reduce the corresponding Label font weight so it is not bold, (c) ensure these fields use padding consistent with the other form fields, (d) keep the existing input height (do not resize the container), and (e) keep the same border radius and existing color scheme. Apply changes only to Topic/Date/Time fields and do not affect the Subject dropdown styling.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "try again chart set nehi howa"
+          "ADJUST INPUT FIELD VISUAL WEIGHT (TOPIC, DATE, TIME)\n\nRequired Adjustments:\n1. Reduce font-weight of input text to normal (400).\n2. Reduce label font-weight slightly (not bold).\n3. Ensure consistent padding with other fields.\n4. Keep input height same (do NOT resize container).\n5. Maintain same border radius and color scheme.\n\nStrict Rules:\n- Do NOT change layout structure.\n- Do NOT resize form sections.\n- Do NOT affect subject dropdown styling.\n- Only reduce visual heaviness."
         ]
       },
       "acceptanceCriteria": [
-        "When viewing the Study Planner in Weekly view, the Weekly Progress chart shows non-zero values when there are tasks dated within the current week.",
-        "Weekly filtering uses Monday 00:00:00.000 through Sunday 23:59:59.999 in local time (via the existing week helper functions).",
-        "Backend tasks whose `date` field is represented as an optional value (e.g., `[] | [Time]`) are correctly interpreted as a JavaScript Date for filtering.",
-        "Guest tasks with `date` stored as `number | undefined` continue to work without regression.",
-        "No UI text, colors, layout, or styling in the Weekly Progress chart is changed as part of this fix."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Ensure Weekly Progress Chart calculations and bindings (total tasks, completed, pending, and total time) are derived exclusively from the filtered `currentWeekTasks` array and recalculate immediately when the `tasks` prop changes (add/delete/toggle completion).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "try again chart set nehi howa"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Total Tasks equals the count of tasks whose normalized date falls within the current week.",
-        "Completed equals the count of current-week tasks with `isCompleted === true`; Pending equals current-week tasks with `isCompleted === false`.",
-        "Total Time equals the sum of durations for ONLY completed tasks in the current week, using the existing duration parsing/formatting utilities.",
-        "Toggling completion, adding a task, or deleting a task updates the weekly chart numbers without requiring a refresh (reactive to `tasks` changes)."
+        "On the Study Planner page, the Topic input (id=\"topic\") renders its user-entered text at font-weight 400 (normal) and does not appear bold/heavy.",
+        "On the Study Planner page, the Date and Time inputs (the optional date/time fields in the same Add Study Task form) render their user-entered text at font-weight 400 (normal) and do not appear bold/heavy.",
+        "The labels for Topic, Date, and Time are not bold (reduced weight compared to the current state) while preserving their current placement and alignment.",
+        "Padding for Topic/Date/Time inputs matches the other form fields in the same form (no extra/uneven horizontal or vertical padding introduced).",
+        "The Topic/Date/Time input heights remain unchanged (no changes that would alter the field/container height), and their border radius and color tokens remain consistent with the existing theme.",
+        "The Subject dropdown (SelectTrigger/SelectValue under the “Subject” field) styling is unchanged."
       ]
     }
   ],
   "constraints": [
-    "Do not modify `frontend/src/components/studyPlanner/DailyProgressChart.tsx` (it is explicitly marked as no-change for this fix).",
-    "Keep all logic within the existing React + TypeScript frontend; no new backend endpoints are required for this fix.",
-    "Do not change the Weekly Progress Chart UI text, colors, or layout; only fix data calculation/binding."
+    "Do not change the layout structure of the Study Planner form (no reordering, no grid changes).",
+    "Do not resize form sections or containers; keep input heights unchanged.",
+    "Do not modify or restyle the Subject dropdown.",
+    "Maintain existing border radius and color scheme; only reduce perceived visual heaviness via font-weight (and matching padding where currently inconsistent).",
+    "Do not edit files under frontend/src/components/ui (compose via className/props in page/component usage instead)."
   ],
   "nonGoals": [
-    "Adding new chart types or animations.",
-    "Changing the Study Planner's task creation flow, view switching, or subject filtering.",
-    "Altering backend persistence or task schema."
+    "Changing typography, spacing, or styling for other fields such as Subject, Duration, Priority, or any task list UI.",
+    "Any backend changes or data model changes.",
+    "Introducing new form fields, validations, or interactions."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

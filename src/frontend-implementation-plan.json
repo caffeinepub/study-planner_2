@@ -1,45 +1,24 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Weekly Progress Chart: fix current-week filtering for optional backend task dates",
+  "title": "Lighten Topic/Date/Time visual weight in Study Planner Add Study Task form",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Unwrap backend optional/variant task date values before normalizing so weekly filtering includes real backend tasks.",
+      "summary": "Make only the Topic, Date, and Time fields in the Study Planner “Add Study Task” form appear visually lighter (normal-weight input text and non-bold labels) while preserving layout, sizing, padding consistency, border radius, and theme colors; do not change Subject dropdown styling.",
       "acceptanceCriteria": [
-        "When viewing the Study Planner in Weekly view, the Weekly Progress chart shows non-zero values when there are tasks dated within the current week.",
-        "Weekly filtering uses Monday 00:00:00.000 through Sunday 23:59:59.999 in local time (via the existing week helper functions).",
-        "Backend tasks whose `date` field is represented as an optional value (e.g., `[] | [Time]`) are correctly interpreted as a JavaScript Date for filtering.",
-        "Guest tasks with `date` stored as `number | undefined` continue to work without regression.",
-        "No UI text, colors, layout, or styling in the Weekly Progress chart is changed as part of this fix."
+        "On the Study Planner page, the Topic input (id=\"topic\") renders its user-entered text at font-weight 400 (normal) and does not appear bold/heavy.",
+        "On the Study Planner page, the Date and Time inputs (the optional date/time fields in the same Add Study Task form) render their user-entered text at font-weight 400 (normal) and do not appear bold/heavy.",
+        "The labels for Topic, Date, and Time are not bold (reduced weight compared to the current state) while preserving their current placement and alignment.",
+        "Padding for Topic/Date/Time inputs matches the other form fields in the same form (no extra/uneven horizontal or vertical padding introduced).",
+        "The Topic/Date/Time input heights remain unchanged (no changes that would alter the field/container height), and their border radius and color tokens remain consistent with the existing theme.",
+        "The Subject dropdown (SelectTrigger/SelectValue under the “Subject” field) styling is unchanged."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/studyPlannerWeek.ts",
+          "path": "frontend/src/pages/StudyPlannerPage.tsx",
           "operation": "modify",
-          "description": "Add an exported helper to unwrap/normalize backend-provided optional date shapes (e.g., `[] | [Time]`, and other safe-to-ignore wrapper shapes) into a `Time | number | undefined | null` value that can be passed to the existing `normalizeTaskDate` without changing week boundary logic."
-        },
-        {
-          "path": "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx",
-          "operation": "modify",
-          "description": "Update current-week filtering to first unwrap the task `date` using the new helper (to handle candid optional array shape) and only then call `normalizeTaskDate`, ensuring backend tasks with optional dates are included correctly while preserving guest-task behavior and leaving all UI text/colors/layout unchanged."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Ensure all Weekly Progress Chart stats are computed only from `currentWeekTasks` and update reactively when the `tasks` prop changes.",
-      "acceptanceCriteria": [
-        "Total Tasks equals the count of tasks whose normalized date falls within the current week.",
-        "Completed equals the count of current-week tasks with `isCompleted === true`; Pending equals the count of current-week tasks with `isCompleted === false`.",
-        "Total Time equals the sum of durations for ONLY completed tasks in the current week, using the existing duration parsing/formatting utilities.",
-        "Toggling completion, adding a task, or deleting a task updates the weekly chart numbers without requiring a refresh (reactive to `tasks` changes)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx",
-          "operation": "modify",
-          "description": "Refactor calculations so `currentWeekTasks` is the single source for total/completed/pending/total time; ensure recalculation happens immediately on prop changes (e.g., by computing directly during render or ensuring memoization dependencies reflect task changes), without altering any displayed text, colors, layout, or styles."
+          "description": "In the “Add Study Task” form, adjust only the Topic, Date, and Time fields by passing targeted className overrides to the existing shadcn-ui Label and Input usages (e.g., set label font weight to non-bold and input text to font-normal/400). Ensure the overrides do not alter height, border radius, or color tokens, and keep padding consistent with other inputs; do not change any SelectTrigger/SelectValue styling for the Subject dropdown. Verify the component's usage instructions before implementing."
         }
       ]
     }

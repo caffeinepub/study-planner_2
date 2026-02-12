@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the Study Planner Weekly Progress chart so it reflects real task data for the current week by correctly interpreting backend task `date` values and recalculating metrics from the filtered weekly task list.
+**Goal:** Make the Topic, Date, and Time fields in the Study Planner “Add Study Task” form look visually lighter while preserving the existing layout, sizing, and theme.
 
 **Planned changes:**
-- Update Weekly Progress chart date handling to unwrap backend optional/variant `date` values (e.g., `[] | [Time]`) into a usable `Time`/JavaScript `Date` before calling the existing `normalizeTaskDate`.
-- Ensure the Weekly Progress chart derives all displayed metrics (total tasks, completed, pending, total time) exclusively from the `currentWeekTasks` filtered by the existing local-time week boundaries (Monday start through Sunday end).
-- Make Weekly Progress chart calculations reactive to `tasks` prop changes so add/delete/toggle completion immediately updates the chart values without refresh.
+- Set the Topic, Date, and Time input text font-weight to normal (400) without changing their existing height, border radius, or colors.
+- Reduce the Label font-weight for Topic, Date, and Time so labels are not bold, keeping current placement/alignment.
+- Ensure padding for Topic/Date/Time inputs matches the other form fields (only where currently inconsistent).
+- Limit styling changes to Topic/Date/Time only; do not change the Subject dropdown styling.
 
-**User-visible outcome:** In Weekly view, the Weekly Progress chart shows correct non-zero counts and time totals for tasks dated within the current week (including backend tasks with optional `date`), and updates instantly when tasks are added, deleted, or completed.
+**User-visible outcome:** On the Study Planner page, the Topic/Date/Time fields appear less bold/heavy (lighter labels and input text) while everything else, including layout, sizing, and the Subject dropdown, remains unchanged.

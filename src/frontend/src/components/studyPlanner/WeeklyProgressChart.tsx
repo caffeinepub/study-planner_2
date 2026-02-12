@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { parseDurationToMinutes, formatMinutesToDuration } from '@/utils/studyPlannerDuration';
-import { unwrapOptionalDate, normalizeTaskDate, isDateInCurrentWeek } from '@/utils/studyPlannerWeek';
 import type { StudyTask } from '@/hooks/useQueries';
 import type { GuestStudyTask } from '@/utils/studyPlannerGuestStorage';
 
@@ -11,22 +10,14 @@ interface WeeklyProgressChartProps {
 
 export function WeeklyProgressChart({ tasks }: WeeklyProgressChartProps) {
   const stats = useMemo(() => {
-    // Filter to current week only (Monday-Sunday)
-    const currentWeekTasks = tasks.filter((task) => {
-      // First unwrap any Candid optional array representation
-      const unwrappedDate = unwrapOptionalDate(task.date as any);
-      // Then normalize to JavaScript Date
-      const taskDate = normalizeTaskDate(unwrappedDate);
-      if (!taskDate) return false;
-      return isDateInCurrentWeek(taskDate);
-    });
-
-    const totalTasks = currentWeekTasks.length;
-    const completed = currentWeekTasks.filter((t) => t.isCompleted).length;
+    // Use the tasks prop directly - it's already the correct weekly tasks array
+    // from the parent component (same array used by the weekly task list)
+    const totalTasks = tasks.length;
+    const completed = tasks.filter((t) => t.isCompleted).length;
     const pending = totalTasks - completed;
     
-    // Sum study time of ONLY completed weekly tasks
-    const totalMinutes = currentWeekTasks
+    // Sum study time of ONLY completed tasks
+    const totalMinutes = tasks
       .filter((task) => task.isCompleted)
       .reduce((sum, task) => sum + parseDurationToMinutes(task.duration), 0);
     const totalTime = formatMinutesToDuration(totalMinutes);

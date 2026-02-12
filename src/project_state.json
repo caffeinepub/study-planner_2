@@ -4,29 +4,28 @@
   "summary": "New project",
   "architectural_notes": [],
   "known_issues": [
-    "Weekly chart is still not setting/displaying correctly for the user (real data not reflecting as expected)."
+    "Topic/Date/Time input fields appear visually heavy (font weight/prominence) and slightly unbalance the form layout"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-weekly-progress-chart-so-it-correctly-includes-backend-tasks-in-the-current-week-filter-by-properly-handling-the-backend-task-date-optional-variant-shape-before-calling-normalizetaskdate-backend-candid-optional-time-like-time-must-be-unwrapped-to-time",
-      "title": "Fix Weekly Progress Chart so it correctly includes backend tasks in the current-week filter by properly handling the backend task `date` optional/variant shape before calling `normalizeTaskDate` (backend candid optional time like `[] | [Time]` must be unwrapped to `Time`).",
+      "id": "feature-adjust-the-study-planner-add-study-task-form-so-that-the-topic-date-and-time-fields-appear-visually-lighter-without-changing-layout-structure-or-component-sizing-a-set-the-input-text-font-weight-to-normal-400-for-the-topic-input-and-the-date-time-inputs-b-reduce-the-corresponding-label-font-weight-so-it-is-not-bold-c-ensure-these-fields-use-padding-consistent-with-the-other-form-fields-d-keep-the-existing-input-height-do-not-resize-the-container-and-e-keep-the-same-border-radius-and-existing-color-scheme-apply-changes-only-to-topic-date-time-fields-and-do-not-affect-the-subject-dropdown-styling",
+      "title": "Adjust the Study Planner “Add Study Task” form so that the Topic, Date, and Time fields appear visually lighter without changing layout structure or component sizing: (a) set the input text font weight to normal (400) for the Topic input and the Date/Time inputs, (b) reduce the corresponding Label font weight so it is not bold, (c) ensure these fields use padding consistent with the other form fields, (d) keep the existing input height (do not resize the container), and (e) keep the same border radius and existing color scheme. Apply changes only to Topic/Date/Time fields and do not affect the Subject dropdown styling.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-ensure-weekly-progress-chart-calculations-and-bindings-total-tasks-completed-pending-and-total-time-are-derived-exclusively-from-the-filtered-currentweektasks-array-and-recalculate-immediately-when-the-tasks-prop-changes-add-delete-toggle-completion",
-      "title": "Ensure Weekly Progress Chart calculations and bindings (total tasks, completed, pending, and total time) are derived exclusively from the filtered `currentWeekTasks` array and recalculate immediately when the `tasks` prop changes (add/delete/toggle completion).",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Fix Weekly Progress Chart not reflecting real task data (optional date handling)",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Adjust Topic/Date/Time input fields to reduce visual heaviness (lighter font weights, consistent padding) without changing layout, sizing, border radius, color scheme, or subject dropdown styling",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Lighten visual weight of Topic/Date/Time fields in Study Planner form",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

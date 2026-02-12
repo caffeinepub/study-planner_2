@@ -435,7 +435,7 @@ export default function StudyPlannerPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="topic" className="flex items-center gap-2">
+                <Label htmlFor="topic" className="flex items-center gap-2 font-normal">
                   Topic <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -443,6 +443,7 @@ export default function StudyPlannerPage() {
                   placeholder="e.g., Algebra - Chapter 5"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
+                  className="font-normal"
                 />
               </div>
 
@@ -506,42 +507,28 @@ export default function StudyPlannerPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taskDate" className="flex items-center gap-2">
-                  Date
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Optional: Set a specific date for this task</p>
-                    </TooltipContent>
-                  </Tooltip>
+                <Label htmlFor="taskDate" className="flex items-center gap-2 font-normal">
+                  Date (Optional)
                 </Label>
                 <Input
                   id="taskDate"
                   type="date"
                   value={taskDate}
                   onChange={(e) => setTaskDate(e.target.value)}
+                  className="font-normal"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taskTime" className="flex items-center gap-2">
-                  Time
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Optional: Set a specific time for this task</p>
-                    </TooltipContent>
-                  </Tooltip>
+                <Label htmlFor="taskTime" className="flex items-center gap-2 font-normal">
+                  Time (Optional)
                 </Label>
                 <Input
                   id="taskTime"
                   type="time"
                   value={taskTime}
                   onChange={(e) => setTaskTime(e.target.value)}
+                  className="font-normal"
                 />
               </div>
 
@@ -551,13 +538,10 @@ export default function StudyPlannerPage() {
                 className="w-full"
               >
                 {isSubmitting || addTaskMutation.isPending ? (
-                  <>
-                    <span className="mr-2">Adding...</span>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  </>
+                  <>Adding Task...</>
                 ) : (
                   <>
-                    <Plus className="mr-2 h-4 w-4" />
+                    <Plus className="h-4 w-4 mr-2" />
                     Add Task
                   </>
                 )}
@@ -566,26 +550,26 @@ export default function StudyPlannerPage() {
           </Card>
 
           {/* Task List */}
-          <Card className="border-2">
+          <Card className="border-2 lg:row-span-2">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    {taskPanelHeading}
-                  </CardTitle>
-                  <CardDescription>
-                    {totalCount === 0
-                      ? 'No tasks yet. Add your first task!'
-                      : `${completedCount} of ${totalCount} completed`}
-                  </CardDescription>
-                </div>
+                <CardTitle className="flex items-center gap-2">
+                  {taskPanelHeading}
+                </CardTitle>
                 <div className="flex items-center gap-2">
+                  <SubjectFilterDropdown
+                    subjects={SUBJECTS}
+                    subjectCounts={subjectCounts}
+                    selectedSubject={subjectFilter}
+                    onSelectSubject={setSubjectFilter}
+                  />
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
                         size="icon"
                         onClick={handleSortChange}
+                        className="h-9 w-9"
                       >
                         <ArrowUpDown className="h-4 w-4" />
                       </Button>
@@ -594,155 +578,131 @@ export default function StudyPlannerPage() {
                       <p>{sortMode === 'default' ? 'Sort by date & time' : 'Sort by creation order'}</p>
                     </TooltipContent>
                   </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleDownloadTxt}
-                        disabled={sortedTasks.length === 0}
-                      >
-                        <FileText className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Export as TXT</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleDownloadPdf}
-                        disabled={sortedTasks.length === 0}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Export as PDF</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleClearAllTasks}
-                        disabled={sortedTasks.length === 0}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Clear all tasks</p>
-                    </TooltipContent>
-                  </Tooltip>
                 </div>
               </div>
+              <CardDescription>
+                {totalCount === 0
+                  ? 'No tasks yet. Add your first task!'
+                  : `${completedCount} of ${totalCount} tasks completed`}
+              </CardDescription>
+              {totalCount > 0 && (
+                <div className="pt-2">
+                  <Progress value={progressPercent} className="h-2" />
+                </div>
+              )}
             </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Subject Filter */}
-              <div className="flex items-center gap-2">
-                <Label className="text-sm font-medium">Filter by Subject:</Label>
-                <SubjectFilterDropdown
-                  subjects={SUBJECTS}
-                  subjectCounts={subjectCounts}
-                  selectedSubject={subjectFilter}
-                  onSelectSubject={setSubjectFilter}
-                />
-              </div>
-
-              {/* Progress Bar */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">Progress</span>
-                  <span className="text-muted-foreground">{progressPercent}%</span>
+            <CardContent>
+              {tasksLoading && isAuthenticated ? (
+                <div className="text-center py-8 text-muted-foreground">Loading tasks...</div>
+              ) : sortedTasks.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  {subjectFilter
+                    ? `No ${subjectFilter} tasks in ${currentView} view`
+                    : `No tasks in ${currentView} view`}
                 </div>
-                <Progress value={progressPercent} className="h-2" />
-              </div>
-
-              {/* Task List */}
-              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                {tasksLoading && isAuthenticated ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Loading tasks...
-                  </div>
-                ) : sortedTasks.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    {subjectFilter
-                      ? `No tasks found for ${subjectFilter}. Try a different subject or add a new task.`
-                      : 'No tasks yet. Add your first task to get started!'}
-                  </div>
-                ) : (
-                  sortedTasks.map((task) => {
+              ) : (
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                  {sortedTasks.map((task) => {
                     const taskId = task.id;
                     const indicatorColor = getIndicatorColorClass(task.subject);
-                    const dateTimeDisplay = formatTaskDateTime(task.date, task.time);
 
                     return (
                       <div
                         key={String(taskId)}
-                        className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                        className="group relative flex items-start gap-3 p-4 rounded-lg border-2 bg-card hover:shadow-md transition-all"
                       >
-                        <div className={`w-1 h-full rounded-full ${indicatorColor} flex-shrink-0 mt-1`} />
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          <Checkbox
-                            id={`task-${String(taskId)}`}
-                            checked={task.isCompleted}
-                            onCheckedChange={() => handleToggleComplete(taskId)}
-                            className="mt-1 flex-shrink-0"
-                          />
-                          <div className="flex-1 min-w-0 space-y-1">
-                            <Label
+                        <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-lg ${indicatorColor}`} />
+                        
+                        <Checkbox
+                          id={`task-${String(taskId)}`}
+                          checked={task.isCompleted}
+                          onCheckedChange={() => handleToggleComplete(taskId)}
+                          className="mt-1"
+                        />
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <label
                               htmlFor={`task-${String(taskId)}`}
-                              className={`text-sm font-medium cursor-pointer block ${
+                              className={`text-sm font-medium cursor-pointer ${
                                 task.isCompleted ? 'line-through text-muted-foreground' : ''
                               }`}
                             >
                               {task.topic}
-                            </Label>
-                            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                              <SubjectBadge subject={task.subject} />
-                              <Badge variant="outline" className="text-xs">
-                                {task.duration}
+                            </label>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteTask(taskId)}
+                              className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            <SubjectBadge subject={task.subject} />
+                            <Badge variant="outline" className="font-normal">
+                              {task.duration}
+                            </Badge>
+                            {task.priority && (
+                              <Badge
+                                variant="outline"
+                                className={`font-normal ${
+                                  task.priority === 'High'
+                                    ? 'border-red-500 text-red-700 dark:text-red-400'
+                                    : task.priority === 'Medium'
+                                    ? 'border-yellow-500 text-yellow-700 dark:text-yellow-400'
+                                    : 'border-green-500 text-green-700 dark:text-green-400'
+                                }`}
+                              >
+                                {task.priority}
                               </Badge>
-                              {task.priority && (
-                                <Badge
-                                  variant={
-                                    task.priority === 'High'
-                                      ? 'destructive'
-                                      : task.priority === 'Medium'
-                                      ? 'default'
-                                      : 'secondary'
-                                  }
-                                  className="text-xs"
-                                >
-                                  {task.priority}
-                                </Badge>
-                              )}
-                              {dateTimeDisplay && (
-                                <span className="text-xs text-muted-foreground">
-                                  {dateTimeDisplay}
-                                </span>
-                              )}
-                            </div>
+                            )}
+                            {(task.date || task.time) && (
+                              <Badge variant="outline" className="font-normal">
+                                {formatTaskDateTime(task.date, task.time)}
+                              </Badge>
+                            )}
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteTask(taskId)}
-                          className="flex-shrink-0 h-8 w-8"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
                       </div>
                     );
-                  })
-                )}
-              </div>
+                  })}
+                </div>
+              )}
+
+              {sortedTasks.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadTxt}
+                    className="flex-1"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export TXT
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadPdf}
+                    className="flex-1"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export PDF
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleClearAllTasks}
+                    className="flex-1"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Clear All
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -750,10 +710,7 @@ export default function StudyPlannerPage() {
         {/* Progress Charts Section */}
         {sortedTasks.length > 0 && (
           <div className="mt-6">
-            <ProgressChartsSection
-              tasks={sortedTasks}
-              viewType={currentView}
-            />
+            <ProgressChartsSection viewType={currentView} tasks={sortedTasks} />
           </div>
         )}
       </div>

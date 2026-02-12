@@ -1,37 +1,24 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T03:33:43.099Z",
+  "generatedAt": "2026-02-12T10:42:21.747Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 1,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix Weekly Progress Chart so it correctly includes backend tasks in the current-week filter by properly handling the backend task `date` optional/variant shape before calling `normalizeTaskDate` (backend candid optional time like `[] | [Time]` must be unwrapped to `Time`).",
+        "summary": "Adjust the Study Planner “Add Study Task” form so that the Topic, Date, and Time fields appear visually lighter without changing layout structure or component sizing: (a) set the input text font weight to normal (400) for the Topic input and the Date/Time inputs, (b) reduce the corresponding Label font weight so it is not bold, (c) ensure these fields use padding consistent with the other form fields, (d) keep the existing input height (do not resize the container), and (e) keep the same border radius and existing color scheme. Apply changes only to Topic/Date/Time fields and do not affect the Subject dropdown styling.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/studyPlannerWeek.ts",
-          "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx"
+          "frontend/src/pages/StudyPlannerPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/studyPlannerWeek.ts",
-          "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx"
-        ]
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Ensure Weekly Progress Chart calculations and bindings (total tasks, completed, pending, and total time) are derived exclusively from the filtered `currentWeekTasks` array and recalculate immediately when the `tasks` prop changes (add/delete/toggle completion).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx"
+          "frontend/src/pages/StudyPlannerPage.tsx"
         ]
       }
     ]
@@ -41,8 +28,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/studyPlanner/WeeklyProgressChart.tsx",
-    "frontend/src/utils/studyPlannerWeek.ts",
+    "frontend/src/pages/StudyPlannerPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
