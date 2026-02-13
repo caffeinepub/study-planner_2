@@ -1,34 +1,30 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T10:42:21.747Z",
+  "generatedAt": "2026-02-13T14:31:41.591Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 1,
-    "implemented": 1,
+    "implemented": 0,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Adjust the Study Planner “Add Study Task” form so that the Topic, Date, and Time fields appear visually lighter without changing layout structure or component sizing: (a) set the input text font weight to normal (400) for the Topic input and the Date/Time inputs, (b) reduce the corresponding Label font weight so it is not bold, (c) ensure these fields use padding consistent with the other form fields, (d) keep the existing input height (do not resize the container), and (e) keep the same border radius and existing color scheme. Apply changes only to Topic/Date/Time fields and do not affect the Subject dropdown styling.",
-        "status": "implemented",
+        "summary": "Promote draft version 73 to the Live/Production channel by ensuring `frontend/.release/production-version.txt` references draft version `73`, and perform the release promotion as a metadata-only change (no application source code changes).",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/pages/StudyPlannerPage.tsx"
+          "frontend/.release/production-version.txt"
         ],
-        "matchedFiles": [
-          "frontend/src/pages/StudyPlannerPage.tsx"
-        ]
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/StudyPlannerPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

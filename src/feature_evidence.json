@@ -1,26 +1,4 @@
 {
   "kind": "feature_evidence_report",
-  "features": [
-    {
-      "featureId": "feature-adjust-the-study-planner-add-study-task-form-so-that-the-topic-date-and-time-fields-appear-visually-lighter-without-changing-layout-structure-or-component-sizing-a-set-the-input-text-font-weight-to-normal-400-for-the-topic-input-and-the-date-time-inputs-b-reduce-the-corresponding-label-font-weight-so-it-is-not-bold-c-ensure-these-fields-use-padding-consistent-with-the-other-form-fields-d-keep-the-existing-input-height-do-not-resize-the-container-and-e-keep-the-same-border-radius-and-existing-color-scheme-apply-changes-only-to-topic-date-time-fields-and-do-not-affect-the-subject-dropdown-styling",
-      "featureTitle": "Adjust the Study Planner “Add Study Task” form so that the Topic, Date, and Time fields appear visually lighter without changing layout structure or component sizing: (a) set the input text font weight to normal (400) for the Topic input and the Date/Time inputs, (b) reduce the corresponding Label font weight so it is not bold, (c) ensure these fields use padding consistent with the other form fields, (d) keep the existing input height (do not resize the container), and (e) keep the same border radius and existing color scheme. Apply changes only to Topic/Date/Time fields and do not affect the Subject dropdown styling.",
-      "files": [
-        "frontend/src/pages/StudyPlannerPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "camera@1.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    }
-  ]
+  "features": []
 }

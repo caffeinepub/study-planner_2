@@ -1,41 +1,34 @@
 {
   "kind": "build_request",
-  "title": "Lighten visual weight of Topic/Date/Time fields in Study Planner form",
+  "title": "Promote Draft Version 73 to Live/Production",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Adjust the Study Planner “Add Study Task” form so that the Topic, Date, and Time fields appear visually lighter without changing layout structure or component sizing: (a) set the input text font weight to normal (400) for the Topic input and the Date/Time inputs, (b) reduce the corresponding Label font weight so it is not bold, (c) ensure these fields use padding consistent with the other form fields, (d) keep the existing input height (do not resize the container), and (e) keep the same border radius and existing color scheme. Apply changes only to Topic/Date/Time fields and do not affect the Subject dropdown styling.",
+      "text": "Promote draft version 73 to the Live/Production channel by ensuring `frontend/.release/production-version.txt` references draft version `73`, and perform the release promotion as a metadata-only change (no application source code changes).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "ADJUST INPUT FIELD VISUAL WEIGHT (TOPIC, DATE, TIME)\n\nRequired Adjustments:\n1. Reduce font-weight of input text to normal (400).\n2. Reduce label font-weight slightly (not bold).\n3. Ensure consistent padding with other fields.\n4. Keep input height same (do NOT resize container).\n5. Maintain same border radius and color scheme.\n\nStrict Rules:\n- Do NOT change layout structure.\n- Do NOT resize form sections.\n- Do NOT affect subject dropdown styling.\n- Only reduce visual heaviness."
+          "73 draft ko live karo"
         ]
       },
       "acceptanceCriteria": [
-        "On the Study Planner page, the Topic input (id=\"topic\") renders its user-entered text at font-weight 400 (normal) and does not appear bold/heavy.",
-        "On the Study Planner page, the Date and Time inputs (the optional date/time fields in the same Add Study Task form) render their user-entered text at font-weight 400 (normal) and do not appear bold/heavy.",
-        "The labels for Topic, Date, and Time are not bold (reduced weight compared to the current state) while preserving their current placement and alignment.",
-        "Padding for Topic/Date/Time inputs matches the other form fields in the same form (no extra/uneven horizontal or vertical padding introduced).",
-        "The Topic/Date/Time input heights remain unchanged (no changes that would alter the field/container height), and their border radius and color tokens remain consistent with the existing theme.",
-        "The Subject dropdown (SelectTrigger/SelectValue under the “Subject” field) styling is unchanged."
+        "`frontend/.release/production-version.txt` contains exactly `73` as the promoted production draft version.",
+        "No files under `frontend/src/` are modified as part of this promotion.",
+        "After deployment, end users are served draft version 73 in the live/production channel."
       ]
     }
   ],
   "constraints": [
-    "Do not change the layout structure of the Study Planner form (no reordering, no grid changes).",
-    "Do not resize form sections or containers; keep input heights unchanged.",
-    "Do not modify or restyle the Subject dropdown.",
-    "Maintain existing border radius and color scheme; only reduce perceived visual heaviness via font-weight (and matching padding where currently inconsistent).",
-    "Do not edit files under frontend/src/components/ui (compose via className/props in page/component usage instead)."
+    "Promotion must be metadata-only per `frontend/.release/README.md` (do not modify application source files under `frontend/src/`).",
+    "Do not introduce any rebuild/recompilation changes beyond what is required for promotion."
   ],
   "nonGoals": [
-    "Changing typography, spacing, or styling for other fields such as Subject, Duration, Priority, or any task list UI.",
-    "Any backend changes or data model changes.",
-    "Introducing new form fields, validations, or interactions."
+    "Do not implement or modify any app features (including the strike-through behavior issue) as part of this request.",
+    "Do not change backend canister code or Motoko state."
   ],
   "imageRequirements": {
     "required": [],

@@ -1,24 +1,21 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Lighten Topic/Date/Time visual weight in Study Planner Add Study Task form",
+  "title": "Promote Draft Version 73 to Live/Production (Metadata-only)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Make only the Topic, Date, and Time fields in the Study Planner “Add Study Task” form appear visually lighter (normal-weight input text and non-bold labels) while preserving layout, sizing, padding consistency, border radius, and theme colors; do not change Subject dropdown styling.",
+      "summary": "Promote draft version 73 to the live/production channel via release metadata only (no frontend source changes).",
       "acceptanceCriteria": [
-        "On the Study Planner page, the Topic input (id=\"topic\") renders its user-entered text at font-weight 400 (normal) and does not appear bold/heavy.",
-        "On the Study Planner page, the Date and Time inputs (the optional date/time fields in the same Add Study Task form) render their user-entered text at font-weight 400 (normal) and do not appear bold/heavy.",
-        "The labels for Topic, Date, and Time are not bold (reduced weight compared to the current state) while preserving their current placement and alignment.",
-        "Padding for Topic/Date/Time inputs matches the other form fields in the same form (no extra/uneven horizontal or vertical padding introduced).",
-        "The Topic/Date/Time input heights remain unchanged (no changes that would alter the field/container height), and their border radius and color tokens remain consistent with the existing theme.",
-        "The Subject dropdown (SelectTrigger/SelectValue under the “Subject” field) styling is unchanged."
+        "`frontend/.release/production-version.txt` contains exactly `73` as the promoted production draft version.",
+        "No files under `frontend/src/` are modified as part of this promotion.",
+        "After deployment, end users are served draft version 73 in the live/production channel."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/StudyPlannerPage.tsx",
+          "path": "frontend/.release/production-version.txt",
           "operation": "modify",
-          "description": "In the “Add Study Task” form, adjust only the Topic, Date, and Time fields by passing targeted className overrides to the existing shadcn-ui Label and Input usages (e.g., set label font weight to non-bold and input text to font-normal/400). Ensure the overrides do not alter height, border radius, or color tokens, and keep padding consistent with other inputs; do not change any SelectTrigger/SelectValue styling for the Subject dropdown. Verify the component's usage instructions before implementing."
+          "description": "Set/confirm the promoted production draft version to `73` (metadata-only promotion per `frontend/.release/README.md`); do not modify any files under `frontend/src/`."
         }
       ]
     }

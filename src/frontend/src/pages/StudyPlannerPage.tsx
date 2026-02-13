@@ -435,7 +435,7 @@ export default function StudyPlannerPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="topic" className="flex items-center gap-2 font-normal">
+                <Label htmlFor="topic" className="flex items-center gap-2 font-normal text-sm">
                   Topic <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -507,7 +507,7 @@ export default function StudyPlannerPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taskDate" className="flex items-center gap-2 font-normal">
+                <Label htmlFor="taskDate" className="flex items-center gap-2 font-normal text-sm">
                   Date (Optional)
                 </Label>
                 <Input
@@ -520,7 +520,7 @@ export default function StudyPlannerPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taskTime" className="flex items-center gap-2 font-normal">
+                <Label htmlFor="taskTime" className="flex items-center gap-2 font-normal text-sm">
                   Time (Optional)
                 </Label>
                 <Input
@@ -534,28 +534,19 @@ export default function StudyPlannerPage() {
 
               <Button
                 onClick={handleAddTask}
-                disabled={isSubmitting || addTaskMutation.isPending}
+                disabled={isSubmitting}
                 className="w-full"
               >
-                {isSubmitting || addTaskMutation.isPending ? (
-                  <>Adding Task...</>
-                ) : (
-                  <>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Task
-                  </>
-                )}
+                {isSubmitting ? 'Adding...' : 'Add Task'}
               </Button>
             </CardContent>
           </Card>
 
           {/* Task List */}
-          <Card className="border-2 lg:row-span-2">
+          <Card className="border-2">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  {taskPanelHeading}
-                </CardTitle>
+                <CardTitle className="text-xl">{taskPanelHeading}</CardTitle>
                 <div className="flex items-center gap-2">
                   <SubjectFilterDropdown
                     subjects={SUBJECTS}
@@ -578,128 +569,144 @@ export default function StudyPlannerPage() {
                       <p>{sortMode === 'default' ? 'Sort by date & time' : 'Sort by creation order'}</p>
                     </TooltipContent>
                   </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleDownloadTxt}
+                        className="h-9 w-9"
+                      >
+                        <FileText className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Export as TXT</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleDownloadPdf}
+                        className="h-9 w-9"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Export as PDF</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
               <CardDescription>
-                {totalCount === 0
-                  ? 'No tasks yet. Add your first task!'
-                  : `${completedCount} of ${totalCount} tasks completed`}
+                {totalCount === 0 ? 'No tasks yet' : `${completedCount} of ${totalCount} completed`}
               </CardDescription>
-              {totalCount > 0 && (
-                <div className="pt-2">
-                  <Progress value={progressPercent} className="h-2" />
-                </div>
-              )}
             </CardHeader>
-            <CardContent>
-              {tasksLoading && isAuthenticated ? (
-                <div className="text-center py-8 text-muted-foreground">Loading tasks...</div>
-              ) : sortedTasks.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {subjectFilter
-                    ? `No ${subjectFilter} tasks in ${currentView} view`
-                    : `No tasks in ${currentView} view`}
+            <CardContent className="space-y-4">
+              {/* Progress Bar */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Progress</span>
+                  <span className="font-medium">{progressPercent}%</span>
                 </div>
-              ) : (
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                  {sortedTasks.map((task) => {
+                <Progress value={progressPercent} className="h-2" />
+              </div>
+
+              {/* Task List with fixed height and scroll */}
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                {sortedTasks.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No tasks added yet.</p>
+                    <p className="text-sm mt-1">Create your first task to get started!</p>
+                  </div>
+                ) : (
+                  sortedTasks.map((task) => {
                     const taskId = task.id;
+                    const isCompleted = task.isCompleted;
                     const indicatorColor = getIndicatorColorClass(task.subject);
+                    const dateTimeDisplay = formatTaskDateTime(task.date, task.time);
 
                     return (
                       <div
                         key={String(taskId)}
-                        className="group relative flex items-start gap-3 p-4 rounded-lg border-2 bg-card hover:shadow-md transition-all"
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          isCompleted
+                            ? 'bg-muted/50 border-muted'
+                            : 'bg-card border-border hover:border-primary/50'
+                        }`}
                       >
-                        <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-lg ${indicatorColor}`} />
-                        
-                        <Checkbox
-                          id={`task-${String(taskId)}`}
-                          checked={task.isCompleted}
-                          onCheckedChange={() => handleToggleComplete(taskId)}
-                          className="mt-1"
-                        />
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-1 h-full rounded-full ${indicatorColor} flex-shrink-0 mt-1`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Checkbox
+                                  checked={isCompleted}
+                                  onCheckedChange={() => handleToggleComplete(taskId)}
+                                  id={`task-${taskId}`}
+                                />
+                                <SubjectBadge subject={task.subject} />
+                                {task.priority && (
+                                  <Badge
+                                    variant="outline"
+                                    className={`text-xs ${
+                                      task.priority === 'High'
+                                        ? 'border-red-500 text-red-700 dark:text-red-400'
+                                        : task.priority === 'Medium'
+                                        ? 'border-yellow-500 text-yellow-700 dark:text-yellow-400'
+                                        : 'border-green-500 text-green-700 dark:text-green-400'
+                                    }`}
+                                  >
+                                    {task.priority}
+                                  </Badge>
+                                )}
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDeleteTask(taskId)}
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive flex-shrink-0"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                             <label
-                              htmlFor={`task-${String(taskId)}`}
-                              className={`text-sm font-medium cursor-pointer ${
-                                task.isCompleted ? 'line-through text-muted-foreground' : ''
+                              htmlFor={`task-${taskId}`}
+                              className={`block text-sm font-medium mb-1 cursor-pointer ${
+                                isCompleted ? 'line-through text-muted-foreground' : ''
                               }`}
                             >
                               {task.topic}
                             </label>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteTask(taskId)}
-                              className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                            <SubjectBadge subject={task.subject} />
-                            <Badge variant="outline" className="font-normal">
-                              {task.duration}
-                            </Badge>
-                            {task.priority && (
-                              <Badge
-                                variant="outline"
-                                className={`font-normal ${
-                                  task.priority === 'High'
-                                    ? 'border-red-500 text-red-700 dark:text-red-400'
-                                    : task.priority === 'Medium'
-                                    ? 'border-yellow-500 text-yellow-700 dark:text-yellow-400'
-                                    : 'border-green-500 text-green-700 dark:text-green-400'
-                                }`}
-                              >
-                                {task.priority}
-                              </Badge>
-                            )}
-                            {(task.date || task.time) && (
-                              <Badge variant="outline" className="font-normal">
-                                {formatTaskDateTime(task.date, task.time)}
-                              </Badge>
-                            )}
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+                              <span>{task.duration}</span>
+                              {dateTimeDisplay && (
+                                <>
+                                  <span>•</span>
+                                  <span>{dateTimeDisplay}</span>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
                     );
-                  })}
-                </div>
-              )}
+                  })
+                )}
+              </div>
 
+              {/* Action Buttons */}
               {sortedTasks.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
+                <div className="pt-4 border-t">
                   <Button
                     variant="outline"
-                    size="sm"
-                    onClick={handleDownloadTxt}
-                    className="flex-1"
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Export TXT
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDownloadPdf}
-                    className="flex-1"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Export PDF
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
                     onClick={handleClearAllTasks}
-                    className="flex-1"
+                    className="w-full text-destructive hover:text-destructive"
                   >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Clear All
+                    Clear All Tasks
                   </Button>
                 </div>
               )}
@@ -708,11 +715,7 @@ export default function StudyPlannerPage() {
         </div>
 
         {/* Progress Charts Section */}
-        {sortedTasks.length > 0 && (
-          <div className="mt-6">
-            <ProgressChartsSection viewType={currentView} tasks={sortedTasks} />
-          </div>
-        )}
+        <ProgressChartsSection viewType={currentView} tasks={filteredTasks} />
       </div>
     </TooltipProvider>
   );

@@ -1,12 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Make the Topic, Date, and Time fields in the Study Planner “Add Study Task” form look visually lighter while preserving the existing layout, sizing, and theme.
+**Goal:** Promote draft version 73 to the Live/Production channel as a metadata-only release change.
 
 **Planned changes:**
-- Set the Topic, Date, and Time input text font-weight to normal (400) without changing their existing height, border radius, or colors.
-- Reduce the Label font-weight for Topic, Date, and Time so labels are not bold, keeping current placement/alignment.
-- Ensure padding for Topic/Date/Time inputs matches the other form fields (only where currently inconsistent).
-- Limit styling changes to Topic/Date/Time only; do not change the Subject dropdown styling.
+- Update `frontend/.release/production-version.txt` to reference draft version `73`.
+- Perform the release promotion without modifying any application source files under `frontend/src/`.
 
-**User-visible outcome:** On the Study Planner page, the Topic/Date/Time fields appear less bold/heavy (lighter labels and input text) while everything else, including layout, sizing, and the Subject dropdown, remains unchanged.
+**User-visible outcome:** End users are served draft version 73 in the live/production channel after deployment.
