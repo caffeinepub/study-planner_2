@@ -1,44 +1,62 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "UI enhancement for the Cleaned Notes panel: rebuild action section with Copy/Clear/Download TXT controls, file name input, auto-reset behavior, and TXT export with specific naming rules.",
+  "summary": "Note formatting tool with smart semantic bullet splitting engine for academic content",
   "architectural_notes": [
-    "Only modify the Cleaned Notes panel; do not remove existing formatting features.",
-    "Download TXT button should be hidden when Cleaned Output is empty.",
-    "Default download filename format: notes_<first_word_of_output>_<YYYY-MM-DD>.txt when File Name input is empty."
+    "Smart semantic splitting engine: preserves scientific compound terms (e.g., 'carbon dioxide and water') as single bullets",
+    "Splitting rules: only split when 2+ standalone technical phrases appear without conjunctions (and/or/with/of/from/to/in/by/using/through)",
+    "Semantic grouping applied BEFORE bullet conversion to maintain meaning",
+    "Prevents single-word bullets, conjunction-led bullets, and modifier-separated bullets",
+    "Protects phrases with subject+verb, descriptive clauses, and process explanations from splitting"
   ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-modify-only-the-cleaned-notes-output-panel-in-frontend-src-pages-notescleanerpage-tsx-to-rebuild-the-action-section-layout-as-follows-1-keep-the-existing-copy-button-directly-below-the-cleaned-output-textarea-2-add-a-new-clear-output-button-next-to-copy-same-row-3-directly-below-that-row-render-a-file-name-input-with-placeholder-enter-file-name-optional-and-4-directly-below-the-file-name-input-render-a-download-txt-button-ensure-the-layout-is-clean-and-responsive-stacking-appropriately-on-small-screens-and-do-not-remove-or-change-any-existing-formatting-features-options",
-      "title": "Modify only the \"Cleaned Notes\" output panel in frontend/src/pages/NotesCleanerPage.tsx to rebuild the action section layout as follows: (1) keep the existing Copy button directly below the \"Cleaned Output\" textarea, (2) add a new \"Clear Output\" button next to Copy (same row), (3) directly below that row render a \"File Name\" input with placeholder \"Enter file name (optional)\", and (4) directly below the File Name input render a \"Download TXT\" button. Ensure the layout is clean and responsive (stacking appropriately on small screens) and do not remove or change any existing formatting features/options.",
+      "id": "feature-remove-all-existing-bullet-point-splitting-logic-from-notescleanerformat-ts-including-converttoparagraphtopoints-converttobulletpoints-and-definition-style-bullet-formatting-functions",
+      "title": "Remove all existing bullet point splitting logic from notesCleanerFormat.ts including convertToParagraphToPoints, convertToBulletPoints, and definition style bullet formatting functions",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-clear-output-behavior-in-frontend-src-pages-notescleanerpage-tsx-when-clicked-completely-clear-the-cleaned-output-textarea-cleanednotes-becomes-empty-reset-the-file-name-input-value-to-empty-reset-the-copy-button-state-so-it-is-no-longer-in-a-copied-state-and-ensure-the-download-txt-button-is-hidden-when-the-output-is-empty",
-      "title": "Implement \"Clear Output\" behavior in frontend/src/pages/NotesCleanerPage.tsx: when clicked, completely clear the \"Cleaned Output\" textarea (cleanedNotes becomes empty), reset the File Name input value to empty, reset the Copy button state (so it is no longer in a \"Copied!\" state), and ensure the \"Download TXT\" button is hidden when the output is empty.",
+      "id": "feature-implement-semantic-phrase-detection-that-preserves-scientific-compound-terms-as-single-bullets-carbon-dioxide-and-water-semi-permeable-membrane-low-solute-concentration-high-solute-concentration-must-never-be-split",
+      "title": "Implement semantic phrase detection that preserves scientific compound terms as single bullets: 'carbon dioxide and water', 'semi permeable membrane', 'low solute concentration', 'high solute concentration' must never be split",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-auto-reset-behavior-when-the-clean-notes-button-is-clicked-in-frontend-src-pages-notescleanerpage-tsx-automatically-clear-any-previous-cleaned-output-and-reset-file-name-and-copy-state-before-displaying-the-newly-formatted-result-ensuring-outputs-do-not-stack-accumulate-across-runs",
-      "title": "Implement auto-reset behavior when the \"Clean Notes\" button is clicked in frontend/src/pages/NotesCleanerPage.tsx: automatically clear any previous cleaned output and reset File Name and Copy state before displaying the newly formatted result, ensuring outputs do not stack/accumulate across runs.",
+      "id": "feature-implement-smart-splitting-logic-that-only-creates-multiple-bullets-when-2-or-more-standalone-technical-phrases-appear-sequentially-without-conjunctions-and-or-with-of-from-to-in-by-using-through",
+      "title": "Implement smart splitting logic that only creates multiple bullets when 2 or more standalone technical phrases appear sequentially WITHOUT conjunctions (and/or/with/of/from/to/in/by/using/through)",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-txt-download-logic-to-match-the-requested-naming-rules-while-preserving-plain-text-export-in-frontend-src-utils-notescleanertxtdownload-ts-when-the-file-name-input-is-empty-generate-the-filename-using-the-format-notes-first-word-of-output-current-date-txt-where-current-date-is-yyyy-mm-dd-the-first-word-of-output-must-come-from-the-cleaned-output-text-ignoring-leading-whitespace-and-common-bullet-prefixes-like-sanitized-for-filenames-lowercase-spaces-to-underscores-remove-non-a-z0-9-collapse-underscores-when-a-custom-name-is-provided-use-it-and-ensure-it-ends-with-txt-the-downloaded-file-must-contain-exactly-the-cleaned-output-as-plain-text-preserving-spacing-newlines-and-containing-no-html-tags",
-      "title": "Update TXT download logic to match the requested naming rules while preserving plain-text export: in frontend/src/utils/notesCleanerTxtDownload.ts, when the File Name input is empty, generate the filename using the format notes_<first_word_of_output>_<current_date>.txt where <current_date> is YYYY-MM-DD. The <first_word_of_output> must come from the cleaned output text (ignoring leading whitespace and common bullet prefixes like \"- \", \"• \", \"* \"), sanitized for filenames (lowercase, spaces to underscores, remove non [a-z0-9_], collapse underscores). When a custom name is provided, use it and ensure it ends with .txt. The downloaded file must contain exactly the cleaned output as plain text, preserving spacing/newlines and containing no HTML tags.",
+      "id": "feature-preserve-complete-sentences-as-single-bullets-when-they-contain-subject-verb-descriptive-clause-or-process-explanation-preventing-fragmentation",
+      "title": "Preserve complete sentences as single bullets when they contain subject + verb + descriptive clause or process explanation, preventing fragmentation",
       "reqIds": [
         "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-validation-rules-to-prevent-single-word-bullets-conjunction-led-bullets-and-modifier-separated-bullets-in-all-conversion-modes",
+      "title": "Implement validation rules to prevent single-word bullets, conjunction-led bullets, and modifier-separated bullets in all conversion modes",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-semantic-grouping-before-bullet-conversion-and-prioritize-meaning-preservation-over-formatting-in-all-three-conversion-modes-convert-paragraph-to-points-convert-to-bullet-points-and-definition-style-format",
+      "title": "Apply semantic grouping before bullet conversion and prioritize meaning preservation over formatting in all three conversion modes: Convert Paragraph to Points, Convert to Bullet Points, and Definition Style Format",
+      "reqIds": [
+        "REQ-6"
       ],
       "version": 1
     }
@@ -46,30 +64,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Rebuild Cleaned Notes action section: add File Name input, Clear Output button next to Copy, and Download TXT button below Copy; only modify Cleaned Notes panel and keep responsive layout.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Implement Clear Output behavior: clears Cleaned Output textarea, hides Download TXT when output empty, and resets File Name input.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Implement auto-reset on Clean Notes: clear previous Cleaned Output before showing new formatted result; do not stack outputs.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Implement Download TXT export: generate plain .txt preserving spacing/formatting with no HTML tags; filename uses custom input or default notes_<first_word_of_output>_<YYYY-MM-DD>.txt.",
+      "summary": "Replace bullet/paragraph splitting with smart semantic splitting engine that preserves scientific phrases and prevents over-splitting",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Rebuild Notes Cleaner output action section (Copy/Clear + File Name + Download TXT) with reset & filename rules",
+  "projectName": "Replace bullet splitting engine with smart semantic splitting",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

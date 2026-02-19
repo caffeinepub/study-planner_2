@@ -1,57 +1,80 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T15:29:52.289Z",
+  "generatedAt": "2026-02-19T14:13:07.566Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 6,
+    "implemented": 6,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Modify only the \"Cleaned Notes\" output panel in frontend/src/pages/NotesCleanerPage.tsx to rebuild the action section layout as follows: (1) keep the existing Copy button directly below the \"Cleaned Output\" textarea, (2) add a new \"Clear Output\" button next to Copy (same row), (3) directly below that row render a \"File Name\" input with placeholder \"Enter file name (optional)\", and (4) directly below the File Name input render a \"Download TXT\" button. Ensure the layout is clean and responsive (stacking appropriately on small screens) and do not remove or change any existing formatting features/options.",
+        "summary": "Remove all existing bullet point splitting logic from notesCleanerFormat.ts including convertToParagraphToPoints, convertToBulletPoints, and definition style bullet formatting functions",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/utils/notesCleanerFormat.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/utils/notesCleanerFormat.ts"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Implement \"Clear Output\" behavior in frontend/src/pages/NotesCleanerPage.tsx: when clicked, completely clear the \"Cleaned Output\" textarea (cleanedNotes becomes empty), reset the File Name input value to empty, reset the Copy button state (so it is no longer in a \"Copied!\" state), and ensure the \"Download TXT\" button is hidden when the output is empty.",
+        "summary": "Implement semantic phrase detection that preserves scientific compound terms as single bullets: 'carbon dioxide and water', 'semi permeable membrane', 'low solute concentration', 'high solute concentration' must never be split",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/utils/notesCleanerFormat.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/utils/notesCleanerFormat.ts"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Implement auto-reset behavior when the \"Clean Notes\" button is clicked in frontend/src/pages/NotesCleanerPage.tsx: automatically clear any previous cleaned output and reset File Name and Copy state before displaying the newly formatted result, ensuring outputs do not stack/accumulate across runs.",
+        "summary": "Implement smart splitting logic that only creates multiple bullets when 2 or more standalone technical phrases appear sequentially WITHOUT conjunctions (and/or/with/of/from/to/in/by/using/through)",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/utils/notesCleanerFormat.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/utils/notesCleanerFormat.ts"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Update TXT download logic to match the requested naming rules while preserving plain-text export: in frontend/src/utils/notesCleanerTxtDownload.ts, when the File Name input is empty, generate the filename using the format notes_<first_word_of_output>_<current_date>.txt where <current_date> is YYYY-MM-DD. The <first_word_of_output> must come from the cleaned output text (ignoring leading whitespace and common bullet prefixes like \"- \", \"• \", \"* \"), sanitized for filenames (lowercase, spaces to underscores, remove non [a-z0-9_], collapse underscores). When a custom name is provided, use it and ensure it ends with .txt. The downloaded file must contain exactly the cleaned output as plain text, preserving spacing/newlines and containing no HTML tags.",
+        "summary": "Preserve complete sentences as single bullets when they contain subject + verb + descriptive clause or process explanation, preventing fragmentation",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/notesCleanerTxtDownload.ts"
+          "frontend/src/utils/notesCleanerFormat.ts"
         ],
         "matchedFiles": [
-          "frontend/src/utils/notesCleanerTxtDownload.ts"
+          "frontend/src/utils/notesCleanerFormat.ts"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Implement validation rules to prevent single-word bullets, conjunction-led bullets, and modifier-separated bullets in all conversion modes",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/notesCleanerFormat.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/notesCleanerFormat.ts"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Apply semantic grouping before bullet conversion and prioritize meaning preservation over formatting in all three conversion modes: Convert Paragraph to Points, Convert to Bullet Points, and Definition Style Format",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/notesCleanerFormat.ts",
+          "frontend/src/pages/NotesCleanerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/notesCleanerFormat.ts"
         ]
       }
     ]
@@ -61,8 +84,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/NotesCleanerPage.tsx",
-    "frontend/src/utils/notesCleanerTxtDownload.ts",
+    "frontend/src/utils/notesCleanerFormat.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

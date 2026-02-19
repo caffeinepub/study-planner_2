@@ -1,86 +1,229 @@
 import { getBulletPrefix, getCurrentBulletStyle } from './notesCleanerBulletStyle';
 
 /**
- * Detects if input is a paragraph (continuous text block with multiple sentences and no manual line breaks)
+ * Detects standalone topic words followed by line breaks and converts them to formatted headings
+ * with spacing above and below
  */
-function isParagraph(input: string): boolean {
-  const trimmed = input.trim();
+function applyAutoDetectHeadings(input: string): string {
+  const lines = input.split('\n');
+  const output: string[] = [];
   
-  // Check if input contains manual line breaks
-  if (trimmed.includes('\n')) {
-    return false;
-  }
-  
-  // Count sentence boundaries (., ?, !)
-  const sentenceBoundaries = (trimmed.match(/[.!?]/g) || []).length;
-  
-  // Must have more than 1 sentence boundary to be considered a paragraph
-  return sentenceBoundaries > 1;
-}
-
-/**
- * Splits paragraph into sentences based on sentence boundaries (., ?, !)
- * Removes empty fragments and normalizes whitespace
- */
-function splitIntoSentences(paragraph: string): string[] {
-  // Split on sentence boundaries while keeping the punctuation
-  const parts = paragraph.split(/([.!?])/);
-  
-  const sentences: string[] = [];
-  let currentSentence = '';
-  
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
     
-    if (part.match(/[.!?]/)) {
-      // This is punctuation, add it to current sentence
-      currentSentence += part;
-      
-      // Trim and add to sentences if not empty
-      const trimmed = currentSentence.trim();
-      if (trimmed.length > 0) {
-        sentences.push(trimmed);
+    // Skip empty lines
+    if (line.length === 0) {
+      output.push('');
+      continue;
+    }
+    
+    // Check if this is a standalone topic word (1-5 words, no punctuation)
+    const words = line.split(/\s+/).filter(w => w.length > 0);
+    const isStandaloneTopic = words.length >= 1 && words.length <= 5 && !line.match(/[.!?,;:]/);
+    
+    if (isStandaloneTopic) {
+      // Add spacing before heading (unless it's the first line)
+      if (i > 0 && output[output.length - 1] !== '') {
+        output.push('');
       }
       
-      currentSentence = '';
+      // Convert to Title Case
+      const heading = words
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+      output.push(heading);
+      
+      // Add spacing after heading
+      output.push('');
     } else {
-      // This is text content
-      currentSentence += part;
+      output.push(line);
     }
   }
   
-  // Add any remaining content (text without ending punctuation)
-  const remaining = currentSentence.trim();
-  if (remaining.length > 0) {
-    sentences.push(remaining);
-  }
-  
-  return sentences;
+  return output.join('\n');
 }
 
 /**
- * Checks if input is eligible for Definition Style formatting
- * Eligible when: single line, 2-12 words, no ending punctuation, no sentence boundaries
+ * SMART SEMANTIC SPLITTING ENGINE
+ * 
+ * Core principles:
+ * 1. Protect scientific compound terms (e.g., "carbon dioxide and water")
+ * 2. Preserve complete sentences with subject + verb + descriptive clause
+ * 3. Only split sequential standalone technical phrases WITHOUT conjunctions
+ * 4. Prevent single-word bullets, conjunction-led bullets, modifier-separated bullets
+ * 5. Prioritize meaning preservation over formatting
  */
-function isEligibleForDefinitionStyle(input: string): boolean {
-  const trimmed = input.trim();
+
+/**
+ * Detects if text contains a scientific or technical compound term that should NOT be split
+ * Examples: "carbon dioxide and water", "low solute concentration and high solute concentration"
+ */
+function isProtectedCompoundTerm(text: string): boolean {
+  const lowerText = text.toLowerCase().trim();
   
-  // Must be a single line (no line breaks)
-  if (trimmed.includes('\n')) {
+  // Pattern 1: Chemical compounds with "and" (e.g., "carbon dioxide and water")
+  if (/\b(carbon|nitrogen|oxygen|hydrogen|sodium|chloride|dioxide|monoxide)\b.*\band\b.*\b(carbon|nitrogen|oxygen|hydrogen|sodium|chloride|dioxide|monoxide|water)\b/i.test(lowerText)) {
+    return true;
+  }
+  
+  // Pattern 2: Scientific descriptive phrases with modifiers and "and"
+  // (e.g., "low solute concentration and high solute concentration")
+  if (/\b(low|high|semi|permeable|solute|concentration|membrane)\b.*\band\b.*\b(low|high|semi|permeable|solute|concentration|membrane)\b/i.test(lowerText)) {
+    return true;
+  }
+  
+  // Pattern 3: Compound technical terms with dependent modifiers
+  if (/\b(semi\s+permeable|low\s+solute|high\s+solute|cell\s+membrane|cell\s+wall)\b/i.test(lowerText)) {
+    return true;
+  }
+  
+  // Pattern 4: Short phrases with "and" connecting two closely related terms (likely compound)
+  const words = lowerText.split(/\s+/);
+  if (words.length <= 6 && /\band\b/.test(lowerText)) {
+    // If it's a short phrase with "and", likely a compound term
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Checks if text is a complete sentence with subject + verb + descriptive clause
+ */
+function isCompleteSentence(text: string): boolean {
+  const trimmed = text.trim();
+  const words = trimmed.split(/\s+/);
+  
+  // Complete sentences are typically longer (8+ words)
+  if (words.length < 8) {
     return false;
   }
   
-  // Must not contain sentence boundary punctuation anywhere
-  if (trimmed.match(/[.!?]/)) {
-    return false;
+  // Check for verb patterns indicating complete sentences
+  const hasVerb = /\b(is|are|was|were|be|been|being|has|have|had|do|does|did|can|could|will|would|shall|should|may|might|must|occurs|happens|moves|forms|releases|absorbs|contains|involves|requires|produces)\b/i.test(trimmed);
+  
+  // Check for descriptive clause indicators
+  const hasDescriptiveClause = /\b(that|which|where|when|because|since|although|while|if|as|through|during|after|before)\b/i.test(trimmed);
+  
+  // If it has a verb and is long enough, it's likely a complete sentence
+  if (hasVerb && words.length >= 8) {
+    return true;
   }
   
-  // Count words
+  // If it has both verb and descriptive clause, definitely a complete sentence
+  if (hasVerb && hasDescriptiveClause) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Checks if text contains conjunctions or prepositions that should prevent splitting
+ */
+function containsConjunctionOrPreposition(text: string): boolean {
+  const connectingWords = ['and', 'or', 'with', 'of', 'from', 'to', 'in', 'by', 'using', 'through'];
+  const lowerText = text.toLowerCase();
+  
+  return connectingWords.some(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'i');
+    return regex.test(lowerText);
+  });
+}
+
+/**
+ * Detects sequential standalone technical noun phrases WITHOUT conjunctions
+ * Example: "light absorption glucose formation oxygen release" → ["light absorption", "glucose formation", "oxygen release"]
+ * 
+ * Returns null if:
+ * - Text contains conjunctions/prepositions
+ * - Text is a complete sentence
+ * - Cannot identify clear sequential phrases
+ */
+function detectSequentialTechnicalPhrases(text: string): string[] | null {
+  const trimmed = text.trim();
+  
+  // Rule 1: Do NOT split if contains conjunctions/prepositions
+  if (containsConjunctionOrPreposition(trimmed)) {
+    return null;
+  }
+  
+  // Rule 2: Do NOT split if it's a complete sentence
+  if (isCompleteSentence(trimmed)) {
+    return null;
+  }
+  
+  // Rule 3: Do NOT split if it has punctuation (likely a sentence)
+  if (/[.!?,;:]/.test(trimmed)) {
+    return null;
+  }
+  
   const words = trimmed.split(/\s+/).filter(w => w.length > 0);
-  const wordCount = words.length;
   
-  // Must have 2-12 words
-  if (wordCount < 2 || wordCount > 12) {
+  // Need at least 4 words to form 2 technical phrases (minimum 2 words each)
+  if (words.length < 4) {
+    return null;
+  }
+  
+  // Detect noun phrases: typically 2-3 words each
+  // Example: "light absorption" (2 words), "glucose formation" (2 words)
+  const phrases: string[] = [];
+  let i = 0;
+  
+  while (i < words.length) {
+    // Try to form a 2-3 word phrase
+    if (i + 1 < words.length) {
+      // Check if we can form a 2-word phrase
+      const twoWordPhrase = words.slice(i, i + 2).join(' ');
+      
+      // Check if we can form a 3-word phrase
+      if (i + 2 < words.length) {
+        const threeWordPhrase = words.slice(i, i + 3).join(' ');
+        
+        // Prefer 2-word phrases for technical terms
+        phrases.push(twoWordPhrase);
+        i += 2;
+      } else {
+        phrases.push(twoWordPhrase);
+        i += 2;
+      }
+    } else {
+      // Single word left - attach to previous phrase if exists
+      if (phrases.length > 0) {
+        phrases[phrases.length - 1] += ' ' + words[i];
+      }
+      i++;
+    }
+  }
+  
+  // Only return if we detected 2 or more distinct phrases
+  if (phrases.length >= 2) {
+    return phrases;
+  }
+  
+  return null;
+}
+
+/**
+ * Validates bullet quality and filters out invalid bullets
+ * 
+ * Rejects:
+ * - Single-word bullets
+ * - Bullets starting with standalone conjunctions
+ * - Bullets with separated modifiers
+ */
+function validateBullet(text: string): boolean {
+  const trimmed = text.trim();
+  const words = trimmed.split(/\s+/).filter(w => w.length > 0);
+  
+  // Reject single-word bullets
+  if (words.length === 1) {
+    return false;
+  }
+  
+  // Reject bullets starting with conjunctions
+  const firstWord = words[0].toLowerCase();
+  if (['and', 'or', 'but', 'with', 'of', 'from', 'to', 'in', 'by', 'using', 'through'].includes(firstWord)) {
     return false;
   }
   
@@ -88,211 +231,314 @@ function isEligibleForDefinitionStyle(input: string): boolean {
 }
 
 /**
- * Converts eligible input to Definition Style format
- * Format: "[Topic] is a/an [explanation]."
+ * SEMANTIC BULLET ENGINE
+ * 
+ * Applies smart semantic splitting with the following pipeline:
+ * 1. Protect compound terms (scientific phrases with "and")
+ * 2. Preserve complete sentences (subject + verb + clause)
+ * 3. Detect and split sequential technical phrases (no conjunctions)
+ * 4. Validate bullet quality (no single words, no conjunction-led bullets)
+ * 5. Return meaningful bullets prioritizing content preservation
  */
-function formatAsDefinition(input: string): string {
-  const trimmed = input.trim();
-  
-  // Split into words
-  const words = trimmed.split(/\s+/).filter(w => w.length > 0);
-  
-  if (words.length < 2) {
-    return trimmed;
-  }
-  
-  // First word is the topic
-  const topic = words[0];
-  
-  // Remaining words are the explanation
-  const explanation = words.slice(1).join(' ');
-  
-  // Determine article (a/an) based on first letter of first explanation word
-  const firstExplanationWord = words[1];
-  const firstLetter = firstExplanationWord.charAt(0).toLowerCase();
-  const article = ['a', 'e', 'i', 'o', 'u'].includes(firstLetter) ? 'an' : 'a';
-  
-  // Build definition sentence
-  let definition = `${topic} is ${article} ${explanation}`;
-  
-  // Capitalize first letter
-  definition = definition.charAt(0).toUpperCase() + definition.slice(1);
-  
-  // Ensure ending period
-  if (!definition.endsWith('.')) {
-    definition += '.';
-  }
-  
-  return definition;
-}
-
-/**
- * Processes a single line: normalizes whitespace, capitalizes first letter, ensures ending punctuation
- */
-function processLine(line: string): string {
-  // Remove extra internal spaces (multiple spaces to single space)
-  line = line.replace(/\s+/g, ' ').trim();
-  
-  if (line.length === 0) {
-    return line;
-  }
-  
-  // Capitalize first letter
-  line = line.charAt(0).toUpperCase() + line.slice(1);
-  
-  // Ensure ending punctuation (., !, or ?)
-  if (!line.match(/[.!?]$/)) {
-    line += '.';
-  }
-  
-  return line;
-}
-
-/**
- * Converts text to Title Case (capitalizes first letter of each word)
- */
-function toTitleCase(text: string): string {
-  return text
-    .split(/\s+/)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
-}
-
-/**
- * Checks if a line matches the first-line main heading rule:
- * 1-5 words, no ending punctuation
- */
-function isMainHeading(line: string): boolean {
-  const trimmed = line.trim();
-  
-  // Must not end with punctuation
-  if (trimmed.match(/[.!?,;:]$/)) {
-    return false;
-  }
-  
-  // Count words
-  const words = trimmed.split(/\s+/).filter(w => w.length > 0);
-  const wordCount = words.length;
-  
-  // Must have 1-5 words
-  return wordCount >= 1 && wordCount <= 5;
-}
-
-/**
- * Checks if a line starts with a keyword that should become a subheading
- */
-function getSubheadingKeyword(line: string): string | null {
-  const keywords = [
-    'definition',
-    'process',
-    'types',
-    'advantages',
-    'disadvantages',
-    'uses',
-    'causes',
-    'effects',
-    'importance',
-    'examples'
-  ];
-  
-  const trimmed = line.trim().toLowerCase();
-  
-  for (const keyword of keywords) {
-    if (trimmed.startsWith(keyword)) {
-      return keyword;
-    }
-  }
-  
-  return null;
-}
-
-/**
- * Applies heading detection and structuring to the input
- * Returns structured content with main heading and subheadings
- */
-function applyHeadingDetection(input: string): string {
-  // Trim and normalize line breaks
-  const trimmed = input.trim();
-  const lines = trimmed.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-  
-  if (lines.length === 0) {
-    return '';
-  }
-  
+function applySemanticBulletSplitting(input: string): string {
+  const lines = input.split('\n');
   const output: string[] = [];
-  let mainHeadingDetected = false;
   
-  // Check first line for main heading
-  if (isMainHeading(lines[0])) {
-    output.push(toTitleCase(lines[0]));
-    output.push(''); // Blank line after main heading
-    mainHeadingDetected = true;
-  }
-  
-  // Process remaining lines (or all lines if no main heading)
-  const startIndex = mainHeadingDetected ? 1 : 0;
-  let currentSection: string[] = [];
-  
-  for (let i = startIndex; i < lines.length; i++) {
-    const line = lines[i];
-    const keyword = getSubheadingKeyword(line);
+  for (const line of lines) {
+    const trimmed = line.trim();
     
-    if (keyword) {
-      // Flush current section if any
-      if (currentSection.length > 0) {
-        output.push(...currentSection);
-        output.push(''); // Blank line between sections
-        currentSection = [];
-      }
-      
-      // Add subheading
-      const subheading = toTitleCase(keyword) + ':';
-      output.push(subheading);
-      
-      // Add content after keyword (if any)
-      const contentAfterKeyword = line.substring(keyword.length).trim();
-      if (contentAfterKeyword.length > 0) {
-        // Remove leading colon, dash, or other separators
-        const cleanContent = contentAfterKeyword.replace(/^[:\-–—]\s*/, '');
-        if (cleanContent.length > 0) {
-          currentSection.push(cleanContent);
+    // Skip empty lines
+    if (trimmed.length === 0) {
+      output.push('');
+      continue;
+    }
+    
+    // Check if this line is a heading (ends with colon or Title Case)
+    const isHeading = trimmed.endsWith(':') || 
+      (!trimmed.match(/[.!?]$/) && trimmed.split(/\s+/).every(word => 
+        word.length > 0 && word.charAt(0) === word.charAt(0).toUpperCase()
+      ));
+    
+    // Don't split headings or lines that already have bullet points
+    if (isHeading || trimmed.startsWith('- ')) {
+      output.push(trimmed);
+      continue;
+    }
+    
+    // STEP 1: Check if this is a protected compound term
+    if (isProtectedCompoundTerm(trimmed)) {
+      output.push(trimmed);
+      continue;
+    }
+    
+    // STEP 2: Check if this is a complete sentence
+    if (isCompleteSentence(trimmed)) {
+      output.push(trimmed);
+      continue;
+    }
+    
+    // STEP 3: Try to detect sequential technical phrases
+    const technicalPhrases = detectSequentialTechnicalPhrases(trimmed);
+    if (technicalPhrases && technicalPhrases.length >= 2) {
+      // Split into multiple bullets, but validate each
+      for (const phrase of technicalPhrases) {
+        if (validateBullet(phrase)) {
+          output.push(phrase.trim());
         }
       }
-    } else {
-      // Regular content line
-      currentSection.push(line);
+      continue;
     }
-  }
-  
-  // Flush remaining section
-  if (currentSection.length > 0) {
-    output.push(...currentSection);
+    
+    // STEP 4: If text contains conjunctions/prepositions, keep as single bullet
+    if (containsConjunctionOrPreposition(trimmed)) {
+      output.push(trimmed);
+      continue;
+    }
+    
+    // STEP 5: Try splitting by commas (only if no conjunctions present)
+    const commaSplit = trimmed.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    
+    if (commaSplit.length > 1) {
+      // Validate each fragment
+      const validFragments = commaSplit.filter(frag => validateBullet(frag));
+      
+      if (validFragments.length > 0) {
+        for (const frag of validFragments) {
+          output.push(frag);
+        }
+      } else {
+        // If all fragments invalid, keep original
+        output.push(trimmed);
+      }
+    } else {
+      // No splitting possible, keep as is
+      output.push(trimmed);
+    }
   }
   
   return output.join('\n');
 }
 
 /**
- * Cleans and formats notes with optional bullet point conversion, paragraph-to-points conversion, definition style conversion, and heading detection
+ * Converts patterns like "Definition:", "Process:", etc. into heading label format
+ * with description on the next line prefixed with "- "
+ */
+function applyDefinitionStyle(input: string): string {
+  const definitionKeywords = [
+    'definition',
+    'process',
+    'importance',
+    'examples',
+    'types',
+    'advantages',
+    'disadvantages',
+    'uses',
+    'causes',
+    'effects'
+  ];
+  
+  const lines = input.split('\n');
+  const output: string[] = [];
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Skip empty lines
+    if (line.length === 0) {
+      output.push('');
+      continue;
+    }
+    
+    // Check if line matches pattern "Keyword:" or "keyword:"
+    const lowerLine = line.toLowerCase();
+    let matchedKeyword: string | null = null;
+    
+    for (const keyword of definitionKeywords) {
+      if (lowerLine === keyword + ':' || lowerLine === keyword) {
+        matchedKeyword = keyword;
+        break;
+      }
+      // Also check if line starts with keyword followed by colon and content
+      if (lowerLine.startsWith(keyword + ':')) {
+        matchedKeyword = keyword;
+        break;
+      }
+    }
+    
+    if (matchedKeyword) {
+      // Extract content after the keyword (if any)
+      const keywordWithColon = matchedKeyword + ':';
+      const contentAfterKeyword = line.substring(line.toLowerCase().indexOf(keywordWithColon) + keywordWithColon.length).trim();
+      
+      // Add heading label (capitalize first letter)
+      const headingLabel = matchedKeyword.charAt(0).toUpperCase() + matchedKeyword.slice(1) + ':';
+      output.push(headingLabel);
+      
+      // If there's content after the keyword, apply semantic splitting to it
+      if (contentAfterKeyword.length > 0) {
+        const splitContent = applySemanticBulletSplitting(contentAfterKeyword);
+        const contentLines = splitContent.split('\n').filter(l => l.trim().length > 0);
+        for (const contentLine of contentLines) {
+          output.push(contentLine);
+        }
+      }
+    } else {
+      output.push(line);
+    }
+  }
+  
+  return output.join('\n');
+}
+
+/**
+ * Ensures each processed line begins with bullet prefix
+ */
+function applyBulletPoints(input: string): string {
+  const lines = input.split('\n');
+  const output: string[] = [];
+  const bulletPrefix = getBulletPrefix(getCurrentBulletStyle());
+  
+  for (const line of lines) {
+    const trimmed = line.trim();
+    
+    // Skip empty lines
+    if (trimmed.length === 0) {
+      output.push('');
+      continue;
+    }
+    
+    // Check if this line looks like a heading (ends with colon or is Title Case with no punctuation)
+    const isHeading = trimmed.endsWith(':') || 
+      (!trimmed.match(/[.!?]$/) && trimmed.split(/\s+/).every(word => 
+        word.length > 0 && word.charAt(0) === word.charAt(0).toUpperCase()
+      ));
+    
+    // Don't add bullets to headings
+    if (isHeading) {
+      output.push(trimmed);
+      continue;
+    }
+    
+    // Don't add bullet if line already starts with one
+    if (trimmed.startsWith(bulletPrefix)) {
+      output.push(trimmed);
+      continue;
+    }
+    
+    // Add bullet prefix
+    output.push(bulletPrefix + trimmed);
+  }
+  
+  return output.join('\n');
+}
+
+/**
+ * Normalizes whitespace, capitalizes first letter, and ensures ending punctuation
+ */
+function normalizeLines(input: string): string {
+  const lines = input.split('\n');
+  const output: string[] = [];
+  
+  for (const line of lines) {
+    let processed = line.trim();
+    
+    // Skip empty lines
+    if (processed.length === 0) {
+      output.push('');
+      continue;
+    }
+    
+    // Remove extra internal spaces
+    processed = processed.replace(/\s+/g, ' ');
+    
+    // Check if this is a heading (ends with colon or is Title Case)
+    const isHeading = processed.endsWith(':') || 
+      (!processed.match(/[.!?]$/) && processed.split(/\s+/).every(word => 
+        word.length > 0 && word.charAt(0) === word.charAt(0).toUpperCase()
+      ));
+    
+    // Don't modify headings
+    if (isHeading) {
+      output.push(processed);
+      continue;
+    }
+    
+    // Check if line starts with bullet prefix
+    const bulletPrefix = getBulletPrefix(getCurrentBulletStyle());
+    const hasBullet = processed.startsWith(bulletPrefix);
+    let content = hasBullet ? processed.substring(bulletPrefix.length).trim() : processed;
+    
+    // Capitalize first letter of content
+    if (content.length > 0) {
+      content = content.charAt(0).toUpperCase() + content.slice(1);
+    }
+    
+    // Ensure ending punctuation
+    if (content.length > 0 && !content.match(/[.!?]$/)) {
+      content += '.';
+    }
+    
+    // Reconstruct line with bullet if it had one
+    if (hasBullet) {
+      output.push(bulletPrefix + content);
+    } else {
+      output.push(content);
+    }
+  }
+  
+  return output.join('\n');
+}
+
+/**
+ * Removes excessive blank lines while maintaining section spacing
+ */
+function cleanupSpacing(input: string): string {
+  const lines = input.split('\n');
+  const output: string[] = [];
+  let previousWasEmpty = false;
+  
+  for (const line of lines) {
+    const isEmpty = line.trim().length === 0;
+    
+    // Skip consecutive empty lines (keep only one)
+    if (isEmpty && previousWasEmpty) {
+      continue;
+    }
+    
+    output.push(line);
+    previousWasEmpty = isEmpty;
+  }
+  
+  // Remove leading and trailing empty lines
+  while (output.length > 0 && output[0].trim().length === 0) {
+    output.shift();
+  }
+  while (output.length > 0 && output[output.length - 1].trim().length === 0) {
+    output.pop();
+  }
+  
+  return output.join('\n');
+}
+
+/**
+ * Cleans and formats notes with cumulative transformation pipeline
  * 
- * Process flow (priority order):
- * 1. If autoDetectHeadings is enabled, detect and structure headings first
- * 2. If convertToDefinitionStyle is enabled and input is eligible (single short line), convert to definition format
- * 3. If convertParagraphToPoints is enabled and input is a paragraph, split into sentences
- * 4. Trim spaces
- * 5. Remove blank lines
- * 6. Normalize line breaks
- * 7. Capitalize first letter
- * 8. Ensure ending punctuation
- * 9. Add bullet prefix (if convertToBullets is enabled)
+ * STRICT SEQUENTIAL PIPELINE:
+ * STEP 1: Capture raw input
+ * STEP 2: Auto Detect Headings (if enabled)
+ * STEP 3: Convert to Definition Style (if enabled) - uses semantic engine
+ * STEP 4: Convert Paragraph to Points (if enabled) - uses semantic engine
+ * STEP 5: Convert to Bullet Points (if enabled)
+ * STEP 6: Normalize lines (capitalization, punctuation)
+ * STEP 7: Cleanup spacing
  * 
- * Priority: Headings Detect → Definition Style → Paragraph to Points → Bullet Formatting
+ * Each transformation receives output from previous step and passes modified content to next step.
  * 
- * @param input - Raw multi-line notes text or paragraph
- * @param convertToBullets - Whether to format as bullet points (default: true)
- * @param convertParagraphToPoints - Whether to split paragraphs into sentence points (default: false)
- * @param convertToDefinitionStyle - Whether to convert short lines to definition format (default: false)
- * @param autoDetectHeadings - Whether to detect and structure headings (default: false)
+ * @param input - Raw multi-line notes text
+ * @param convertToBullets - Whether to format as bullet points
+ * @param convertParagraphToPoints - Whether to split paragraphs into points
+ * @param convertToDefinitionStyle - Whether to convert definition patterns
+ * @param autoDetectHeadings - Whether to detect and format headings
  * @returns Cleaned and formatted notes
  */
 export function cleanAndFormatNotes(
@@ -302,104 +548,38 @@ export function cleanAndFormatNotes(
   convertToDefinitionStyle: boolean = false,
   autoDetectHeadings: boolean = false
 ): string {
+  // STEP 1: Capture raw input
   if (!input.trim()) {
     return '';
   }
 
   let workingText = input;
-  let headingsApplied = false;
   
-  // Priority 1: Heading Detection (if enabled)
+  // STEP 2: Auto Detect Headings (if enabled)
   if (autoDetectHeadings) {
-    workingText = applyHeadingDetection(workingText);
-    headingsApplied = true;
-  }
-
-  let lines: string[];
-  let definitionStyleApplied = false;
-
-  // Priority 2: Definition Style (if enabled and eligible, and headings not applied)
-  if (!headingsApplied && convertToDefinitionStyle && isEligibleForDefinitionStyle(workingText)) {
-    const definitionLine = formatAsDefinition(workingText);
-    lines = [definitionLine];
-    definitionStyleApplied = true;
-  }
-  // Priority 3: Paragraph to Points (if enabled and detected)
-  else if (!headingsApplied && convertParagraphToPoints && isParagraph(workingText)) {
-    lines = splitIntoSentences(workingText);
-  }
-  // Standard line-based processing
-  else {
-    lines = workingText.split('\n');
+    workingText = applyAutoDetectHeadings(workingText);
   }
   
-  const processedLines = lines
-    // Trim each line
-    .map(line => line.trim())
-    // Remove blank lines (unless headings were applied - preserve structure)
-    .filter((line, index, array) => {
-      if (headingsApplied) {
-        // Preserve blank lines for heading structure
-        return true;
-      }
-      return line.length > 0;
-    })
-    // Process each line
-    .map((line, index, array) => {
-      // Preserve blank lines for heading structure
-      if (headingsApplied && line.length === 0) {
-        return '';
-      }
-      
-      // If Definition Style was already applied, skip processLine (already formatted)
-      if (!definitionStyleApplied && !headingsApplied) {
-        // Process the line (normalize whitespace, capitalize, add punctuation)
-        line = processLine(line);
-      }
-      
-      // When headings are applied, don't add bullets to headings or blank lines
-      if (headingsApplied) {
-        // Check if this line is a heading (Title Case with no ending punctuation, or ends with colon)
-        const isHeadingLine = line.length > 0 && (
-          line.endsWith(':') || 
-          (!line.match(/[.!?]$/) && line.split(/\s+/).every(word => 
-            word.length > 0 && word.charAt(0) === word.charAt(0).toUpperCase()
-          ))
-        );
-        
-        if (isHeadingLine || line.length === 0) {
-          return line;
-        }
-        
-        // Process content lines under headings
-        if (!line.match(/[.!?]$/)) {
-          line = line.charAt(0).toUpperCase() + line.slice(1);
-          line += '.';
-        }
-      }
-      
-      // Priority 4: Add bullet prefix if enabled (applied last, but not to headings)
-      if (convertToBullets && line.length > 0) {
-        // Don't add bullets to headings when heading detection is enabled
-        if (headingsApplied) {
-          const isHeadingLine = line.endsWith(':') || 
-            (!line.match(/[.!?]$/) && line.split(/\s+/).every(word => 
-              word.length > 0 && word.charAt(0) === word.charAt(0).toUpperCase()
-            ));
-          
-          if (!isHeadingLine) {
-            const bulletPrefix = getBulletPrefix(getCurrentBulletStyle());
-            line = bulletPrefix + line;
-          }
-        } else {
-          const bulletPrefix = getBulletPrefix(getCurrentBulletStyle());
-          line = bulletPrefix + line;
-        }
-      }
-      
-      return line;
-    });
-
-  // Join with single newline
-  return processedLines.join('\n');
+  // STEP 3: Convert to Definition Style (if enabled) - uses semantic engine
+  if (convertToDefinitionStyle) {
+    workingText = applyDefinitionStyle(workingText);
+  }
+  
+  // STEP 4: Convert Paragraph to Points (if enabled) - uses semantic engine
+  if (convertParagraphToPoints) {
+    workingText = applySemanticBulletSplitting(workingText);
+  }
+  
+  // STEP 5: Convert to Bullet Points (if enabled)
+  if (convertToBullets) {
+    workingText = applyBulletPoints(workingText);
+  }
+  
+  // STEP 6: Normalize lines (capitalization, punctuation)
+  workingText = normalizeLines(workingText);
+  
+  // STEP 7: Cleanup spacing
+  workingText = cleanupSpacing(workingText);
+  
+  return workingText;
 }

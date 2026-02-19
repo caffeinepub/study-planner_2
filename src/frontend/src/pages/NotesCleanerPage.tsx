@@ -21,6 +21,8 @@ export default function NotesCleanerPage() {
   const [autoDetectHeadings, setAutoDetectHeadings] = useState(false);
   const [customFileName, setCustomFileName] = useState('');
 
+  const hasOutput = cleanedNotes.trim() !== '';
+
   const handleCleanNotes = () => {
     if (!roughNotes.trim()) {
       toast.error('Please enter some notes to clean');
@@ -194,11 +196,11 @@ export default function NotesCleanerPage() {
               />
             </div>
 
-            {/* Copy and Clear Output Buttons Row */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* Copy and Clear Output Buttons Row - Always visible */}
+            <div className="flex flex-col sm:flex-row gap-3 min-h-[52px]">
               <Button
                 onClick={handleCopy}
-                disabled={!cleanedNotes}
+                disabled={!hasOutput}
                 variant="secondary"
                 className="flex-1"
                 size="lg"
@@ -216,46 +218,43 @@ export default function NotesCleanerPage() {
                 )}
               </Button>
 
-              {cleanedNotes && (
-                <Button
-                  onClick={handleClearOutput}
-                  variant="outline"
-                  className="flex-1"
-                  size="lg"
-                >
-                  <Trash2 className="mr-2 h-5 w-5" />
-                  Clear Output
-                </Button>
-              )}
-            </div>
-
-            {/* File Name Input - Only visible when output exists */}
-            {cleanedNotes && (
-              <div className="space-y-2">
-                <Label htmlFor="file-name">File Name</Label>
-                <Input
-                  id="file-name"
-                  type="text"
-                  placeholder="Enter file name (optional)"
-                  value={customFileName}
-                  onChange={(e) => setCustomFileName(e.target.value)}
-                  className="font-mono text-sm"
-                />
-              </div>
-            )}
-
-            {/* Download TXT Button - Only visible when output exists */}
-            {cleanedNotes && (
               <Button
-                onClick={handleDownload}
-                variant="default"
-                className="w-full"
+                onClick={handleClearOutput}
+                disabled={!hasOutput}
+                variant="outline"
+                className="flex-1"
                 size="lg"
               >
-                <Download className="mr-2 h-5 w-5" />
-                Download TXT
+                <Trash2 className="mr-2 h-5 w-5" />
+                Clear Output
               </Button>
-            )}
+            </div>
+
+            {/* File Name Input - Always visible */}
+            <div className="space-y-2">
+              <Label htmlFor="file-name">File Name</Label>
+              <Input
+                id="file-name"
+                type="text"
+                placeholder="Enter file name (optional)"
+                value={customFileName}
+                onChange={(e) => setCustomFileName(e.target.value)}
+                className="font-mono text-sm"
+                disabled={!hasOutput}
+              />
+            </div>
+
+            {/* Download TXT Button - Always visible */}
+            <Button
+              onClick={handleDownload}
+              disabled={!hasOutput}
+              variant="default"
+              className="w-full"
+              size="lg"
+            >
+              <Download className="mr-2 h-5 w-5" />
+              Download TXT
+            </Button>
           </CardContent>
         </Card>
       </div>

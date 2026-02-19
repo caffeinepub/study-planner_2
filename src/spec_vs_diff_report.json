@@ -1,15 +1,14 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T15:29:52.287Z",
-  "summary": "Diff implements the requested Cleaned Notes output actions and reset behaviors in NotesCleanerPage, and updates TXT download naming/content rules in notesCleanerTxtDownload.ts. Due to truncation of NotesCleanerPage.tsx JSX, exact label/placeholder text and precise layout/responsiveness cannot be fully verified from provided evidence.",
+  "generatedAt": "2026-02-19T14:13:07.563Z",
+  "summary": "The implementation successfully addresses all core requirements for replacing the bullet splitting engine with smart semantic splitting. The new engine in notesCleanerFormat.ts implements protected compound term detection, complete sentence preservation, validation rules, and semantic grouping. However, the diff is truncated, preventing full verification of: (1) complete removal of old logic (REQ-1), (2) all three conversion modes using the new engine (REQ-6), and (3) detailed implementation of sequential phrase splitting (REQ-3).",
   "missing_requirements": [],
   "hallucinated_features": [],
-  "confidence": 0.72,
+  "confidence": 0.75,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/pages/NotesCleanerPage.tsx",
-    "frontend/src/utils/notesCleanerTxtDownload.ts",
+    "frontend/src/utils/notesCleanerFormat.ts",
     "project_state.json"
   ]
 }

@@ -1,112 +1,133 @@
 {
   "kind": "build_request",
-  "title": "Rebuild Notes Cleaner output action section (Copy/Clear + File Name + Download TXT) with reset & filename rules",
-  "priority": "normal",
+  "title": "Replace bullet splitting engine with smart semantic splitting",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Modify only the \"Cleaned Notes\" output panel in frontend/src/pages/NotesCleanerPage.tsx to rebuild the action section layout as follows: (1) keep the existing Copy button directly below the \"Cleaned Output\" textarea, (2) add a new \"Clear Output\" button next to Copy (same row), (3) directly below that row render a \"File Name\" input with placeholder \"Enter file name (optional)\", and (4) directly below the File Name input render a \"Download TXT\" button. Ensure the layout is clean and responsive (stacking appropriately on small screens) and do not remove or change any existing formatting features/options.",
+      "text": "Remove all existing bullet point splitting logic from notesCleanerFormat.ts including convertToParagraphToPoints, convertToBulletPoints, and definition style bullet formatting functions",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "REBUILD CLEAN NOTES ACTION SECTION\n\nModify the Cleaned Notes panel only.\n\n1. Below the \"Cleaned Output\" textarea:\n   Keep the existing Copy button.\n\n2. Directly below Copy button:\n   Add a new button:\n   Label: Download TXT\n\n3. Above the Download button:\n   Add an input field:\n   Label: File Name\n   Placeholder: Enter file name (optional)\n\n4. Add another button next to Copy:\n   Label: Clear Output"
+          "Remove and override all previously implemented logic related to: Convert Paragraph to Points, Convert to Bullet Points, Definition Style bullet formatting"
         ]
       },
       "acceptanceCriteria": [
-        "Only the output panel UI (the \"Cleaned Notes\" card content) is changed; no changes to the Rough Notes panel or formatting controls.",
-        "Below the \"Cleaned Output\" textarea, Copy remains present.",
-        "A \"Clear Output\" button labeled exactly \"Clear Output\" is placed next to Copy in the same row.",
-        "A \"File Name\" labeled input with placeholder \"Enter file name (optional)\" appears above the Download button in the output panel.",
-        "A \"Download TXT\" button labeled exactly \"Download TXT\" is placed below the Copy/Clear row (and below the File Name input).",
-        "On small screens, controls remain usable and do not overflow; layout is responsive."
+        "All previous splitting logic is completely removed from notesCleanerFormat.ts",
+        "No traces of the old conjunction-based splitting remain in the codebase"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement \"Clear Output\" behavior in frontend/src/pages/NotesCleanerPage.tsx: when clicked, completely clear the \"Cleaned Output\" textarea (cleanedNotes becomes empty), reset the File Name input value to empty, reset the Copy button state (so it is no longer in a \"Copied!\" state), and ensure the \"Download TXT\" button is hidden when the output is empty.",
+      "text": "Implement semantic phrase detection that preserves scientific compound terms as single bullets: 'carbon dioxide and water', 'semi permeable membrane', 'low solute concentration', 'high solute concentration' must never be split",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "A) Clear Output Button:\n- Completely clear the Cleaned Output textarea.\n- Hide Download TXT button if output is empty.\n- Reset File Name input field."
+          "Do NOT create a new bullet point if: the word 'and' appears inside a scientific or descriptive phrase, the phrase contains dependent modifiers",
+          "Protect scientific compound terms: semi permeable membrane, low solute concentration, high solute concentration"
         ]
       },
       "acceptanceCriteria": [
-        "Clicking \"Clear Output\" empties the output textarea content immediately.",
-        "After clearing, the File Name input is reset to an empty string.",
-        "After clearing, any \"Copied!\" UI state is reset back to the normal Copy UI.",
-        "\"Download TXT\" is not visible when cleaned output is empty."
+        "Phrases containing 'and' within scientific/technical contexts remain as single bullets",
+        "Scientific compound terms with modifiers stay intact",
+        "Example 'carbon dioxide and water' produces one bullet, not two"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Implement auto-reset behavior when the \"Clean Notes\" button is clicked in frontend/src/pages/NotesCleanerPage.tsx: automatically clear any previous cleaned output and reset File Name and Copy state before displaying the newly formatted result, ensuring outputs do not stack/accumulate across runs.",
+      "text": "Implement smart splitting logic that only creates multiple bullets when 2 or more standalone technical phrases appear sequentially WITHOUT conjunctions (and/or/with/of/from/to/in/by/using/through)",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "B) Auto Reset Logic:\n- When Clean Notes button is clicked:\n   → Automatically clear previous Cleaned Output\n   → Then show new formatted result\n- Do not stack outputs."
+          "Only split into multiple bullets when: 2 or more standalone technical phrases appear sequentially, AND there is NO conjunction"
         ]
       },
       "acceptanceCriteria": [
-        "When \"Clean Notes\" is clicked, any prior cleaned output is cleared before the new result is shown (no stacked/concatenated output).",
-        "File Name input is reset on each run of \"Clean Notes\".",
-        "Copy state is reset on each run of \"Clean Notes\".",
-        "The existing note formatting behavior (bullets/paragraph-to-points/definition style/heading detection) remains unchanged."
+        "Input 'light absorption glucose formation oxygen release' produces three separate bullets",
+        "Each bullet is a complete phrase (e.g., 'Light absorption by chlorophyll')",
+        "Sequential phrases without conjunctions are correctly identified and split"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Update TXT download logic to match the requested naming rules while preserving plain-text export: in frontend/src/utils/notesCleanerTxtDownload.ts, when the File Name input is empty, generate the filename using the format notes_<first_word_of_output>_<current_date>.txt where <current_date> is YYYY-MM-DD. The <first_word_of_output> must come from the cleaned output text (ignoring leading whitespace and common bullet prefixes like \"- \", \"• \", \"* \"), sanitized for filenames (lowercase, spaces to underscores, remove non [a-z0-9_], collapse underscores). When a custom name is provided, use it and ensure it ends with .txt. The downloaded file must contain exactly the cleaned output as plain text, preserving spacing/newlines and containing no HTML tags.",
+      "text": "Preserve complete sentences as single bullets when they contain subject + verb + descriptive clause or process explanation, preventing fragmentation",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "C) Download TXT Logic:\n- When clicked:\n   → Generate a plain .txt file.\n   → Preserve formatting and spacing.\n   → No HTML tags.\n\nFile Naming Rules:\n- If user enters custom name → use that.\n- If empty:\n   Use format:\n   notes_<first_word_of_output>_<current_date>.txt\n\nDate format:\nYYYY-MM-DD"
+          "If a sentence contains: subject + verb, descriptive clause, process explanation, Then DO NOT split into multiple bullets"
         ]
       },
       "acceptanceCriteria": [
-        "Clicking \"Download TXT\" downloads a .txt file whose contents exactly match the \"Cleaned Output\" textarea value (including whitespace and newlines) and contains no HTML markup.",
-        "If the File Name input has a value, that value is used as the base filename and .txt is appended if missing.",
-        "If the File Name input is empty, the filename is notes_<first_word_of_output>_<YYYY-MM-DD>.txt.",
-        "The <first_word_of_output> is derived from the cleaned output text (ignoring leading whitespace and common bullet prefixes) and sanitized for filenames (lowercase, underscores, stripped special characters).",
-        "The date in the filename uses the current client date in YYYY-MM-DD format."
+        "Sentences with clear subject-verb-object structure remain as single bullets",
+        "Process explanations are not fragmented mid-explanation",
+        "Descriptive clauses stay attached to their subjects"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Implement validation rules to prevent single-word bullets, conjunction-led bullets, and modifier-separated bullets in all conversion modes",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Prevent: single-word bullets, conjunction-led bullets, modifier-separated bullets"
+        ]
+      },
+      "acceptanceCriteria": [
+        "No bullet contains only a single word",
+        "No bullet begins with a standalone conjunction",
+        "Modifiers are not separated from their nouns into different bullets"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Apply semantic grouping before bullet conversion and prioritize meaning preservation over formatting in all three conversion modes: Convert Paragraph to Points, Convert to Bullet Points, and Definition Style Format",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Apply bullet conversion AFTER semantic grouping",
+          "Prioritize meaning preservation over formatting",
+          "Apply this logic globally to: Convert Paragraph to Points, Convert to Bullet Points, Definition Style Format"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Semantic analysis completes before any bullet formatting is applied",
+        "All three conversion modes use the same smart semantic engine",
+        "Meaning of academic content is preserved even if fewer bullets are generated",
+        "Logical phrase boundaries are respected across all conversion modes"
       ]
     }
   ],
   "constraints": [
-    "Modify the Cleaned Notes panel only (frontend/src/pages/NotesCleanerPage.tsx output section); do not change other panels or unrelated UI.",
-    "Do not remove or alter existing notes formatting features/logic (e.g., bullet conversion, paragraph-to-points, definition style, heading detection).",
-    "Hide the \"Download TXT\" button when cleaned output is empty.",
-    "Keep user-facing text in English and match the exact labels/placeholders specified: \"Download TXT\", \"Clear Output\", \"File Name\", \"Enter file name (optional)\".",
-    "Do not edit files under frontend/src/components/ui or other immutablePaths; compose existing UI components only."
+    "Do not modify Headings Auto Detect functionality",
+    "Do not change Download Button behavior",
+    "Do not change Reset Output Button behavior",
+    "Do not alter UI Layout or component structure of NotesCleanerPage"
   ],
   "nonGoals": [
-    "Adding new backend endpoints or persisting notes/output to the backend.",
-    "Changing the notes cleaning/formatting algorithm in frontend/src/utils/notesCleanerFormat.ts.",
-    "Adding new export formats (PDF/DOCX) or changing any other pages/modules."
+    "Adding new formatting options beyond bullet conversion improvements",
+    "Modifying other pages or components outside Notes Cleaner",
+    "Changing the visual design or styling of the Notes Cleaner interface"
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }
