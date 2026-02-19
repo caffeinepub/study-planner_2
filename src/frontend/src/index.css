@@ -81,3 +81,9 @@
         @apply bg-background text-foreground;
     }
 }
+
+@layer utilities {
+    .line-through {
+        text-decoration: none !important;
+    }
+}

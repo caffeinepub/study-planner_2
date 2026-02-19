@@ -1,37 +1,112 @@
 {
   "kind": "build_request",
-  "title": "Promote Draft Version 73 to Live/Production",
+  "title": "Rebuild Notes Cleaner output action section (Copy/Clear + File Name + Download TXT) with reset & filename rules",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Promote draft version 73 to the Live/Production channel by ensuring `frontend/.release/production-version.txt` references draft version `73`, and perform the release promotion as a metadata-only change (no application source code changes).",
+      "text": "Modify only the \"Cleaned Notes\" output panel in frontend/src/pages/NotesCleanerPage.tsx to rebuild the action section layout as follows: (1) keep the existing Copy button directly below the \"Cleaned Output\" textarea, (2) add a new \"Clear Output\" button next to Copy (same row), (3) directly below that row render a \"File Name\" input with placeholder \"Enter file name (optional)\", and (4) directly below the File Name input render a \"Download TXT\" button. Ensure the layout is clean and responsive (stacking appropriately on small screens) and do not remove or change any existing formatting features/options.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4"
         ],
         "quotes": [
-          "73 draft ko live karo"
+          "REBUILD CLEAN NOTES ACTION SECTION\n\nModify the Cleaned Notes panel only.\n\n1. Below the \"Cleaned Output\" textarea:\n   Keep the existing Copy button.\n\n2. Directly below Copy button:\n   Add a new button:\n   Label: Download TXT\n\n3. Above the Download button:\n   Add an input field:\n   Label: File Name\n   Placeholder: Enter file name (optional)\n\n4. Add another button next to Copy:\n   Label: Clear Output"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/.release/production-version.txt` contains exactly `73` as the promoted production draft version.",
-        "No files under `frontend/src/` are modified as part of this promotion.",
-        "After deployment, end users are served draft version 73 in the live/production channel."
+        "Only the output panel UI (the \"Cleaned Notes\" card content) is changed; no changes to the Rough Notes panel or formatting controls.",
+        "Below the \"Cleaned Output\" textarea, Copy remains present.",
+        "A \"Clear Output\" button labeled exactly \"Clear Output\" is placed next to Copy in the same row.",
+        "A \"File Name\" labeled input with placeholder \"Enter file name (optional)\" appears above the Download button in the output panel.",
+        "A \"Download TXT\" button labeled exactly \"Download TXT\" is placed below the Copy/Clear row (and below the File Name input).",
+        "On small screens, controls remain usable and do not overflow; layout is responsive."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement \"Clear Output\" behavior in frontend/src/pages/NotesCleanerPage.tsx: when clicked, completely clear the \"Cleaned Output\" textarea (cleanedNotes becomes empty), reset the File Name input value to empty, reset the Copy button state (so it is no longer in a \"Copied!\" state), and ensure the \"Download TXT\" button is hidden when the output is empty.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "A) Clear Output Button:\n- Completely clear the Cleaned Output textarea.\n- Hide Download TXT button if output is empty.\n- Reset File Name input field."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking \"Clear Output\" empties the output textarea content immediately.",
+        "After clearing, the File Name input is reset to an empty string.",
+        "After clearing, any \"Copied!\" UI state is reset back to the normal Copy UI.",
+        "\"Download TXT\" is not visible when cleaned output is empty."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement auto-reset behavior when the \"Clean Notes\" button is clicked in frontend/src/pages/NotesCleanerPage.tsx: automatically clear any previous cleaned output and reset File Name and Copy state before displaying the newly formatted result, ensuring outputs do not stack/accumulate across runs.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "B) Auto Reset Logic:\n- When Clean Notes button is clicked:\n   → Automatically clear previous Cleaned Output\n   → Then show new formatted result\n- Do not stack outputs."
+        ]
+      },
+      "acceptanceCriteria": [
+        "When \"Clean Notes\" is clicked, any prior cleaned output is cleared before the new result is shown (no stacked/concatenated output).",
+        "File Name input is reset on each run of \"Clean Notes\".",
+        "Copy state is reset on each run of \"Clean Notes\".",
+        "The existing note formatting behavior (bullets/paragraph-to-points/definition style/heading detection) remains unchanged."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Update TXT download logic to match the requested naming rules while preserving plain-text export: in frontend/src/utils/notesCleanerTxtDownload.ts, when the File Name input is empty, generate the filename using the format notes_<first_word_of_output>_<current_date>.txt where <current_date> is YYYY-MM-DD. The <first_word_of_output> must come from the cleaned output text (ignoring leading whitespace and common bullet prefixes like \"- \", \"• \", \"* \"), sanitized for filenames (lowercase, spaces to underscores, remove non [a-z0-9_], collapse underscores). When a custom name is provided, use it and ensure it ends with .txt. The downloaded file must contain exactly the cleaned output as plain text, preserving spacing/newlines and containing no HTML tags.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "C) Download TXT Logic:\n- When clicked:\n   → Generate a plain .txt file.\n   → Preserve formatting and spacing.\n   → No HTML tags.\n\nFile Naming Rules:\n- If user enters custom name → use that.\n- If empty:\n   Use format:\n   notes_<first_word_of_output>_<current_date>.txt\n\nDate format:\nYYYY-MM-DD"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking \"Download TXT\" downloads a .txt file whose contents exactly match the \"Cleaned Output\" textarea value (including whitespace and newlines) and contains no HTML markup.",
+        "If the File Name input has a value, that value is used as the base filename and .txt is appended if missing.",
+        "If the File Name input is empty, the filename is notes_<first_word_of_output>_<YYYY-MM-DD>.txt.",
+        "The <first_word_of_output> is derived from the cleaned output text (ignoring leading whitespace and common bullet prefixes) and sanitized for filenames (lowercase, underscores, stripped special characters).",
+        "The date in the filename uses the current client date in YYYY-MM-DD format."
       ]
     }
   ],
   "constraints": [
-    "Promotion must be metadata-only per `frontend/.release/README.md` (do not modify application source files under `frontend/src/`).",
-    "Do not introduce any rebuild/recompilation changes beyond what is required for promotion."
+    "Modify the Cleaned Notes panel only (frontend/src/pages/NotesCleanerPage.tsx output section); do not change other panels or unrelated UI.",
+    "Do not remove or alter existing notes formatting features/logic (e.g., bullet conversion, paragraph-to-points, definition style, heading detection).",
+    "Hide the \"Download TXT\" button when cleaned output is empty.",
+    "Keep user-facing text in English and match the exact labels/placeholders specified: \"Download TXT\", \"Clear Output\", \"File Name\", \"Enter file name (optional)\".",
+    "Do not edit files under frontend/src/components/ui or other immutablePaths; compose existing UI components only."
   ],
   "nonGoals": [
-    "Do not implement or modify any app features (including the strike-through behavior issue) as part of this request.",
-    "Do not change backend canister code or Motoko state."
+    "Adding new backend endpoints or persisting notes/output to the backend.",
+    "Changing the notes cleaning/formatting algorithm in frontend/src/utils/notesCleanerFormat.ts.",
+    "Adding new export formats (PDF/DOCX) or changing any other pages/modules."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

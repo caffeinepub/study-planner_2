@@ -1,21 +1,76 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Promote Draft Version 73 to Live/Production (Metadata-only)",
+  "title": "Notes Cleaner: rebuilt output actions with Clear, filename input, and TXT naming rules",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Promote draft version 73 to the live/production channel via release metadata only (no frontend source changes).",
+      "summary": "Rebuild the Cleaned Notes output panel action section layout (Copy+Clear row, File Name input, Download TXT) without touching formatting controls.",
       "acceptanceCriteria": [
-        "`frontend/.release/production-version.txt` contains exactly `73` as the promoted production draft version.",
-        "No files under `frontend/src/` are modified as part of this promotion.",
-        "After deployment, end users are served draft version 73 in the live/production channel."
+        "Only the output panel UI (the \"Cleaned Notes\" card content) is changed; no changes to the Rough Notes panel or formatting controls.",
+        "Below the \"Cleaned Output\" textarea, Copy remains present.",
+        "A \"Clear Output\" button labeled exactly \"Clear Output\" is placed next to Copy in the same row.",
+        "A \"File Name\" labeled input with placeholder \"Enter file name (optional)\" appears above the Download button in the output panel.",
+        "A \"Download TXT\" button labeled exactly \"Download TXT\" is placed below the Copy/Clear row (and below the File Name input).",
+        "On small screens, controls remain usable and do not overflow; layout is responsive."
       ],
       "file_operations": [
         {
-          "path": "frontend/.release/production-version.txt",
+          "path": "frontend/src/pages/NotesCleanerPage.tsx",
           "operation": "modify",
-          "description": "Set/confirm the promoted production draft version to `73` (metadata-only promotion per `frontend/.release/README.md`); do not modify any files under `frontend/src/`."
+          "description": "In the \"Cleaned Notes\" CardContent only, rebuild the action section to: (1) keep Copy directly below the Cleaned Output textarea, (2) add a \"Clear Output\" button next to Copy in the same responsive row, (3) render a labeled \"File Name\" input (placeholder \"Enter file name (optional)\") directly below that row, and (4) render a \"Download TXT\" button directly below the File Name input. Keep existing formatting options/logic untouched. Use existing shadcn-ui primitives (Button/Input/Textarea/Label/Card) to keep styling consistent and responsive; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Implement Clear Output behavior: clear cleaned output, reset file name and copy state, and hide Download TXT when output is empty.",
+      "acceptanceCriteria": [
+        "Clicking \"Clear Output\" empties the output textarea content immediately.",
+        "After clearing, the File Name input is reset to an empty string.",
+        "After clearing, any \"Copied!\" UI state is reset back to the normal Copy UI.",
+        "\"Download TXT\" is not visible when cleaned output is empty."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/NotesCleanerPage.tsx",
+          "operation": "modify",
+          "description": "Update the Clear Output button handler to: set cleanedNotes to empty, reset the File Name input state to empty, reset copied state so Copy no longer shows \"Copied!\", and ensure the \"Download TXT\" control is not rendered when cleanedNotes is empty (visibility, not just disabled). Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Auto-reset output state on each Clean Notes run so prior outputs don't persist or stack.",
+      "acceptanceCriteria": [
+        "When \"Clean Notes\" is clicked, any prior cleaned output is cleared before the new result is shown (no stacked/concatenated output).",
+        "File Name input is reset on each run of \"Clean Notes\".",
+        "Copy state is reset on each run of \"Clean Notes\".",
+        "The existing note formatting behavior (bullets/paragraph-to-points/definition style/heading detection) remains unchanged."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/NotesCleanerPage.tsx",
+          "operation": "modify",
+          "description": "Adjust the \"Clean Notes\" click flow to reset cleanedNotes, customFileName, and copied state at the start of each run (before/as processing begins) and then set the new cleaned result (replace, do not append). Do not modify the existing notes formatting logic or its options. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Update TXT download filename generation to notes_<first_word_of_output>_<YYYY-MM-DD>.txt when File Name is empty, and preserve plain-text output.",
+      "acceptanceCriteria": [
+        "Clicking \"Download TXT\" downloads a .txt file whose contents exactly match the \"Cleaned Output\" textarea value (including whitespace and newlines) and contains no HTML markup.",
+        "If the File Name input has a value, that value is used as the base filename and .txt is appended if missing.",
+        "If the File Name input is empty, the filename is notes_<first_word_of_output>_<YYYY-MM-DD>.txt.",
+        "The <first_word_of_output> is derived from the cleaned output text (ignoring leading whitespace and common bullet prefixes) and sanitized for filenames (lowercase, underscores, stripped special characters).",
+        "The date in the filename uses the current client date in YYYY-MM-DD format."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/notesCleanerTxtDownload.ts",
+          "operation": "modify",
+          "description": "Replace the current auto-generated filename logic to follow: if custom name is empty => notes_<first_word_of_output>_<current_date>.txt (YYYY-MM-DD). Derive first_word_of_output from cleaned output by ignoring leading whitespace and common bullet prefixes (\"- \", \"• \", \"* \"), then taking the first word token and sanitizing it for filenames (lowercase, spaces->underscores, remove non [a-z0-9_], collapse underscores). If custom name provided, use it and ensure it ends with .txt. Keep download contents as exactly the cleanedNotes plain text (no HTML)."
         }
       ]
     }

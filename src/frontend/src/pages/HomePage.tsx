@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/primitives/Card';
+import { Button } from '../components/primitives/Button';
 import { FileText, Calendar, FileEdit, Mail, FileUser, MessageSquarePlus } from 'lucide-react';
 
 export default function HomePage() {

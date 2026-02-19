@@ -8,7 +8,7 @@ import NotesCleanerPage from './pages/NotesCleanerPage';
 import LeaveApplicationPage from './pages/LeaveApplicationPage';
 import ResumeBuilderPage from './pages/ResumeBuilderPage';
 import RequestFeaturePage from './pages/RequestFeaturePage';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from './components/primitives/Toaster';
 
 const rootRoute = createRootRoute({
   component: Layout,

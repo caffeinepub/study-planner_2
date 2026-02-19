@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '../components/primitives/Button';
+import { Sheet, SheetContent, SheetTrigger } from '../components/primitives/Sheet';
 import { Menu, Heart } from 'lucide-react';
 
 export default function Layout() {
@@ -74,9 +74,9 @@ export default function Layout() {
               Built to make student life easier.
             </p>
             <p className="text-sm text-muted-foreground flex items-center gap-1">
-              © 2025. Built with <Heart className="h-4 w-4 text-accent fill-accent" /> using{' '}
+              © {new Date().getFullYear()}. Built with <Heart className="h-4 w-4 text-accent fill-accent" /> using{' '}
               <a
-                href="https://caffeine.ai"
+                href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== 'undefined' ? window.location.hostname : 'studentsathi')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-primary hover:underline"

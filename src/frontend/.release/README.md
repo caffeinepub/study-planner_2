@@ -1,25 +1,23 @@
-# Production Version Release Metadata
+# Production Version Management
 
-This directory contains deployment metadata used by the CI/CD system to promote draft versions to the live production channel.
+This directory contains metadata for the CI/CD deployment system.
 
-## Files
+## production-version.txt
 
-### production-version.txt
-Contains a single numeric value indicating which draft version is currently promoted to the Live/Production channel.
+Contains a single numeric value representing the draft version to promote to the Live/Production channel.
 
-**Current value:** The number in this file represents the draft version that should be served to end users.
+**Important constraints:**
+- The file must contain exactly one numeric value (no extra whitespace or blank lines)
+- Promotion-only deploys must change ONLY this file
+- No files under `frontend/src/` may be modified during a promotion-only deploy
+- The CI/CD system reads this file as the single source of truth for production promotion
 
-## Usage
+## How it works
 
-The deployment system reads `production-version.txt` as the single source of truth for determining which draft build to promote to production.
+1. When `production-version.txt` is updated (e.g., from `72` to `73`), the CI/CD system promotes draft version 73 to the Live/Production channel
+2. This is a metadata-only operation that does not rebuild or modify application source code
+3. The promotion makes the specified draft version available to end users on the production URL
 
-**Important:** This is a promotion-only operation. Do not modify application source files (under `frontend/src/`) as part of the promotion process. The promotion step should only update this metadata file to reference an existing, tested draft build.
+## Example
 
-## Process
-
-1. Test the draft version thoroughly
-2. Update `production-version.txt` with the draft version number
-3. Commit and deploy
-4. The CI/CD system will promote that draft to the live channel
-
-No code changes, rebuilds, or recompilation should occur during promotion.
+To promote draft version 75 to production:

@@ -3,14 +3,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Sparkles, Copy, Check } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Sparkles, Copy, Check, Download, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { cleanAndFormatNotes } from '@/utils/notesCleanerFormat';
+import { downloadNotesAsTxt } from '@/utils/notesCleanerTxtDownload';
 
 export default function NotesCleanerPage() {
   const [roughNotes, setRoughNotes] = useState('');
   const [cleanedNotes, setCleanedNotes] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [convertToBullets, setConvertToBullets] = useState(true);
+  const [convertParagraphToPoints, setConvertParagraphToPoints] = useState(false);
+  const [convertToDefinitionStyle, setConvertToDefinitionStyle] = useState(false);
+  const [autoDetectHeadings, setAutoDetectHeadings] = useState(false);
+  const [customFileName, setCustomFileName] = useState('');
 
   const handleCleanNotes = () => {
     if (!roughNotes.trim()) {
@@ -22,23 +31,19 @@ export default function NotesCleanerPage() {
 
     // Simulate processing
     setTimeout(() => {
-      // Clean and format the notes
-      const lines = roughNotes.split('\n');
-      const cleaned = lines
-        .map(line => line.trim())
-        .filter(line => line.length > 0)
-        .map(line => {
-          // Capitalize first letter
-          if (line.length > 0) {
-            line = line.charAt(0).toUpperCase() + line.slice(1);
-          }
-          // Add period if missing
-          if (line.length > 0 && !line.match(/[.!?]$/)) {
-            line += '.';
-          }
-          return line;
-        })
-        .join('\n\n');
+      // Clear previous output before generating new one
+      setCleanedNotes('');
+      setCustomFileName('');
+      setCopied(false);
+
+      // Clean and format the notes using the utility
+      const cleaned = cleanAndFormatNotes(
+        roughNotes, 
+        convertToBullets, 
+        convertParagraphToPoints,
+        convertToDefinitionStyle,
+        autoDetectHeadings
+      );
 
       setCleanedNotes(cleaned);
       setIsProcessing(false);
@@ -51,6 +56,18 @@ export default function NotesCleanerPage() {
     setCopied(true);
     toast.success('Cleaned notes copied to clipboard!');
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    downloadNotesAsTxt(cleanedNotes, customFileName);
+    toast.success('Notes downloaded successfully!');
+  };
+
+  const handleClearOutput = () => {
+    setCleanedNotes('');
+    setCustomFileName('');
+    setCopied(false);
+    toast.success('Output cleared');
   };
 
   return (
@@ -80,6 +97,67 @@ export default function NotesCleanerPage() {
                 className="min-h-[300px] font-mono text-sm"
               />
             </div>
+            
+            {/* Bullet Point Conversion Checkbox */}
+            <div className="flex items-center space-x-2 py-2">
+              <Checkbox
+                id="convert-bullets"
+                checked={convertToBullets}
+                onCheckedChange={(checked) => setConvertToBullets(checked === true)}
+              />
+              <Label
+                htmlFor="convert-bullets"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Convert to Bullet Points
+              </Label>
+            </div>
+
+            {/* Paragraph to Points Conversion Checkbox */}
+            <div className="flex items-center space-x-2 py-2">
+              <Checkbox
+                id="convert-paragraph"
+                checked={convertParagraphToPoints}
+                onCheckedChange={(checked) => setConvertParagraphToPoints(checked === true)}
+              />
+              <Label
+                htmlFor="convert-paragraph"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Convert Paragraph to Points
+              </Label>
+            </div>
+
+            {/* Definition Style Conversion Checkbox */}
+            <div className="flex items-center space-x-2 py-2">
+              <Checkbox
+                id="convert-definition"
+                checked={convertToDefinitionStyle}
+                onCheckedChange={(checked) => setConvertToDefinitionStyle(checked === true)}
+              />
+              <Label
+                htmlFor="convert-definition"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Convert to Definition Style
+              </Label>
+            </div>
+
+            {/* Auto Detect Headings Checkbox */}
+            <div className="flex items-center space-x-2 py-2">
+              <Checkbox
+                id="auto-detect-headings"
+                checked={autoDetectHeadings}
+                onCheckedChange={(checked) => setAutoDetectHeadings(checked === true)}
+              />
+              <Label
+                htmlFor="auto-detect-headings"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Auto Detect Headings
+              </Label>
+            </div>
+
             <Button
               onClick={handleCleanNotes}
               disabled={isProcessing}
@@ -115,25 +193,69 @@ export default function NotesCleanerPage() {
                 className="min-h-[300px] font-mono text-sm bg-muted"
               />
             </div>
-            <Button
-              onClick={handleCopy}
-              disabled={!cleanedNotes}
-              variant="secondary"
-              className="w-full"
-              size="lg"
-            >
-              {copied ? (
-                <>
-                  <Check className="mr-2 h-5 w-5" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="mr-2 h-5 w-5" />
-                  Copy Cleaned Notes
-                </>
+
+            {/* Copy and Clear Output Buttons Row */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                onClick={handleCopy}
+                disabled={!cleanedNotes}
+                variant="secondary"
+                className="flex-1"
+                size="lg"
+              >
+                {copied ? (
+                  <>
+                    <Check className="mr-2 h-5 w-5" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="mr-2 h-5 w-5" />
+                    Copy
+                  </>
+                )}
+              </Button>
+
+              {cleanedNotes && (
+                <Button
+                  onClick={handleClearOutput}
+                  variant="outline"
+                  className="flex-1"
+                  size="lg"
+                >
+                  <Trash2 className="mr-2 h-5 w-5" />
+                  Clear Output
+                </Button>
               )}
-            </Button>
+            </div>
+
+            {/* File Name Input - Only visible when output exists */}
+            {cleanedNotes && (
+              <div className="space-y-2">
+                <Label htmlFor="file-name">File Name</Label>
+                <Input
+                  id="file-name"
+                  type="text"
+                  placeholder="Enter file name (optional)"
+                  value={customFileName}
+                  onChange={(e) => setCustomFileName(e.target.value)}
+                  className="font-mono text-sm"
+                />
+              </div>
+            )}
+
+            {/* Download TXT Button - Only visible when output exists */}
+            {cleanedNotes && (
+              <Button
+                onClick={handleDownload}
+                variant="default"
+                className="w-full"
+                size="lg"
+              >
+                <Download className="mr-2 h-5 w-5" />
+                Download TXT
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -142,10 +264,16 @@ export default function NotesCleanerPage() {
         <CardContent className="pt-6">
           <h3 className="font-semibold mb-3">How it works:</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>• When "Auto Detect Headings" is enabled, detects and formats topic headings: if the first line has 1-5 words with no ending punctuation, it becomes a Main Heading in Title Case; lines starting with keywords (definition, process, types, advantages, disadvantages, uses, causes, effects, importance, examples) become formatted subheadings with proper spacing</li>
             <li>• Removes extra spaces and blank lines</li>
-            <li>• Capitalizes the first letter of each line</li>
-            <li>• Adds proper punctuation</li>
-            <li>• Formats text for better readability</li>
+            <li>• Treats each non-empty line as a separate note</li>
+            <li>• When "Convert Paragraph to Points" is enabled, detects paragraph input (continuous text with multiple sentences) and splits it into individual sentence bullets</li>
+            <li>• When "Convert to Definition Style" is enabled, converts short single-line input (2-12 words, no ending punctuation, no multiple sentences) into a proper definition sentence in the format "[Topic] is a/an [explanation]."</li>
+            <li>• Capitalizes the first letter of each line or sentence</li>
+            <li>• Adds proper punctuation at the end</li>
+            <li>• Converts each line to a dash bullet point ("- ") when "Convert to Bullet Points" is enabled</li>
+            <li>• Priority order: Headings Detect → Definition Style → Paragraph to Points → Bullet Formatting</li>
+            <li>• Maintains original wording without merging or summarizing</li>
           </ul>
         </CardContent>
       </Card>

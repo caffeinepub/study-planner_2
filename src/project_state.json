@@ -1,24 +1,75 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Task list app with Daily and Weekly views; tasks have Subject label/badge and Topic text, with completion checkbox and strike-through styling on completion.",
-  "architectural_notes": [],
-  "known_issues": [
-    "Completed-task strike-through is incorrectly applied to Topic text instead of only the Subject label/badge in both Daily and Weekly task lists."
+  "summary": "UI enhancement for the Cleaned Notes panel: rebuild action section with Copy/Clear/Download TXT controls, file name input, auto-reset behavior, and TXT export with specific naming rules.",
+  "architectural_notes": [
+    "Only modify the Cleaned Notes panel; do not remove existing formatting features.",
+    "Download TXT button should be hidden when Cleaned Output is empty.",
+    "Default download filename format: notes_<first_word_of_output>_<YYYY-MM-DD>.txt when File Name input is empty."
   ],
-  "isFixRequest": true,
-  "existing_features": [],
-  "new_feature_requests": [
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
     {
-      "id": "AR-1",
-      "summary": "Promote draft version 73 to the Live/Production channel by ensuring `frontend/.release/production-version.txt` references draft version `73`, and perform the release promotion as a metadata-only change (no application source code changes).",
+      "id": "feature-modify-only-the-cleaned-notes-output-panel-in-frontend-src-pages-notescleanerpage-tsx-to-rebuild-the-action-section-layout-as-follows-1-keep-the-existing-copy-button-directly-below-the-cleaned-output-textarea-2-add-a-new-clear-output-button-next-to-copy-same-row-3-directly-below-that-row-render-a-file-name-input-with-placeholder-enter-file-name-optional-and-4-directly-below-the-file-name-input-render-a-download-txt-button-ensure-the-layout-is-clean-and-responsive-stacking-appropriately-on-small-screens-and-do-not-remove-or-change-any-existing-formatting-features-options",
+      "title": "Modify only the \"Cleaned Notes\" output panel in frontend/src/pages/NotesCleanerPage.tsx to rebuild the action section layout as follows: (1) keep the existing Copy button directly below the \"Cleaned Output\" textarea, (2) add a new \"Clear Output\" button next to Copy (same row), (3) directly below that row render a \"File Name\" input with placeholder \"Enter file name (optional)\", and (4) directly below the File Name input render a \"Download TXT\" button. Ensure the layout is clean and responsive (stacking appropriately on small screens) and do not remove or change any existing formatting features/options.",
       "reqIds": [
         "REQ-1"
       ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-clear-output-behavior-in-frontend-src-pages-notescleanerpage-tsx-when-clicked-completely-clear-the-cleaned-output-textarea-cleanednotes-becomes-empty-reset-the-file-name-input-value-to-empty-reset-the-copy-button-state-so-it-is-no-longer-in-a-copied-state-and-ensure-the-download-txt-button-is-hidden-when-the-output-is-empty",
+      "title": "Implement \"Clear Output\" behavior in frontend/src/pages/NotesCleanerPage.tsx: when clicked, completely clear the \"Cleaned Output\" textarea (cleanedNotes becomes empty), reset the File Name input value to empty, reset the Copy button state (so it is no longer in a \"Copied!\" state), and ensure the \"Download TXT\" button is hidden when the output is empty.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-auto-reset-behavior-when-the-clean-notes-button-is-clicked-in-frontend-src-pages-notescleanerpage-tsx-automatically-clear-any-previous-cleaned-output-and-reset-file-name-and-copy-state-before-displaying-the-newly-formatted-result-ensuring-outputs-do-not-stack-accumulate-across-runs",
+      "title": "Implement auto-reset behavior when the \"Clean Notes\" button is clicked in frontend/src/pages/NotesCleanerPage.tsx: automatically clear any previous cleaned output and reset File Name and Copy state before displaying the newly formatted result, ensuring outputs do not stack/accumulate across runs.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-txt-download-logic-to-match-the-requested-naming-rules-while-preserving-plain-text-export-in-frontend-src-utils-notescleanertxtdownload-ts-when-the-file-name-input-is-empty-generate-the-filename-using-the-format-notes-first-word-of-output-current-date-txt-where-current-date-is-yyyy-mm-dd-the-first-word-of-output-must-come-from-the-cleaned-output-text-ignoring-leading-whitespace-and-common-bullet-prefixes-like-sanitized-for-filenames-lowercase-spaces-to-underscores-remove-non-a-z0-9-collapse-underscores-when-a-custom-name-is-provided-use-it-and-ensure-it-ends-with-txt-the-downloaded-file-must-contain-exactly-the-cleaned-output-as-plain-text-preserving-spacing-newlines-and-containing-no-html-tags",
+      "title": "Update TXT download logic to match the requested naming rules while preserving plain-text export: in frontend/src/utils/notesCleanerTxtDownload.ts, when the File Name input is empty, generate the filename using the format notes_<first_word_of_output>_<current_date>.txt where <current_date> is YYYY-MM-DD. The <first_word_of_output> must come from the cleaned output text (ignoring leading whitespace and common bullet prefixes like \"- \", \"• \", \"* \"), sanitized for filenames (lowercase, spaces to underscores, remove non [a-z0-9_], collapse underscores). When a custom name is provided, use it and ensure it ends with .txt. The downloaded file must contain exactly the cleaned output as plain text, preserving spacing/newlines and containing no HTML tags.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Rebuild Cleaned Notes action section: add File Name input, Clear Output button next to Copy, and Download TXT button below Copy; only modify Cleaned Notes panel and keep responsive layout.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Implement Clear Output behavior: clears Cleaned Output textarea, hides Download TXT when output empty, and resets File Name input.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Implement auto-reset on Clean Notes: clear previous Cleaned Output before showing new formatted result; do not stack outputs.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Implement Download TXT export: generate plain .txt preserving spacing/formatting with no HTML tags; filename uses custom input or default notes_<first_word_of_output>_<YYYY-MM-DD>.txt.",
+      "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Promote Draft Version 73 to Live/Production",
+  "projectName": "Rebuild Notes Cleaner output action section (Copy/Clear + File Name + Download TXT) with reset & filename rules",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

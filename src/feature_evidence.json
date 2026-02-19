@@ -1,4 +1,89 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-modify-only-the-cleaned-notes-output-panel-in-frontend-src-pages-notescleanerpage-tsx-to-rebuild-the-action-section-layout-as-follows-1-keep-the-existing-copy-button-directly-below-the-cleaned-output-textarea-2-add-a-new-clear-output-button-next-to-copy-same-row-3-directly-below-that-row-render-a-file-name-input-with-placeholder-enter-file-name-optional-and-4-directly-below-the-file-name-input-render-a-download-txt-button-ensure-the-layout-is-clean-and-responsive-stacking-appropriately-on-small-screens-and-do-not-remove-or-change-any-existing-formatting-features-options",
+      "featureTitle": "Modify only the \"Cleaned Notes\" output panel in frontend/src/pages/NotesCleanerPage.tsx to rebuild the action section layout as follows: (1) keep the existing Copy button directly below the \"Cleaned Output\" textarea, (2) add a new \"Clear Output\" button next to Copy (same row), (3) directly below that row render a \"File Name\" input with placeholder \"Enter file name (optional)\", and (4) directly below the File Name input render a \"Download TXT\" button. Ensure the layout is clean and responsive (stacking appropriately on small screens) and do not remove or change any existing formatting features/options.",
+      "files": [
+        "frontend/src/pages/NotesCleanerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-clear-output-behavior-in-frontend-src-pages-notescleanerpage-tsx-when-clicked-completely-clear-the-cleaned-output-textarea-cleanednotes-becomes-empty-reset-the-file-name-input-value-to-empty-reset-the-copy-button-state-so-it-is-no-longer-in-a-copied-state-and-ensure-the-download-txt-button-is-hidden-when-the-output-is-empty",
+      "featureTitle": "Implement \"Clear Output\" behavior in frontend/src/pages/NotesCleanerPage.tsx: when clicked, completely clear the \"Cleaned Output\" textarea (cleanedNotes becomes empty), reset the File Name input value to empty, reset the Copy button state (so it is no longer in a \"Copied!\" state), and ensure the \"Download TXT\" button is hidden when the output is empty.",
+      "files": [
+        "frontend/src/pages/NotesCleanerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-auto-reset-behavior-when-the-clean-notes-button-is-clicked-in-frontend-src-pages-notescleanerpage-tsx-automatically-clear-any-previous-cleaned-output-and-reset-file-name-and-copy-state-before-displaying-the-newly-formatted-result-ensuring-outputs-do-not-stack-accumulate-across-runs",
+      "featureTitle": "Implement auto-reset behavior when the \"Clean Notes\" button is clicked in frontend/src/pages/NotesCleanerPage.tsx: automatically clear any previous cleaned output and reset File Name and Copy state before displaying the newly formatted result, ensuring outputs do not stack/accumulate across runs.",
+      "files": [
+        "frontend/src/pages/NotesCleanerPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-txt-download-logic-to-match-the-requested-naming-rules-while-preserving-plain-text-export-in-frontend-src-utils-notescleanertxtdownload-ts-when-the-file-name-input-is-empty-generate-the-filename-using-the-format-notes-first-word-of-output-current-date-txt-where-current-date-is-yyyy-mm-dd-the-first-word-of-output-must-come-from-the-cleaned-output-text-ignoring-leading-whitespace-and-common-bullet-prefixes-like-sanitized-for-filenames-lowercase-spaces-to-underscores-remove-non-a-z0-9-collapse-underscores-when-a-custom-name-is-provided-use-it-and-ensure-it-ends-with-txt-the-downloaded-file-must-contain-exactly-the-cleaned-output-as-plain-text-preserving-spacing-newlines-and-containing-no-html-tags",
+      "featureTitle": "Update TXT download logic to match the requested naming rules while preserving plain-text export: in frontend/src/utils/notesCleanerTxtDownload.ts, when the File Name input is empty, generate the filename using the format notes_<first_word_of_output>_<current_date>.txt where <current_date> is YYYY-MM-DD. The <first_word_of_output> must come from the cleaned output text (ignoring leading whitespace and common bullet prefixes like \"- \", \"• \", \"* \"), sanitized for filenames (lowercase, spaces to underscores, remove non [a-z0-9_], collapse underscores). When a custom name is provided, use it and ensure it ends with .txt. The downloaded file must contain exactly the cleaned output as plain text, preserving spacing/newlines and containing no HTML tags.",
+      "files": [
+        "frontend/src/utils/notesCleanerTxtDownload.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    }
+  ]
 }
