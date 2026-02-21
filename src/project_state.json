@@ -1,62 +1,37 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Note formatting tool with smart semantic bullet splitting engine for academic content",
+  "summary": "Academic note cleaning tool with semantic splitting for compound action phrases",
   "architectural_notes": [
-    "Smart semantic splitting engine: preserves scientific compound terms (e.g., 'carbon dioxide and water') as single bullets",
-    "Splitting rules: only split when 2+ standalone technical phrases appear without conjunctions (and/or/with/of/from/to/in/by/using/through)",
-    "Semantic grouping applied BEFORE bullet conversion to maintain meaning",
-    "Prevents single-word bullets, conjunction-led bullets, and modifier-separated bullets",
-    "Protects phrases with subject+verb, descriptive clauses, and process explanations from splitting"
+    "Multi-pass note cleaning: semantic splitting during formatting + post-cleaning action phrase detection",
+    "Action phrase boundary detection based on verb-noun sequences and academic keywords (helps, removal, distribution, etc.)",
+    "Split thresholds: 8+ words during initial cleaning, 10+ words in post-cleaning pass",
+    "Applied to Convert Paragraph to Points and Definition Style Format modes"
   ],
   "known_issues": [],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-remove-all-existing-bullet-point-splitting-logic-from-notescleanerformat-ts-including-converttoparagraphtopoints-converttobulletpoints-and-definition-style-bullet-formatting-functions",
-      "title": "Remove all existing bullet point splitting logic from notesCleanerFormat.ts including convertToParagraphToPoints, convertToBulletPoints, and definition style bullet formatting functions",
+      "id": "feature-implement-a-second-processing-pass-that-runs-after-initial-note-cleaning-and-formatting-but-before-displaying-output-in-the-clean-notes-section-this-pass-should-detect-bullet-points-containing-more-than-10-words-with-multiple-academic-action-phrases-and-no-commas-or-conjunctions-then-split-them-into-multiple-meaningful-action-based-bullet-points-based-on-noun-action-sequence-patterns",
+      "title": "Implement a second processing pass that runs after initial note cleaning and formatting but before displaying output in the Clean Notes section. This pass should detect bullet points containing more than 10 words with multiple academic action phrases and no commas or conjunctions, then split them into multiple meaningful action-based bullet points based on noun-action sequence patterns.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-semantic-phrase-detection-that-preserves-scientific-compound-terms-as-single-bullets-carbon-dioxide-and-water-semi-permeable-membrane-low-solute-concentration-high-solute-concentration-must-never-be-split",
-      "title": "Implement semantic phrase detection that preserves scientific compound terms as single bullets: 'carbon dioxide and water', 'semi permeable membrane', 'low solute concentration', 'high solute concentration' must never be split",
+      "id": "feature-apply-the-action-splitting-logic-only-to-convert-paragraph-to-points-and-definition-style-format-modes-do-not-apply-it-to-other-formatting-modes-or-affect-heading-detection",
+      "title": "Apply the action splitting logic only to Convert Paragraph to Points and Definition Style Format modes. Do not apply it to other formatting modes or affect heading detection.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-smart-splitting-logic-that-only-creates-multiple-bullets-when-2-or-more-standalone-technical-phrases-appear-sequentially-without-conjunctions-and-or-with-of-from-to-in-by-using-through",
-      "title": "Implement smart splitting logic that only creates multiple bullets when 2 or more standalone technical phrases appear sequentially WITHOUT conjunctions (and/or/with/of/from/to/in/by/using/through)",
+      "id": "feature-identify-action-phrase-boundaries-using-verb-changes-noun-phrase-starts-and-functional-academic-keywords-including-helps-removal-distribution-movement-absorption-transport-formation-release-regulation-maintenance-split-each-detected-action-phrase-into-a-separate-bullet-point-while-preserving-compound-scientific-terms",
+      "title": "Identify action phrase boundaries using verb changes, noun phrase starts, and functional academic keywords including: helps, removal, distribution, movement, absorption, transport, formation, release, regulation, maintenance. Split each detected action phrase into a separate bullet point while preserving compound scientific terms.",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-preserve-complete-sentences-as-single-bullets-when-they-contain-subject-verb-descriptive-clause-or-process-explanation-preventing-fragmentation",
-      "title": "Preserve complete sentences as single bullets when they contain subject + verb + descriptive clause or process explanation, preventing fragmentation",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-validation-rules-to-prevent-single-word-bullets-conjunction-led-bullets-and-modifier-separated-bullets-in-all-conversion-modes",
-      "title": "Implement validation rules to prevent single-word bullets, conjunction-led bullets, and modifier-separated bullets in all conversion modes",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-apply-semantic-grouping-before-bullet-conversion-and-prioritize-meaning-preservation-over-formatting-in-all-three-conversion-modes-convert-paragraph-to-points-convert-to-bullet-points-and-definition-style-format",
-      "title": "Apply semantic grouping before bullet conversion and prioritize meaning preservation over formatting in all three conversion modes: Convert Paragraph to Points, Convert to Bullet Points, and Definition Style Format",
-      "reqIds": [
-        "REQ-6"
       ],
       "version": 1
     }
@@ -64,12 +39,21 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Replace bullet/paragraph splitting with smart semantic splitting engine that preserves scientific phrases and prevents over-splitting",
+      "summary": "Implement action-phrase based bullet detection with 8+ word threshold",
       "reqIds": [],
-      "status": "pending"
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add post-cleaning action splitting pass for bullets with 10+ words",
+      "reqIds": [
+        "AR-1"
+      ],
+      "status": "in_progress"
     }
   ],
-  "projectName": "Replace bullet splitting engine with smart semantic splitting",
+  "gameProjectType": "none",
+  "projectName": "Add post-cleaning action splitting pass for long bullets",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

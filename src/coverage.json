@@ -1,21 +1,22 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-19T14:13:07.566Z",
+  "generatedAt": "2026-02-21T13:24:40.374Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 6,
-    "implemented": 6,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Remove all existing bullet point splitting logic from notesCleanerFormat.ts including convertToParagraphToPoints, convertToBulletPoints, and definition style bullet formatting functions",
+        "summary": "Implement a second processing pass that runs after initial note cleaning and formatting but before displaying output in the Clean Notes section. This pass should detect bullet points containing more than 10 words with multiple academic action phrases and no commas or conjunctions, then split them into multiple meaningful action-based bullet points based on noun-action sequence patterns.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts"
+          "frontend/src/utils/notesCleanerFormat.ts",
+          "frontend/src/pages/NotesCleanerPage.tsx"
         ],
         "matchedFiles": [
           "frontend/src/utils/notesCleanerFormat.ts"
@@ -23,7 +24,7 @@
       },
       {
         "id": "REQ-2",
-        "summary": "Implement semantic phrase detection that preserves scientific compound terms as single bullets: 'carbon dioxide and water', 'semi permeable membrane', 'low solute concentration', 'high solute concentration' must never be split",
+        "summary": "Apply the action splitting logic only to Convert Paragraph to Points and Definition Style Format modes. Do not apply it to other formatting modes or affect heading detection.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/utils/notesCleanerFormat.ts"
@@ -34,44 +35,10 @@
       },
       {
         "id": "REQ-3",
-        "summary": "Implement smart splitting logic that only creates multiple bullets when 2 or more standalone technical phrases appear sequentially WITHOUT conjunctions (and/or/with/of/from/to/in/by/using/through)",
+        "summary": "Identify action phrase boundaries using verb changes, noun phrase starts, and functional academic keywords including: helps, removal, distribution, movement, absorption, transport, formation, release, regulation, maintenance. Split each detected action phrase into a separate bullet point while preserving compound scientific terms.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/utils/notesCleanerFormat.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Preserve complete sentences as single bullets when they contain subject + verb + descriptive clause or process explanation, preventing fragmentation",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts"
-        ]
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Implement validation rules to prevent single-word bullets, conjunction-led bullets, and modifier-separated bullets in all conversion modes",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts"
-        ]
-      },
-      {
-        "id": "REQ-6",
-        "summary": "Apply semantic grouping before bullet conversion and prioritize meaning preservation over formatting in all three conversion modes: Convert Paragraph to Points, Convert to Bullet Points, and Definition Style Format",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts",
-          "frontend/src/pages/NotesCleanerPage.tsx"
         ],
         "matchedFiles": [
           "frontend/src/utils/notesCleanerFormat.ts"

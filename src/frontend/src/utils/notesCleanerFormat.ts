@@ -521,6 +521,132 @@ function cleanupSpacing(input: string): string {
 }
 
 /**
+ * POST-CLEANING ACTION SPLITTING PASS
+ * 
+ * Detects and splits long bullets containing multiple academic action phrases
+ * without commas or conjunctions.
+ * 
+ * Detection criteria:
+ * - Bullet contains more than 10 words
+ * - Contains multiple academic action phrases
+ * - Contains no commas or conjunctions
+ * 
+ * Academic action keywords:
+ * helps, removal, distribution, movement, absorption, transport, formation,
+ * release, regulation, maintenance, exchange, production, secretion, digestion,
+ * circulation, respiration, excretion, reproduction
+ */
+function applyActionSplittingPass(input: string): string {
+  const academicActionKeywords = [
+    'helps', 'removal', 'distribution', 'movement', 'absorption', 'transport',
+    'formation', 'release', 'regulation', 'maintenance', 'exchange', 'production',
+    'secretion', 'digestion', 'circulation', 'respiration', 'excretion', 'reproduction',
+    'synthesis', 'breakdown', 'conversion', 'transfer', 'storage', 'elimination'
+  ];
+  
+  const lines = input.split('\n');
+  const output: string[] = [];
+  const bulletPrefix = getBulletPrefix(getCurrentBulletStyle());
+  
+  for (const line of lines) {
+    const trimmed = line.trim();
+    
+    // Skip empty lines
+    if (trimmed.length === 0) {
+      output.push('');
+      continue;
+    }
+    
+    // Check if this is a heading
+    const isHeading = trimmed.endsWith(':') || 
+      (!trimmed.match(/[.!?]$/) && trimmed.split(/\s+/).every(word => 
+        word.length > 0 && word.charAt(0) === word.charAt(0).toUpperCase()
+      ));
+    
+    if (isHeading) {
+      output.push(trimmed);
+      continue;
+    }
+    
+    // Extract content (with or without bullet)
+    const hasBullet = trimmed.startsWith(bulletPrefix);
+    const content = hasBullet ? trimmed.substring(bulletPrefix.length).trim() : trimmed;
+    
+    // Count words
+    const words = content.split(/\s+/).filter(w => w.length > 0);
+    
+    // Check if bullet qualifies for action splitting
+    const hasMoreThan10Words = words.length > 10;
+    const hasNoCommas = !content.includes(',');
+    const hasNoConjunctions = !containsConjunctionOrPreposition(content);
+    
+    if (!hasMoreThan10Words || !hasNoCommas || !hasNoConjunctions) {
+      output.push(trimmed);
+      continue;
+    }
+    
+    // Count action phrases in the content
+    const lowerContent = content.toLowerCase();
+    const actionPhrasesFound: Array<{ keyword: string; index: number }> = [];
+    
+    for (const keyword of academicActionKeywords) {
+      const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+      let match;
+      while ((match = regex.exec(lowerContent)) !== null) {
+        actionPhrasesFound.push({ keyword, index: match.index });
+      }
+    }
+    
+    // Need at least 2 action phrases to split
+    if (actionPhrasesFound.length < 2) {
+      output.push(trimmed);
+      continue;
+    }
+    
+    // Sort action phrases by position
+    actionPhrasesFound.sort((a, b) => a.index - b.index);
+    
+    // Split content at action phrase boundaries
+    const splitBullets: string[] = [];
+    
+    for (let i = 0; i < actionPhrasesFound.length; i++) {
+      const currentPhrase = actionPhrasesFound[i];
+      const nextPhrase = actionPhrasesFound[i + 1];
+      
+      const startIndex = currentPhrase.index;
+      const endIndex = nextPhrase ? nextPhrase.index : content.length;
+      
+      const bulletContent = content.substring(startIndex, endIndex).trim();
+      
+      // Validate the split bullet
+      if (validateBullet(bulletContent)) {
+        // Capitalize first letter
+        const capitalizedContent = bulletContent.charAt(0).toUpperCase() + bulletContent.slice(1);
+        
+        // Ensure ending punctuation
+        const finalContent = capitalizedContent.match(/[.!?]$/) 
+          ? capitalizedContent 
+          : capitalizedContent + '.';
+        
+        splitBullets.push(finalContent);
+      }
+    }
+    
+    // If we successfully split into multiple valid bullets, use them
+    if (splitBullets.length >= 2) {
+      for (const bullet of splitBullets) {
+        output.push(hasBullet ? bulletPrefix + bullet : bullet);
+      }
+    } else {
+      // Otherwise, keep original
+      output.push(trimmed);
+    }
+  }
+  
+  return output.join('\n');
+}
+
+/**
  * Cleans and formats notes with cumulative transformation pipeline
  * 
  * STRICT SEQUENTIAL PIPELINE:
@@ -531,6 +657,7 @@ function cleanupSpacing(input: string): string {
  * STEP 5: Convert to Bullet Points (if enabled)
  * STEP 6: Normalize lines (capitalization, punctuation)
  * STEP 7: Cleanup spacing
+ * STEP 8: Apply action splitting pass (if applicable)
  * 
  * Each transformation receives output from previous step and passes modified content to next step.
  * 
@@ -580,6 +707,11 @@ export function cleanAndFormatNotes(
   
   // STEP 7: Cleanup spacing
   workingText = cleanupSpacing(workingText);
+  
+  // STEP 8: Apply action splitting pass (only for points and definition modes)
+  if (convertParagraphToPoints || convertToDefinitionStyle) {
+    workingText = applyActionSplittingPass(workingText);
+  }
   
   return workingText;
 }

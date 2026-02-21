@@ -1,14 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Replace the Notes Cleaner's bullet splitting engine with intelligent semantic analysis that preserves scientific compound terms and only splits at logical phrase boundaries.
+**Goal:** Add a post-cleaning pass that splits long bullet points with multiple actions into separate bullets.
 
 **Planned changes:**
-- Remove all existing bullet point splitting logic (convertToParagraphToPoints, convertToBulletPoints, definition style formatting)
-- Implement semantic phrase detection that keeps scientific compound terms intact (e.g., "carbon dioxide and water", "semi permeable membrane", "low solute concentration")
-- Add smart splitting logic that only creates multiple bullets when 2+ standalone technical phrases appear sequentially WITHOUT conjunctions
-- Preserve complete sentences as single bullets when they contain subject + verb + descriptive clause or process explanation
-- Add validation rules to prevent single-word bullets, conjunction-led bullets, and modifier-separated bullets
-- Apply semantic grouping before bullet conversion across all three conversion modes (Convert Paragraph to Points, Convert to Bullet Points, Definition Style Format)
+- Implement a second processing pass after initial cleaning but before display output
+- Detect bullets with 10+ words, multiple action phrases, and no commas/conjunctions
+- Split detected bullets into multiple action-based bullets using verb changes and noun phrase boundaries
+- Apply splitting only to "Convert Paragraph to Points" and "Definition Style Format" modes
+- Recognize academic action keywords: helps, removal, distribution, movement, absorption, transport, formation, release, regulation, maintenance
 
-**User-visible outcome:** The Notes Cleaner will produce more academically accurate bullet points that preserve the meaning of scientific content, avoid fragmenting compound terms, and respect logical phrase boundaries instead of mechanically splitting on conjunctions.
+**User-visible outcome:** Long bullet points containing multiple actions are automatically split into clearer, separate action-based bullets in Convert Paragraph to Points and Definition Style Format modes.

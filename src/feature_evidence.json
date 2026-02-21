@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-remove-all-existing-bullet-point-splitting-logic-from-notescleanerformat-ts-including-converttoparagraphtopoints-converttobulletpoints-and-definition-style-bullet-formatting-functions",
-      "featureTitle": "Remove all existing bullet point splitting logic from notesCleanerFormat.ts including convertToParagraphToPoints, convertToBulletPoints, and definition style bullet formatting functions",
+      "featureId": "feature-implement-a-second-processing-pass-that-runs-after-initial-note-cleaning-and-formatting-but-before-displaying-output-in-the-clean-notes-section-this-pass-should-detect-bullet-points-containing-more-than-10-words-with-multiple-academic-action-phrases-and-no-commas-or-conjunctions-then-split-them-into-multiple-meaningful-action-based-bullet-points-based-on-noun-action-sequence-patterns",
+      "featureTitle": "Implement a second processing pass that runs after initial note cleaning and formatting but before displaying output in the Clean Notes section. This pass should detect bullet points containing more than 10 words with multiple academic action phrases and no commas or conjunctions, then split them into multiple meaningful action-based bullet points based on noun-action sequence patterns.",
       "files": [
         "frontend/src/utils/notesCleanerFormat.ts"
       ],
@@ -23,8 +23,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-semantic-phrase-detection-that-preserves-scientific-compound-terms-as-single-bullets-carbon-dioxide-and-water-semi-permeable-membrane-low-solute-concentration-high-solute-concentration-must-never-be-split",
-      "featureTitle": "Implement semantic phrase detection that preserves scientific compound terms as single bullets: 'carbon dioxide and water', 'semi permeable membrane', 'low solute concentration', 'high solute concentration' must never be split",
+      "featureId": "feature-apply-the-action-splitting-logic-only-to-convert-paragraph-to-points-and-definition-style-format-modes-do-not-apply-it-to-other-formatting-modes-or-affect-heading-detection",
+      "featureTitle": "Apply the action splitting logic only to Convert Paragraph to Points and Definition Style Format modes. Do not apply it to other formatting modes or affect heading detection.",
       "files": [
         "frontend/src/utils/notesCleanerFormat.ts"
       ],
@@ -44,8 +44,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-smart-splitting-logic-that-only-creates-multiple-bullets-when-2-or-more-standalone-technical-phrases-appear-sequentially-without-conjunctions-and-or-with-of-from-to-in-by-using-through",
-      "featureTitle": "Implement smart splitting logic that only creates multiple bullets when 2 or more standalone technical phrases appear sequentially WITHOUT conjunctions (and/or/with/of/from/to/in/by/using/through)",
+      "featureId": "feature-identify-action-phrase-boundaries-using-verb-changes-noun-phrase-starts-and-functional-academic-keywords-including-helps-removal-distribution-movement-absorption-transport-formation-release-regulation-maintenance-split-each-detected-action-phrase-into-a-separate-bullet-point-while-preserving-compound-scientific-terms",
+      "featureTitle": "Identify action phrase boundaries using verb changes, noun phrase starts, and functional academic keywords including: helps, removal, distribution, movement, absorption, transport, formation, release, regulation, maintenance. Split each detected action phrase into a separate bullet point while preserving compound scientific terms.",
       "files": [
         "frontend/src/utils/notesCleanerFormat.ts"
       ],
@@ -61,69 +61,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-preserve-complete-sentences-as-single-bullets-when-they-contain-subject-verb-descriptive-clause-or-process-explanation-preventing-fragmentation",
-      "featureTitle": "Preserve complete sentences as single bullets when they contain subject + verb + descriptive clause or process explanation, preventing fragmentation",
-      "files": [
-        "frontend/src/utils/notesCleanerFormat.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "camera@1.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-validation-rules-to-prevent-single-word-bullets-conjunction-led-bullets-and-modifier-separated-bullets-in-all-conversion-modes",
-      "featureTitle": "Implement validation rules to prevent single-word bullets, conjunction-led bullets, and modifier-separated bullets in all conversion modes",
-      "files": [
-        "frontend/src/utils/notesCleanerFormat.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "camera@1.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-apply-semantic-grouping-before-bullet-conversion-and-prioritize-meaning-preservation-over-formatting-in-all-three-conversion-modes-convert-paragraph-to-points-convert-to-bullet-points-and-definition-style-format",
-      "featureTitle": "Apply semantic grouping before bullet conversion and prioritize meaning preservation over formatting in all three conversion modes: Convert Paragraph to Points, Convert to Bullet Points, and Definition Style Format",
-      "files": [
-        "frontend/src/utils/notesCleanerFormat.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "camera@1.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
       ],
       "confidence": "high"
     }
