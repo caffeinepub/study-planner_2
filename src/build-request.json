@@ -1,82 +1,96 @@
 {
   "kind": "build_request",
-  "title": "Add post-cleaning action splitting pass for long bullets",
-  "priority": "normal",
+  "title": "Remove automatic multi-action bullet splitting feature",
+  "projectName": "StudentSathi Notes Cleaner",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Implement a second processing pass that runs after initial note cleaning and formatting but before displaying output in the Clean Notes section. This pass should detect bullet points containing more than 10 words with multiple academic action phrases and no commas or conjunctions, then split them into multiple meaningful action-based bullet points based on noun-action sequence patterns.",
+      "text": "Remove all UI elements related to automatic paragraph-to-multiple-bullet conversion based on internal phrase detection, including any labels, checkboxes, or toggle controls",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-4"
         ],
         "quotes": [
-          "After the note has been cleaned and formatted and before it is displayed in the Clean Notes output section, run a second processing pass.",
-          "Detect any bullet point that: - contains more than 10 words - contains multiple academic action phrases - contains no comma or conjunction"
+          "Remove any UI label or checkbox related to automatic paragraph-to-multiple-bullet conversion based on internal phrase detection"
         ]
       },
       "acceptanceCriteria": [
-        "Second processing pass runs after initial cleaning/formatting but before display",
-        "Detects bullets with 10+ words, multiple action phrases, and no commas/conjunctions",
-        "Splits detected bullets into multiple action-based bullets preserving full meaning",
-        "Example: 'Helps in gas exchange in lungs removal of waste substances from cells distribution of nutrients in the body.' becomes three separate bullets",
-        "Final output displays only after second-pass processing completes"
+        "No UI controls visible for multi-action splitting feature",
+        "User cannot enable or disable multi-action splitting from the interface"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Apply the action splitting logic only to Convert Paragraph to Points and Definition Style Format modes. Do not apply it to other formatting modes or affect heading detection.",
+      "text": "Disable and remove the background logic in frontend/src/utils/notesCleanerFormat.ts that attempts to break a single sentence into multiple bullets without punctuation, including the multi-pass semantic splitting system that detects action phrases in long sentences",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-4"
         ],
         "quotes": [
-          "Apply this only inside: - Convert Paragraph to Points - Definition Style Format"
+          "Disable background logic that attempts to break a single sentence into multiple bullets without punctuation"
         ]
       },
       "acceptanceCriteria": [
-        "Action splitting only applies when Convert Paragraph to Points is selected",
-        "Action splitting only applies when Definition Style Format is selected",
-        "Other formatting modes remain unaffected",
-        "Heading detection logic remains unchanged"
+        "Each grammatically complete sentence is converted into exactly one bullet point",
+        "No automatic splitting of sentences based on action phrase detection",
+        "Long sentences remain as single bullets regardless of word count or detected action phrases"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Identify action phrase boundaries using verb changes, noun phrase starts, and functional academic keywords including: helps, removal, distribution, movement, absorption, transport, formation, release, regulation, maintenance. Split each detected action phrase into a separate bullet point while preserving compound scientific terms.",
+      "text": "Retain and ensure continued functionality of Basic Bullet Formatting, Definition Style Format, and Headings Auto Detect features in the Notes Cleaner",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-4"
         ],
         "quotes": [
-          "Split this bullet into multiple meaningful action-based bullet points based on noun-action sequence patterns.",
-          "Helps in gas exchange in lungs - Removal of waste substances from cells - Distribution of nutrients in the body."
+          "Retain: - Basic Bullet Formatting - Definition Style Format - Headings Auto Detect"
         ]
       },
       "acceptanceCriteria": [
-        "Algorithm detects action phrase boundaries using verb changes",
-        "Algorithm recognizes noun phrase starts as boundaries",
-        "Algorithm identifies academic keywords: helps, removal, distribution, movement, absorption, transport, formation, release, regulation, maintenance",
-        "Each action phrase becomes a separate bullet point",
-        "Compound scientific terms are not split apart",
-        "Full meaning of each phrase is preserved in the split"
+        "Basic bullet formatting continues to work",
+        "Definition style formatting remains functional",
+        "Heading auto-detection operates as before"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Preserve all existing UI controls including Clean Notes button, Reset Output button, TXT Download button, File Name option, and overall UI layout without modification",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Do not modify: - Clean Notes button - Reset Output button - TXT Download button - File Name option - UI Layout"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All existing buttons remain functional and unchanged",
+        "UI layout stays identical to current design",
+        "File name customization continues to work"
       ]
     }
   ],
   "constraints": [
-    "Do not modify heading detection logic",
-    "Do not affect UI layout or components",
-    "Preserve existing functionality in notesCleanerFormat.ts for other formatting modes",
-    "Do not split compound scientific terms"
+    "Do not modify the Clean Notes button functionality",
+    "Do not modify the Reset Output button functionality",
+    "Do not modify the TXT Download button functionality",
+    "Do not modify the File Name option",
+    "Do not change the UI layout of the Notes Cleaner page",
+    "Preserve Basic Bullet Formatting feature",
+    "Preserve Definition Style Format feature",
+    "Preserve Headings Auto Detect feature"
   ],
   "nonGoals": [
-    "Modifying other formatting modes beyond Convert Paragraph to Points and Definition Style Format",
-    "Changing the UI or output section display logic",
-    "Altering heading detection algorithms",
-    "Applying splitting logic to headings"
+    "Implementing advanced semantic splitting (reserved for future AI Advanced Cleaning module)",
+    "Adding new features to the Notes Cleaner",
+    "Modifying other pages or components outside Notes Cleaner",
+    "Changing the styling or appearance of existing UI elements"
   ],
   "imageRequirements": {
     "required": [],

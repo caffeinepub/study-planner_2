@@ -16,7 +16,6 @@ export default function NotesCleanerPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [convertToBullets, setConvertToBullets] = useState(true);
-  const [convertParagraphToPoints, setConvertParagraphToPoints] = useState(false);
   const [convertToDefinitionStyle, setConvertToDefinitionStyle] = useState(false);
   const [autoDetectHeadings, setAutoDetectHeadings] = useState(false);
   const [customFileName, setCustomFileName] = useState('');
@@ -42,7 +41,6 @@ export default function NotesCleanerPage() {
       const cleaned = cleanAndFormatNotes(
         roughNotes, 
         convertToBullets, 
-        convertParagraphToPoints,
         convertToDefinitionStyle,
         autoDetectHeadings
       );
@@ -100,7 +98,7 @@ export default function NotesCleanerPage() {
               />
             </div>
             
-            {/* Bullet Point Conversion Checkbox */}
+            {/* Basic Bullet Formatting Checkbox */}
             <div className="flex items-center space-x-2 py-2">
               <Checkbox
                 id="convert-bullets"
@@ -111,26 +109,11 @@ export default function NotesCleanerPage() {
                 htmlFor="convert-bullets"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
               >
-                Convert to Bullet Points
+                Basic Bullet Formatting
               </Label>
             </div>
 
-            {/* Paragraph to Points Conversion Checkbox */}
-            <div className="flex items-center space-x-2 py-2">
-              <Checkbox
-                id="convert-paragraph"
-                checked={convertParagraphToPoints}
-                onCheckedChange={(checked) => setConvertParagraphToPoints(checked === true)}
-              />
-              <Label
-                htmlFor="convert-paragraph"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-              >
-                Convert Paragraph to Points
-              </Label>
-            </div>
-
-            {/* Definition Style Conversion Checkbox */}
+            {/* Definition Style Format Checkbox */}
             <div className="flex items-center space-x-2 py-2">
               <Checkbox
                 id="convert-definition"
@@ -141,11 +124,11 @@ export default function NotesCleanerPage() {
                 htmlFor="convert-definition"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
               >
-                Convert to Definition Style
+                Definition Style Format
               </Label>
             </div>
 
-            {/* Auto Detect Headings Checkbox */}
+            {/* Headings Auto Detect Checkbox */}
             <div className="flex items-center space-x-2 py-2">
               <Checkbox
                 id="auto-detect-headings"
@@ -156,7 +139,7 @@ export default function NotesCleanerPage() {
                 htmlFor="auto-detect-headings"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
               >
-                Auto Detect Headings
+                Headings Auto Detect
               </Label>
             </div>
 
@@ -263,15 +246,15 @@ export default function NotesCleanerPage() {
         <CardContent className="pt-6">
           <h3 className="font-semibold mb-3">How it works:</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>• When "Auto Detect Headings" is enabled, detects and formats topic headings: if the first line has 1-5 words with no ending punctuation, it becomes a Main Heading in Title Case; lines starting with keywords (definition, process, types, advantages, disadvantages, uses, causes, effects, importance, examples) become formatted subheadings with proper spacing</li>
+            <li>• When "Headings Auto Detect" is enabled, detects and formats topic headings: if the first line has 1-5 words with no ending punctuation, it becomes a Main Heading in Title Case; lines starting with keywords (definition, process, types, advantages, disadvantages, uses, causes, effects, importance, examples) become formatted subheadings with proper spacing</li>
             <li>• Removes extra spaces and blank lines</li>
             <li>• Treats each non-empty line as a separate note</li>
-            <li>• When "Convert Paragraph to Points" is enabled, detects paragraph input (continuous text with multiple sentences) and splits it into individual sentence bullets</li>
-            <li>• When "Convert to Definition Style" is enabled, converts short single-line input (2-12 words, no ending punctuation, no multiple sentences) into a proper definition sentence in the format "[Topic] is a/an [explanation]."</li>
-            <li>• Capitalizes the first letter of each line or sentence</li>
+            <li>• When "Definition Style Format" is enabled, converts patterns like "Definition:", "Process:", etc. into heading label format with description on the next line</li>
+            <li>• Splits paragraphs into individual sentences, with each sentence becoming one bullet point</li>
+            <li>• Capitalizes the first letter of each sentence</li>
             <li>• Adds proper punctuation at the end</li>
-            <li>• Converts each line to a dash bullet point ("- ") when "Convert to Bullet Points" is enabled</li>
-            <li>• Priority order: Headings Detect → Definition Style → Paragraph to Points → Bullet Formatting</li>
+            <li>• Converts each line to a dash bullet point ("- ") when "Basic Bullet Formatting" is enabled</li>
+            <li>• Priority order: Headings Detect → Definition Style → Sentence Splitting → Bullet Formatting</li>
             <li>• Maintains original wording without merging or summarizing</li>
           </ul>
         </CardContent>

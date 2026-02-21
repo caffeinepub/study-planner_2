@@ -44,282 +44,6 @@ function applyAutoDetectHeadings(input: string): string {
 }
 
 /**
- * SMART SEMANTIC SPLITTING ENGINE
- * 
- * Core principles:
- * 1. Protect scientific compound terms (e.g., "carbon dioxide and water")
- * 2. Preserve complete sentences with subject + verb + descriptive clause
- * 3. Only split sequential standalone technical phrases WITHOUT conjunctions
- * 4. Prevent single-word bullets, conjunction-led bullets, modifier-separated bullets
- * 5. Prioritize meaning preservation over formatting
- */
-
-/**
- * Detects if text contains a scientific or technical compound term that should NOT be split
- * Examples: "carbon dioxide and water", "low solute concentration and high solute concentration"
- */
-function isProtectedCompoundTerm(text: string): boolean {
-  const lowerText = text.toLowerCase().trim();
-  
-  // Pattern 1: Chemical compounds with "and" (e.g., "carbon dioxide and water")
-  if (/\b(carbon|nitrogen|oxygen|hydrogen|sodium|chloride|dioxide|monoxide)\b.*\band\b.*\b(carbon|nitrogen|oxygen|hydrogen|sodium|chloride|dioxide|monoxide|water)\b/i.test(lowerText)) {
-    return true;
-  }
-  
-  // Pattern 2: Scientific descriptive phrases with modifiers and "and"
-  // (e.g., "low solute concentration and high solute concentration")
-  if (/\b(low|high|semi|permeable|solute|concentration|membrane)\b.*\band\b.*\b(low|high|semi|permeable|solute|concentration|membrane)\b/i.test(lowerText)) {
-    return true;
-  }
-  
-  // Pattern 3: Compound technical terms with dependent modifiers
-  if (/\b(semi\s+permeable|low\s+solute|high\s+solute|cell\s+membrane|cell\s+wall)\b/i.test(lowerText)) {
-    return true;
-  }
-  
-  // Pattern 4: Short phrases with "and" connecting two closely related terms (likely compound)
-  const words = lowerText.split(/\s+/);
-  if (words.length <= 6 && /\band\b/.test(lowerText)) {
-    // If it's a short phrase with "and", likely a compound term
-    return true;
-  }
-  
-  return false;
-}
-
-/**
- * Checks if text is a complete sentence with subject + verb + descriptive clause
- */
-function isCompleteSentence(text: string): boolean {
-  const trimmed = text.trim();
-  const words = trimmed.split(/\s+/);
-  
-  // Complete sentences are typically longer (8+ words)
-  if (words.length < 8) {
-    return false;
-  }
-  
-  // Check for verb patterns indicating complete sentences
-  const hasVerb = /\b(is|are|was|were|be|been|being|has|have|had|do|does|did|can|could|will|would|shall|should|may|might|must|occurs|happens|moves|forms|releases|absorbs|contains|involves|requires|produces)\b/i.test(trimmed);
-  
-  // Check for descriptive clause indicators
-  const hasDescriptiveClause = /\b(that|which|where|when|because|since|although|while|if|as|through|during|after|before)\b/i.test(trimmed);
-  
-  // If it has a verb and is long enough, it's likely a complete sentence
-  if (hasVerb && words.length >= 8) {
-    return true;
-  }
-  
-  // If it has both verb and descriptive clause, definitely a complete sentence
-  if (hasVerb && hasDescriptiveClause) {
-    return true;
-  }
-  
-  return false;
-}
-
-/**
- * Checks if text contains conjunctions or prepositions that should prevent splitting
- */
-function containsConjunctionOrPreposition(text: string): boolean {
-  const connectingWords = ['and', 'or', 'with', 'of', 'from', 'to', 'in', 'by', 'using', 'through'];
-  const lowerText = text.toLowerCase();
-  
-  return connectingWords.some(word => {
-    const regex = new RegExp(`\\b${word}\\b`, 'i');
-    return regex.test(lowerText);
-  });
-}
-
-/**
- * Detects sequential standalone technical noun phrases WITHOUT conjunctions
- * Example: "light absorption glucose formation oxygen release" → ["light absorption", "glucose formation", "oxygen release"]
- * 
- * Returns null if:
- * - Text contains conjunctions/prepositions
- * - Text is a complete sentence
- * - Cannot identify clear sequential phrases
- */
-function detectSequentialTechnicalPhrases(text: string): string[] | null {
-  const trimmed = text.trim();
-  
-  // Rule 1: Do NOT split if contains conjunctions/prepositions
-  if (containsConjunctionOrPreposition(trimmed)) {
-    return null;
-  }
-  
-  // Rule 2: Do NOT split if it's a complete sentence
-  if (isCompleteSentence(trimmed)) {
-    return null;
-  }
-  
-  // Rule 3: Do NOT split if it has punctuation (likely a sentence)
-  if (/[.!?,;:]/.test(trimmed)) {
-    return null;
-  }
-  
-  const words = trimmed.split(/\s+/).filter(w => w.length > 0);
-  
-  // Need at least 4 words to form 2 technical phrases (minimum 2 words each)
-  if (words.length < 4) {
-    return null;
-  }
-  
-  // Detect noun phrases: typically 2-3 words each
-  // Example: "light absorption" (2 words), "glucose formation" (2 words)
-  const phrases: string[] = [];
-  let i = 0;
-  
-  while (i < words.length) {
-    // Try to form a 2-3 word phrase
-    if (i + 1 < words.length) {
-      // Check if we can form a 2-word phrase
-      const twoWordPhrase = words.slice(i, i + 2).join(' ');
-      
-      // Check if we can form a 3-word phrase
-      if (i + 2 < words.length) {
-        const threeWordPhrase = words.slice(i, i + 3).join(' ');
-        
-        // Prefer 2-word phrases for technical terms
-        phrases.push(twoWordPhrase);
-        i += 2;
-      } else {
-        phrases.push(twoWordPhrase);
-        i += 2;
-      }
-    } else {
-      // Single word left - attach to previous phrase if exists
-      if (phrases.length > 0) {
-        phrases[phrases.length - 1] += ' ' + words[i];
-      }
-      i++;
-    }
-  }
-  
-  // Only return if we detected 2 or more distinct phrases
-  if (phrases.length >= 2) {
-    return phrases;
-  }
-  
-  return null;
-}
-
-/**
- * Validates bullet quality and filters out invalid bullets
- * 
- * Rejects:
- * - Single-word bullets
- * - Bullets starting with standalone conjunctions
- * - Bullets with separated modifiers
- */
-function validateBullet(text: string): boolean {
-  const trimmed = text.trim();
-  const words = trimmed.split(/\s+/).filter(w => w.length > 0);
-  
-  // Reject single-word bullets
-  if (words.length === 1) {
-    return false;
-  }
-  
-  // Reject bullets starting with conjunctions
-  const firstWord = words[0].toLowerCase();
-  if (['and', 'or', 'but', 'with', 'of', 'from', 'to', 'in', 'by', 'using', 'through'].includes(firstWord)) {
-    return false;
-  }
-  
-  return true;
-}
-
-/**
- * SEMANTIC BULLET ENGINE
- * 
- * Applies smart semantic splitting with the following pipeline:
- * 1. Protect compound terms (scientific phrases with "and")
- * 2. Preserve complete sentences (subject + verb + clause)
- * 3. Detect and split sequential technical phrases (no conjunctions)
- * 4. Validate bullet quality (no single words, no conjunction-led bullets)
- * 5. Return meaningful bullets prioritizing content preservation
- */
-function applySemanticBulletSplitting(input: string): string {
-  const lines = input.split('\n');
-  const output: string[] = [];
-  
-  for (const line of lines) {
-    const trimmed = line.trim();
-    
-    // Skip empty lines
-    if (trimmed.length === 0) {
-      output.push('');
-      continue;
-    }
-    
-    // Check if this line is a heading (ends with colon or Title Case)
-    const isHeading = trimmed.endsWith(':') || 
-      (!trimmed.match(/[.!?]$/) && trimmed.split(/\s+/).every(word => 
-        word.length > 0 && word.charAt(0) === word.charAt(0).toUpperCase()
-      ));
-    
-    // Don't split headings or lines that already have bullet points
-    if (isHeading || trimmed.startsWith('- ')) {
-      output.push(trimmed);
-      continue;
-    }
-    
-    // STEP 1: Check if this is a protected compound term
-    if (isProtectedCompoundTerm(trimmed)) {
-      output.push(trimmed);
-      continue;
-    }
-    
-    // STEP 2: Check if this is a complete sentence
-    if (isCompleteSentence(trimmed)) {
-      output.push(trimmed);
-      continue;
-    }
-    
-    // STEP 3: Try to detect sequential technical phrases
-    const technicalPhrases = detectSequentialTechnicalPhrases(trimmed);
-    if (technicalPhrases && technicalPhrases.length >= 2) {
-      // Split into multiple bullets, but validate each
-      for (const phrase of technicalPhrases) {
-        if (validateBullet(phrase)) {
-          output.push(phrase.trim());
-        }
-      }
-      continue;
-    }
-    
-    // STEP 4: If text contains conjunctions/prepositions, keep as single bullet
-    if (containsConjunctionOrPreposition(trimmed)) {
-      output.push(trimmed);
-      continue;
-    }
-    
-    // STEP 5: Try splitting by commas (only if no conjunctions present)
-    const commaSplit = trimmed.split(',').map(s => s.trim()).filter(s => s.length > 0);
-    
-    if (commaSplit.length > 1) {
-      // Validate each fragment
-      const validFragments = commaSplit.filter(frag => validateBullet(frag));
-      
-      if (validFragments.length > 0) {
-        for (const frag of validFragments) {
-          output.push(frag);
-        }
-      } else {
-        // If all fragments invalid, keep original
-        output.push(trimmed);
-      }
-    } else {
-      // No splitting possible, keep as is
-      output.push(trimmed);
-    }
-  }
-  
-  return output.join('\n');
-}
-
-/**
  * Converts patterns like "Definition:", "Process:", etc. into heading label format
  * with description on the next line prefixed with "- "
  */
@@ -374,16 +98,59 @@ function applyDefinitionStyle(input: string): string {
       const headingLabel = matchedKeyword.charAt(0).toUpperCase() + matchedKeyword.slice(1) + ':';
       output.push(headingLabel);
       
-      // If there's content after the keyword, apply semantic splitting to it
+      // If there's content after the keyword, add it as a separate line
       if (contentAfterKeyword.length > 0) {
-        const splitContent = applySemanticBulletSplitting(contentAfterKeyword);
-        const contentLines = splitContent.split('\n').filter(l => l.trim().length > 0);
-        for (const contentLine of contentLines) {
-          output.push(contentLine);
-        }
+        output.push(contentAfterKeyword);
       }
     } else {
       output.push(line);
+    }
+  }
+  
+  return output.join('\n');
+}
+
+/**
+ * Splits text into sentences based on punctuation boundaries
+ * Each sentence becomes one line
+ */
+function splitIntoSentences(input: string): string {
+  const lines = input.split('\n');
+  const output: string[] = [];
+  
+  for (const line of lines) {
+    const trimmed = line.trim();
+    
+    // Skip empty lines
+    if (trimmed.length === 0) {
+      output.push('');
+      continue;
+    }
+    
+    // Check if this line looks like a heading (ends with colon or is Title Case with no punctuation)
+    const isHeading = trimmed.endsWith(':') || 
+      (!trimmed.match(/[.!?]$/) && trimmed.split(/\s+/).every(word => 
+        word.length > 0 && word.charAt(0) === word.charAt(0).toUpperCase()
+      ));
+    
+    // Don't split headings
+    if (isHeading) {
+      output.push(trimmed);
+      continue;
+    }
+    
+    // Split by sentence-ending punctuation (., !, ?)
+    // Use a regex that captures the punctuation with the sentence
+    const sentences = trimmed.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+    
+    if (sentences.length > 1) {
+      // Multiple sentences found - add each as a separate line
+      for (const sentence of sentences) {
+        output.push(sentence.trim());
+      }
+    } else {
+      // Single sentence or no punctuation - keep as is
+      output.push(trimmed);
     }
   }
   
@@ -521,197 +288,51 @@ function cleanupSpacing(input: string): string {
 }
 
 /**
- * POST-CLEANING ACTION SPLITTING PASS
+ * Main formatting function that applies all transformations in sequence
  * 
- * Detects and splits long bullets containing multiple academic action phrases
- * without commas or conjunctions.
- * 
- * Detection criteria:
- * - Bullet contains more than 10 words
- * - Contains multiple academic action phrases
- * - Contains no commas or conjunctions
- * 
- * Academic action keywords:
- * helps, removal, distribution, movement, absorption, transport, formation,
- * release, regulation, maintenance, exchange, production, secretion, digestion,
- * circulation, respiration, excretion, reproduction
- */
-function applyActionSplittingPass(input: string): string {
-  const academicActionKeywords = [
-    'helps', 'removal', 'distribution', 'movement', 'absorption', 'transport',
-    'formation', 'release', 'regulation', 'maintenance', 'exchange', 'production',
-    'secretion', 'digestion', 'circulation', 'respiration', 'excretion', 'reproduction',
-    'synthesis', 'breakdown', 'conversion', 'transfer', 'storage', 'elimination'
-  ];
-  
-  const lines = input.split('\n');
-  const output: string[] = [];
-  const bulletPrefix = getBulletPrefix(getCurrentBulletStyle());
-  
-  for (const line of lines) {
-    const trimmed = line.trim();
-    
-    // Skip empty lines
-    if (trimmed.length === 0) {
-      output.push('');
-      continue;
-    }
-    
-    // Check if this is a heading
-    const isHeading = trimmed.endsWith(':') || 
-      (!trimmed.match(/[.!?]$/) && trimmed.split(/\s+/).every(word => 
-        word.length > 0 && word.charAt(0) === word.charAt(0).toUpperCase()
-      ));
-    
-    if (isHeading) {
-      output.push(trimmed);
-      continue;
-    }
-    
-    // Extract content (with or without bullet)
-    const hasBullet = trimmed.startsWith(bulletPrefix);
-    const content = hasBullet ? trimmed.substring(bulletPrefix.length).trim() : trimmed;
-    
-    // Count words
-    const words = content.split(/\s+/).filter(w => w.length > 0);
-    
-    // Check if bullet qualifies for action splitting
-    const hasMoreThan10Words = words.length > 10;
-    const hasNoCommas = !content.includes(',');
-    const hasNoConjunctions = !containsConjunctionOrPreposition(content);
-    
-    if (!hasMoreThan10Words || !hasNoCommas || !hasNoConjunctions) {
-      output.push(trimmed);
-      continue;
-    }
-    
-    // Count action phrases in the content
-    const lowerContent = content.toLowerCase();
-    const actionPhrasesFound: Array<{ keyword: string; index: number }> = [];
-    
-    for (const keyword of academicActionKeywords) {
-      const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
-      let match;
-      while ((match = regex.exec(lowerContent)) !== null) {
-        actionPhrasesFound.push({ keyword, index: match.index });
-      }
-    }
-    
-    // Need at least 2 action phrases to split
-    if (actionPhrasesFound.length < 2) {
-      output.push(trimmed);
-      continue;
-    }
-    
-    // Sort action phrases by position
-    actionPhrasesFound.sort((a, b) => a.index - b.index);
-    
-    // Split content at action phrase boundaries
-    const splitBullets: string[] = [];
-    
-    for (let i = 0; i < actionPhrasesFound.length; i++) {
-      const currentPhrase = actionPhrasesFound[i];
-      const nextPhrase = actionPhrasesFound[i + 1];
-      
-      const startIndex = currentPhrase.index;
-      const endIndex = nextPhrase ? nextPhrase.index : content.length;
-      
-      const bulletContent = content.substring(startIndex, endIndex).trim();
-      
-      // Validate the split bullet
-      if (validateBullet(bulletContent)) {
-        // Capitalize first letter
-        const capitalizedContent = bulletContent.charAt(0).toUpperCase() + bulletContent.slice(1);
-        
-        // Ensure ending punctuation
-        const finalContent = capitalizedContent.match(/[.!?]$/) 
-          ? capitalizedContent 
-          : capitalizedContent + '.';
-        
-        splitBullets.push(finalContent);
-      }
-    }
-    
-    // If we successfully split into multiple valid bullets, use them
-    if (splitBullets.length >= 2) {
-      for (const bullet of splitBullets) {
-        output.push(hasBullet ? bulletPrefix + bullet : bullet);
-      }
-    } else {
-      // Otherwise, keep original
-      output.push(trimmed);
-    }
-  }
-  
-  return output.join('\n');
-}
-
-/**
- * Cleans and formats notes with cumulative transformation pipeline
- * 
- * STRICT SEQUENTIAL PIPELINE:
- * STEP 1: Capture raw input
- * STEP 2: Auto Detect Headings (if enabled)
- * STEP 3: Convert to Definition Style (if enabled) - uses semantic engine
- * STEP 4: Convert Paragraph to Points (if enabled) - uses semantic engine
- * STEP 5: Convert to Bullet Points (if enabled)
- * STEP 6: Normalize lines (capitalization, punctuation)
- * STEP 7: Cleanup spacing
- * STEP 8: Apply action splitting pass (if applicable)
- * 
- * Each transformation receives output from previous step and passes modified content to next step.
- * 
- * @param input - Raw multi-line notes text
- * @param convertToBullets - Whether to format as bullet points
- * @param convertParagraphToPoints - Whether to split paragraphs into points
- * @param convertToDefinitionStyle - Whether to convert definition patterns
- * @param autoDetectHeadings - Whether to detect and format headings
- * @returns Cleaned and formatted notes
+ * Pipeline:
+ * 1. Auto-detect headings (if enabled)
+ * 2. Apply definition style formatting (if enabled)
+ * 3. Split paragraphs into individual sentences
+ * 4. Normalize lines (capitalization, punctuation)
+ * 5. Apply bullet points (if enabled)
+ * 6. Clean up spacing
  */
 export function cleanAndFormatNotes(
-  input: string, 
-  convertToBullets: boolean = true,
-  convertParagraphToPoints: boolean = false,
-  convertToDefinitionStyle: boolean = false,
-  autoDetectHeadings: boolean = false
+  input: string,
+  convertToBullets: boolean,
+  convertToDefinitionStyle: boolean,
+  autoDetectHeadings: boolean
 ): string {
-  // STEP 1: Capture raw input
   if (!input.trim()) {
     return '';
   }
-
-  let workingText = input;
   
-  // STEP 2: Auto Detect Headings (if enabled)
+  let result = input;
+  
+  // Step 1: Auto-detect headings (if enabled)
   if (autoDetectHeadings) {
-    workingText = applyAutoDetectHeadings(workingText);
+    result = applyAutoDetectHeadings(result);
   }
   
-  // STEP 3: Convert to Definition Style (if enabled) - uses semantic engine
+  // Step 2: Apply definition style formatting (if enabled)
   if (convertToDefinitionStyle) {
-    workingText = applyDefinitionStyle(workingText);
+    result = applyDefinitionStyle(result);
   }
   
-  // STEP 4: Convert Paragraph to Points (if enabled) - uses semantic engine
-  if (convertParagraphToPoints) {
-    workingText = applySemanticBulletSplitting(workingText);
-  }
+  // Step 3: Split paragraphs into individual sentences
+  result = splitIntoSentences(result);
   
-  // STEP 5: Convert to Bullet Points (if enabled)
+  // Step 4: Normalize lines (capitalization, punctuation)
+  result = normalizeLines(result);
+  
+  // Step 5: Apply bullet points (if enabled)
   if (convertToBullets) {
-    workingText = applyBulletPoints(workingText);
+    result = applyBulletPoints(result);
   }
   
-  // STEP 6: Normalize lines (capitalization, punctuation)
-  workingText = normalizeLines(workingText);
+  // Step 6: Clean up spacing
+  result = cleanupSpacing(result);
   
-  // STEP 7: Cleanup spacing
-  workingText = cleanupSpacing(workingText);
-  
-  // STEP 8: Apply action splitting pass (only for points and definition modes)
-  if (convertParagraphToPoints || convertToDefinitionStyle) {
-    workingText = applyActionSplittingPass(workingText);
-  }
-  
-  return workingText;
+  return result;
 }

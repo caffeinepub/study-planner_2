@@ -1,61 +1,23 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-21T13:24:40.371Z",
-  "summary": "The diff shows implementation of semantic splitting logic in notesCleanerFormat.ts with protected compound term detection and complete sentence preservation. However, the implementation appears to be embedded within the formatting pass rather than as a distinct second processing pass, and the diff is truncated, making it difficult to verify all acceptance criteria.",
+  "generatedAt": "2026-02-21T14:04:18.983Z",
+  "summary": "The diff shows changes to NotesCleanerPage.tsx and notesCleanerFormat.ts that appear to implement the removal of multi-action bullet splitting features. The UI components are simplified and the formatting logic focuses on sentence-based splitting rather than action phrase detection. However, the diff is truncated, making complete verification difficult.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Second processing pass runs after initial cleaning/formatting but before display",
-      "reason": "The diff shows semantic splitting logic embedded in notesCleanerFormat.ts but does not show evidence of a separate second processing pass that runs after initial formatting completes. The functions appear to be part of the formatting logic itself rather than a post-processing step.",
-      "evidence": [
-        "frontend/src/utils/notesCleanerFormat.ts"
-      ]
-    },
-    {
       "id": "REQ-2",
-      "requirement": "Action splitting only applies when Convert Paragraph to Points or Definition Style Format is selected",
-      "reason": "The diff is truncated and does not show the integration point where mode selection is checked before applying the splitting logic. Cannot verify that the logic is conditionally applied only to these two specific modes.",
-      "evidence": [
-        "frontend/src/utils/notesCleanerFormat.ts"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Algorithm identifies all specified academic keywords: helps, removal, distribution, movement, absorption, transport, formation, release, regulation, maintenance",
-      "reason": "The diff shows verb detection patterns but is truncated before showing the complete list of academic keyword detection. Cannot verify all 10 required keywords are implemented.",
-      "evidence": [
-        "frontend/src/utils/notesCleanerFormat.ts"
-      ]
-    },
-    {
-      "id": "REQ-1",
-      "requirement": "Detects bullets with 10+ words, multiple action phrases, and no commas/conjunctions",
-      "reason": "The diff shows an 8-word threshold check in isCompleteSentence function, but does not show clear evidence of the 10+ word detection specifically for bullets with multiple action phrases and no commas/conjunctions as required.",
+      "requirement": "Remove the multi-pass semantic splitting system that detects action phrases in long sentences",
+      "reason": "The diff shows splitIntoSentences function but is truncated before showing complete implementation. Cannot verify that action phrase detection logic (e.g., patterns for 'should', 'must', 'needs to', etc.) has been fully removed from notesCleanerFormat.ts",
       "evidence": [
         "frontend/src/utils/notesCleanerFormat.ts"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Protected compound term detection with multiple pattern matching rules including chemical compounds, scientific descriptive phrases, and technical terms",
-      "reason": "The BuildRequest specifies preserving compound scientific terms but does not request the extensive pattern-matching system implemented in isProtectedCompoundTerm function with specific patterns for carbon dioxide, solute concentration, semi-permeable, etc.",
-      "evidence": [
-        "frontend/src/utils/notesCleanerFormat.ts"
-      ]
-    },
-    {
-      "description": "Complete sentence detection with verb patterns and descriptive clause identification",
-      "reason": "The isCompleteSentence function with verb and descriptive clause detection was not requested in the BuildRequest. The requirement only asks for detecting action phrases and splitting them, not for identifying and preserving complete sentences.",
-      "evidence": [
-        "frontend/src/utils/notesCleanerFormat.ts"
-      ]
-    }
-  ],
-  "confidence": 0.65,
+  "hallucinated_features": [],
+  "confidence": 0.75,
   "changed_files": [
     "frontend-file-summaries.txt",
+    "frontend/src/pages/NotesCleanerPage.tsx",
     "frontend/src/utils/notesCleanerFormat.ts",
     "project_state.json"
   ]
