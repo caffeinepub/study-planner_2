@@ -1,78 +1,145 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Remove automatic multi-action bullet splitting feature",
+  "title": "Upgrade Leave Application Generator to Semi-Smart Guided Application with Calendar, Dropdowns, and Live Preview",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Remove all UI elements related to automatic paragraph-to-multiple-bullet conversion based on internal phrase detection",
+      "summary": "Replace manual date input with calendar date picker supporting single date and date range selection with automatic formatting",
       "acceptanceCriteria": [
-        "No UI controls visible for multi-action splitting feature",
-        "User cannot enable or disable multi-action splitting from the interface"
+        "Date picker allows selecting a single date for one-day leave",
+        "Date picker allows selecting a date range for multiple-day leave",
+        "Selected dates are automatically formatted into a proper leave duration in the generated letter"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/NotesCleanerPage.tsx",
+          "path": "frontend/src/components/primitives/Calendar.tsx",
+          "operation": "create",
+          "description": "Create a Calendar component using shadcn/ui that supports both single date and date range selection modes. The component should accept props for selection mode (single or range), selected date(s), and onChange handler. Style it consistently with the existing StudentSathi design system using Tailwind CSS and the OKLCH color scheme from index.css."
+        },
+        {
+          "path": "frontend/src/components/primitives/Popover.tsx",
+          "operation": "create",
+          "description": "Create a Popover component using shadcn/ui to wrap the Calendar component. This provides the dropdown behavior for the date picker with trigger button and popover content positioning."
+        },
+        {
+          "path": "frontend/src/utils/leaveApplicationDateFormat.ts",
+          "operation": "create",
+          "description": "Create utility functions to format selected dates into proper leave duration strings. Include functions to: (1) format a single date as 'on [date]', (2) format a date range as 'from [start date] to [end date]', and (3) calculate the number of days in a range. Use clear, professional formatting suitable for formal leave applications."
+        },
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
           "operation": "modify",
-          "description": "Remove any UI controls (checkboxes, toggle switches, labels, or explanatory text) that reference automatic multi-action splitting, paragraph-to-multiple-bullet conversion, or semantic phrase detection. Preserve all other UI elements including Clean Notes button, Reset Output button, TXT Download button, File Name option, and controls for Basic Bullet Formatting, Definition Style Format, and Headings Auto Detect features."
+          "description": "Replace the existing manual Leave Date/Period text input field with the new Calendar component wrapped in a Popover. Add state management for single date vs date range selection mode toggle. Wire the calendar selection to update the leave duration text using the formatting utilities. Ensure the selected dates are reflected in the live preview (REQ-4 implementation)."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Disable and remove the background logic that attempts to break a single sentence into multiple bullets without punctuation",
+      "summary": "Add Reason for Leave dropdown with predefined options and auto-generated professional sentences, plus custom input for Other option",
       "acceptanceCriteria": [
-        "Each grammatically complete sentence is converted into exactly one bullet point",
-        "No automatic splitting of sentences based on action phrase detection",
-        "Long sentences remain as single bullets regardless of word count or detected action phrases"
+        "Dropdown includes all five specified options: Sick Leave, Family Function, Personal Work, Emergency, Other",
+        "Each predefined reason generates an appropriate professional sentence in the letter",
+        "Selecting 'Other' reveals a custom text input field",
+        "Custom reason text is inserted into the generated letter when provided"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/notesCleanerFormat.ts",
+          "path": "frontend/src/components/primitives/Select.tsx",
+          "operation": "create",
+          "description": "Create a Select dropdown component using shadcn/ui with SelectTrigger, SelectContent, SelectItem primitives. Style consistently with StudentSathi design system using Tailwind CSS and OKLCH colors."
+        },
+        {
+          "path": "frontend/src/utils/leaveApplicationReasons.ts",
+          "operation": "create",
+          "description": "Create a utility module defining the five predefined leave reasons (Sick Leave, Family Function, Personal Work, Emergency, Other) and a function that maps each reason to its corresponding professional sentence template for insertion into the leave letter. For example, Sick Leave might generate 'I am writing to request leave due to illness', Family Function might generate 'I need to attend an important family function', etc."
+        },
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
           "operation": "modify",
-          "description": "Remove the multi-pass semantic splitting system that detects action phrases in long sentences and splits them into multiple bullets. Ensure that each grammatically complete sentence (ending with punctuation like period, question mark, exclamation mark) is converted into exactly one bullet point. Remove any logic that attempts to break sentences based on internal phrase detection, action word identification, or word count thresholds. Preserve the core sentence-to-bullet conversion that respects natural punctuation boundaries."
+          "description": "Replace the existing manual Reason text input with the new Select component containing the five predefined options. Add conditional rendering to show a custom text input field when 'Other' is selected. Wire the dropdown selection to automatically generate the appropriate professional sentence using the reasons utility. Integrate the generated reason text into the live preview (REQ-4 implementation). Ensure the custom reason field updates the preview in real-time when 'Other' is selected."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Retain and ensure continued functionality of Basic Bullet Formatting, Definition Style Format, and Headings Auto Detect features",
+      "summary": "Add required School/College Name and Class/Grade input fields with automatic insertion into generated letter",
       "acceptanceCriteria": [
-        "Basic bullet formatting continues to work",
-        "Definition style formatting remains functional",
-        "Heading auto-detection operates as before"
+        "School/College Name field is present and marked as required",
+        "Class/Grade field is present and marked as required",
+        "Both fields are inserted into the appropriate positions in the generated letter"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/notesCleanerFormat.ts",
-          "operation": "modify",
-          "description": "Verify and preserve the existing logic for Basic Bullet Formatting (converting sentences to bullet points with dash style), Definition Style Format (handling colon-based definitions), and Headings Auto Detect (identifying and formatting headings based on capitalization patterns or other markers). Ensure these features continue to work correctly after removing the multi-action splitting logic."
+          "path": "frontend/src/components/primitives/Input.tsx",
+          "operation": "create",
+          "description": "Create a reusable Input component using shadcn/ui with consistent styling matching the StudentSathi design system. Support required attribute, placeholder text, and onChange handlers."
         },
         {
-          "path": "frontend/src/pages/NotesCleanerPage.tsx",
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
           "operation": "modify",
-          "description": "Verify and preserve the UI controls and functionality for Basic Bullet Formatting, Definition Style Format, and Headings Auto Detect features. Ensure these features remain accessible and functional to users after removing multi-action splitting UI elements."
+          "description": "Add two new required input fields using the Input component: School/College Name and Class/Grade. Position these fields logically in the form layout (e.g., after the Name field and before Date selection). Add state management for both new fields. Wire these fields to insert their values into the appropriate positions in the generated leave letter format. Update the live preview (REQ-4 implementation) to reflect these fields in real-time. Apply HTML5 required validation to both fields."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Preserve all existing UI controls including Clean Notes button, Reset Output button, TXT Download button, File Name option, and overall UI layout",
+      "summary": "Implement real-time Live Preview Panel on the right side showing generated leave application letter",
       "acceptanceCriteria": [
-        "All existing buttons remain functional and unchanged",
-        "UI layout stays identical to current design",
-        "File name customization continues to work"
+        "Preview panel is positioned on the right side of the form",
+        "Letter preview updates instantly whenever any form field changes",
+        "No Generate button is required to update the preview",
+        "All form fields (Name, Date, Reason, School, Class) are reflected in the live preview"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/NotesCleanerPage.tsx",
-          "operation": "modify",
-          "description": "Verify that Clean Notes button, Reset Output button, TXT Download button, File Name input field, and overall page layout remain untouched and fully functional. Ensure no modifications are made to button handlers, styling, or layout structure except for the removal of multi-action splitting UI elements as specified in REQ-1."
+          "path": "frontend/src/utils/leaveApplicationLetterTemplate.ts",
+          "operation": "create",
+          "description": "Create a utility function that generates the complete leave application letter text from input parameters (name, school, class, date/duration, reason text). Return a properly formatted multi-line string with appropriate salutation, body paragraphs, closing, and signature sections following formal letter conventions for student leave applications."
         },
         {
-          "path": "frontend/src/utils/notesCleanerTxtDownload.ts",
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
           "operation": "modify",
-          "description": "Verify that the TXT download functionality and file naming logic (both auto-generated and custom) remain unchanged and continue to work correctly with the updated formatting logic."
+          "description": "Restructure the page layout to use a two-column responsive grid: left column for the form inputs, right column for the Live Preview Panel. Create a preview section component/area that displays the generated letter using the letter template utility. Wire all form field state changes (name, school, class, date, reason) to trigger automatic regeneration of the letter preview using React hooks (useEffect or useMemo). Remove any existing Generate button. Ensure the preview updates instantly on every keystroke or selection change. Style the preview area to look like a letter document with appropriate padding, typography, and background."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Add Copy to Clipboard and Download as PDF action buttons below the letter preview",
+      "acceptanceCriteria": [
+        "Copy to Clipboard button successfully copies the full letter text",
+        "Download as PDF button generates and downloads a PDF file",
+        "Both buttons are positioned below the letter preview",
+        "PDF is formatted appropriately for printing"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/leaveApplicationPdfExport.ts",
+          "operation": "create",
+          "description": "Create a utility function to generate a PDF from the leave application letter text. Use browser print-to-PDF functionality by creating a formatted HTML document with proper letter styling (margins, font, spacing) and opening it in a new window with window.print(). Ensure the PDF output is properly formatted for printing with standard letter dimensions and professional appearance."
+        },
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
+          "operation": "modify",
+          "description": "Add two action buttons below the Live Preview Panel: 'Copy to Clipboard' and 'Download as PDF'. Wire the Copy button to use the Clipboard API (navigator.clipboard.writeText) to copy the full generated letter text. Wire the Download button to call the PDF export utility function. Add user feedback for both actions (e.g., toast notifications or temporary success messages). Style both buttons consistently with the existing Button component (frontend/src/components/primitives/Button.tsx) and position them horizontally below the preview area with appropriate spacing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Ensure mobile-responsive design with adaptive layout for form and preview panel",
+      "acceptanceCriteria": [
+        "Layout is fully responsive on mobile, tablet, and desktop screens",
+        "Form and preview panel adapt appropriately for different screen sizes",
+        "UI remains clean and easy to use for students",
+        "No unnecessary complexity is added to the interface"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
+          "operation": "modify",
+          "description": "Implement responsive grid breakpoints for the two-column layout: on mobile (sm and below), stack the form and preview vertically (form first, preview below); on tablet and desktop (md and above), display them side-by-side with appropriate column widths. Use Tailwind responsive utilities (sm:, md:, lg:) to control layout behavior. Ensure all form inputs, calendar popover, dropdown, and buttons remain fully functional and properly sized on small screens. Test that the preview panel is scrollable on mobile when letter content is long. Maintain the clean, student-friendly aesthetic across all screen sizes."
         }
       ]
     }

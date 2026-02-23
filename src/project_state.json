@@ -1,49 +1,98 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Text cleaning utility with basic bullet formatting, definition style, and heading detection",
+  "summary": "Student Leave Application Generator - Semi-Smart Guided Application Generator with calendar picker, dropdown reasons, live preview, and PDF export",
   "architectural_notes": [
-    "Each grammatically complete sentence converts to ONE bullet point only",
-    "Advanced semantic splitting reserved for future AI Advanced Cleaning module"
+    "Calendar date picker for single date and date range selection",
+    "Real-time live preview synchronization on form input changes",
+    "PDF generation for leave application letters",
+    "Mobile responsive design required"
   ],
   "known_issues": [],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-remove-all-ui-elements-related-to-automatic-paragraph-to-multiple-bullet-conversion-based-on-internal-phrase-detection-including-any-labels-checkboxes-or-toggle-controls",
-      "title": "Remove all UI elements related to automatic paragraph-to-multiple-bullet conversion based on internal phrase detection, including any labels, checkboxes, or toggle controls",
+      "id": "feature-replace-the-manual-leave-date-period-text-input-with-a-calendar-date-picker-component-that-supports-both-single-date-selection-one-day-leave-and-date-range-selection-multiple-days-leave-automatically-format-the-selected-dates-into-a-proper-leave-duration-string-in-the-generated-application-letter",
+      "title": "Replace the manual Leave Date / Period text input with a calendar date picker component that supports both single date selection (one-day leave) and date range selection (multiple days leave). Automatically format the selected dates into a proper leave duration string in the generated application letter.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-disable-and-remove-the-background-logic-in-frontend-src-utils-notescleanerformat-ts-that-attempts-to-break-a-single-sentence-into-multiple-bullets-without-punctuation-including-the-multi-pass-semantic-splitting-system-that-detects-action-phrases-in-long-sentences",
-      "title": "Disable and remove the background logic in frontend/src/utils/notesCleanerFormat.ts that attempts to break a single sentence into multiple bullets without punctuation, including the multi-pass semantic splitting system that detects action phrases in long sentences",
+      "id": "feature-add-a-reason-for-leave-dropdown-menu-with-predefined-options-sick-leave-family-function-personal-work-emergency-and-other-custom-input-when-a-predefined-reason-is-selected-automatically-generate-a-professional-sentence-related-to-that-reason-in-the-leave-application-letter-when-other-is-selected-display-a-text-input-field-allowing-the-user-to-manually-type-their-custom-reason",
+      "title": "Add a Reason for Leave dropdown menu with predefined options: Sick Leave, Family Function, Personal Work, Emergency, and Other (Custom Input). When a predefined reason is selected, automatically generate a professional sentence related to that reason in the leave application letter. When 'Other' is selected, display a text input field allowing the user to manually type their custom reason.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-retain-and-ensure-continued-functionality-of-basic-bullet-formatting-definition-style-format-and-headings-auto-detect-features-in-the-notes-cleaner",
-      "title": "Retain and ensure continued functionality of Basic Bullet Formatting, Definition Style Format, and Headings Auto Detect features in the Notes Cleaner",
+      "id": "feature-add-two-new-required-input-fields-school-college-name-and-class-grade-automatically-insert-these-details-into-the-correct-position-in-the-generated-leave-application-letter-format",
+      "title": "Add two new required input fields: School / College Name and Class / Grade. Automatically insert these details into the correct position in the generated leave application letter format.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-preserve-all-existing-ui-controls-including-clean-notes-button-reset-output-button-txt-download-button-file-name-option-and-overall-ui-layout-without-modification",
-      "title": "Preserve all existing UI controls including Clean Notes button, Reset Output button, TXT Download button, File Name option, and overall UI layout without modification",
+      "id": "feature-implement-a-live-preview-panel-positioned-on-the-right-side-of-the-form-that-displays-the-generated-leave-application-letter-update-the-preview-in-real-time-as-the-user-fills-in-or-updates-any-field-name-date-reason-school-class-without-requiring-a-generate-button-click",
+      "title": "Implement a Live Preview Panel positioned on the right side of the form that displays the generated leave application letter. Update the preview in real-time as the user fills in or updates any field (Name, Date, Reason, School, Class) without requiring a Generate button click.",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-a-copy-to-clipboard-button-below-the-generated-letter-preview-that-copies-the-full-application-text-to-the-user-s-clipboard-add-a-download-as-pdf-button-that-downloads-the-generated-leave-application-as-a-ready-to-print-pdf-file",
+      "title": "Add a Copy to Clipboard button below the generated letter preview that copies the full application text to the user's clipboard. Add a Download as PDF button that downloads the generated leave application as a ready-to-print PDF file.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-upgraded-leave-application-generator-maintains-a-mobile-responsive-design-that-remains-clean-simple-and-student-friendly-the-live-preview-panel-should-adapt-appropriately-on-smaller-screens",
+      "title": "Ensure the upgraded Leave Application Generator maintains a mobile-responsive design that remains clean, simple, and student-friendly. The live preview panel should adapt appropriately on smaller screens.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "StudentSathi Notes Cleaner",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Replace manual date input with calendar date picker supporting single date and date range selection",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add Reason for Leave dropdown with predefined options and auto-generated professional sentences",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add School/College Name and Class/Grade input fields",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Implement live preview panel that updates in real-time as user fills form fields",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Add Copy to Clipboard and Download as PDF action buttons",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Student Leave Application Generator",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

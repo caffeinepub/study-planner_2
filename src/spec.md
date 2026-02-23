@@ -1,13 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Remove the automatic multi-action bullet splitting feature from the Notes Cleaner while preserving all other existing functionality.
+**Goal:** Upgrade the Leave Application Generator with a calendar date picker, reason dropdown, additional fields, and live preview functionality.
 
 **Planned changes:**
-- Remove all UI elements related to automatic paragraph-to-multiple-bullet conversion (labels, checkboxes, toggle controls)
-- Disable and remove the background logic that automatically splits single sentences into multiple bullets based on action phrase detection
-- Ensure each grammatically complete sentence converts into exactly one bullet point
-- Retain Basic Bullet Formatting, Definition Style Format, and Headings Auto Detect features
-- Preserve all existing UI controls (Clean Notes, Reset Output, TXT Download buttons, File Name option)
+- Replace manual date input with a calendar date picker supporting single date and date range selection
+- Add a Reason for Leave dropdown with predefined options (Sick Leave, Family Function, Personal Work, Emergency, Other) that auto-generates professional sentences
+- Add School/College Name and Class/Grade input fields
+- Implement a live preview panel on the right side that updates in real-time as users fill the form
+- Add Copy to Clipboard and Download as PDF buttons below the preview
+- Ensure mobile-responsive design with appropriate preview panel adaptation
 
-**User-visible outcome:** Users will see a simplified Notes Cleaner interface without multi-action splitting controls. Each sentence will be converted into a single bullet point without automatic subdivision, while all other formatting features continue to work as before.
+**User-visible outcome:** Students can generate leave applications using a guided form with calendar selection, dropdown reasons, and see their letter update live as they type. They can copy the letter or download it as a PDF without clicking a Generate button.

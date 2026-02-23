@@ -1,60 +1,91 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-21T14:04:18.986Z",
+  "generatedAt": "2026-02-22T14:50:41.171Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 6,
+    "implemented": 6,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Remove all UI elements related to automatic paragraph-to-multiple-bullet conversion based on internal phrase detection, including any labels, checkboxes, or toggle controls",
+        "summary": "Replace the manual Leave Date / Period text input with a calendar date picker component that supports both single date selection (one-day leave) and date range selection (multiple days leave). Automatically format the selected dates into a proper leave duration string in the generated application letter.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/components/primitives/Calendar.tsx",
+          "frontend/src/components/primitives/Popover.tsx",
+          "frontend/src/utils/leaveApplicationDateFormat.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/utils/leaveApplicationDateFormat.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Disable and remove the background logic in frontend/src/utils/notesCleanerFormat.ts that attempts to break a single sentence into multiple bullets without punctuation, including the multi-pass semantic splitting system that detects action phrases in long sentences",
+        "summary": "Add a Reason for Leave dropdown menu with predefined options: Sick Leave, Family Function, Personal Work, Emergency, and Other (Custom Input). When a predefined reason is selected, automatically generate a professional sentence related to that reason in the leave application letter. When 'Other' is selected, display a text input field allowing the user to manually type their custom reason.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts"
+          "frontend/src/components/primitives/Select.tsx",
+          "frontend/src/utils/leaveApplicationReasons.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts"
+          "frontend/src/utils/leaveApplicationReasons.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Retain and ensure continued functionality of Basic Bullet Formatting, Definition Style Format, and Headings Auto Detect features in the Notes Cleaner",
+        "summary": "Add two new required input fields: School / College Name and Class / Grade. Automatically insert these details into the correct position in the generated leave application letter format.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts",
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/components/primitives/Input.tsx",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/notesCleanerFormat.ts",
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/pages/LeaveApplicationPage.tsx"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Preserve all existing UI controls including Clean Notes button, Reset Output button, TXT Download button, File Name option, and overall UI layout without modification",
+        "summary": "Implement a Live Preview Panel positioned on the right side of the form that displays the generated leave application letter. Update the preview in real-time as the user fills in or updates any field (Name, Date, Reason, School, Class) without requiring a Generate button click.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/NotesCleanerPage.tsx",
-          "frontend/src/utils/notesCleanerTxtDownload.ts"
+          "frontend/src/utils/leaveApplicationLetterTemplate.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/NotesCleanerPage.tsx"
+          "frontend/src/utils/leaveApplicationLetterTemplate.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Add a Copy to Clipboard button below the generated letter preview that copies the full application text to the user's clipboard. Add a Download as PDF button that downloads the generated leave application as a ready-to-print PDF file.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/leaveApplicationPdfExport.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/leaveApplicationPdfExport.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Ensure the upgraded Leave Application Generator maintains a mobile-responsive design that remains clean, simple, and student-friendly. The live preview panel should adapt appropriately on smaller screens.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
         ]
       }
     ]
@@ -64,8 +95,11 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/NotesCleanerPage.tsx",
-    "frontend/src/utils/notesCleanerFormat.ts",
+    "frontend/src/pages/LeaveApplicationPage.tsx",
+    "frontend/src/utils/leaveApplicationDateFormat.ts",
+    "frontend/src/utils/leaveApplicationLetterTemplate.ts",
+    "frontend/src/utils/leaveApplicationPdfExport.ts",
+    "frontend/src/utils/leaveApplicationReasons.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,96 +1,135 @@
 {
   "kind": "build_request",
-  "title": "Remove automatic multi-action bullet splitting feature",
-  "projectName": "StudentSathi Notes Cleaner",
-  "priority": "high",
+  "title": "Upgrade Leave Application Generator to Semi-Smart Guided Application with Calendar, Dropdowns, and Live Preview",
+  "projectName": "Student Leave Application Generator",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Remove all UI elements related to automatic paragraph-to-multiple-bullet conversion based on internal phrase detection, including any labels, checkboxes, or toggle controls",
+      "text": "Replace the manual Leave Date / Period text input with a calendar date picker component that supports both single date selection (one-day leave) and date range selection (multiple days leave). Automatically format the selected dates into a proper leave duration string in the generated application letter.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-10"
         ],
         "quotes": [
-          "Remove any UI label or checkbox related to automatic paragraph-to-multiple-bullet conversion based on internal phrase detection"
+          "Replace the manual Leave Date / Period text input with a smart Calendar Date Picker"
         ]
       },
       "acceptanceCriteria": [
-        "No UI controls visible for multi-action splitting feature",
-        "User cannot enable or disable multi-action splitting from the interface"
+        "Date picker allows selecting a single date for one-day leave",
+        "Date picker allows selecting a date range for multiple-day leave",
+        "Selected dates are automatically formatted into a proper leave duration in the generated letter"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Disable and remove the background logic in frontend/src/utils/notesCleanerFormat.ts that attempts to break a single sentence into multiple bullets without punctuation, including the multi-pass semantic splitting system that detects action phrases in long sentences",
+      "text": "Add a Reason for Leave dropdown menu with predefined options: Sick Leave, Family Function, Personal Work, Emergency, and Other (Custom Input). When a predefined reason is selected, automatically generate a professional sentence related to that reason in the leave application letter. When 'Other' is selected, display a text input field allowing the user to manually type their custom reason.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-10"
         ],
         "quotes": [
-          "Disable background logic that attempts to break a single sentence into multiple bullets without punctuation"
+          "Add a Reason for Leave dropdown menu with the following options"
         ]
       },
       "acceptanceCriteria": [
-        "Each grammatically complete sentence is converted into exactly one bullet point",
-        "No automatic splitting of sentences based on action phrase detection",
-        "Long sentences remain as single bullets regardless of word count or detected action phrases"
+        "Dropdown includes all five specified options: Sick Leave, Family Function, Personal Work, Emergency, Other",
+        "Each predefined reason generates an appropriate professional sentence in the letter",
+        "Selecting 'Other' reveals a custom text input field",
+        "Custom reason text is inserted into the generated letter when provided"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Retain and ensure continued functionality of Basic Bullet Formatting, Definition Style Format, and Headings Auto Detect features in the Notes Cleaner",
+      "text": "Add two new required input fields: School / College Name and Class / Grade. Automatically insert these details into the correct position in the generated leave application letter format.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-10"
         ],
         "quotes": [
-          "Retain: - Basic Bullet Formatting - Definition Style Format - Headings Auto Detect"
+          "Add two new required input fields: School / College Name, Class / Grade"
         ]
       },
       "acceptanceCriteria": [
-        "Basic bullet formatting continues to work",
-        "Definition style formatting remains functional",
-        "Heading auto-detection operates as before"
+        "School/College Name field is present and marked as required",
+        "Class/Grade field is present and marked as required",
+        "Both fields are inserted into the appropriate positions in the generated letter"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Preserve all existing UI controls including Clean Notes button, Reset Output button, TXT Download button, File Name option, and overall UI layout without modification",
+      "text": "Implement a Live Preview Panel positioned on the right side of the form that displays the generated leave application letter. Update the preview in real-time as the user fills in or updates any field (Name, Date, Reason, School, Class) without requiring a Generate button click.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-10"
         ],
         "quotes": [
-          "Do not modify: - Clean Notes button - Reset Output button - TXT Download button - File Name option - UI Layout"
+          "Implement a Live Preview Panel on the right side of the form"
         ]
       },
       "acceptanceCriteria": [
-        "All existing buttons remain functional and unchanged",
-        "UI layout stays identical to current design",
-        "File name customization continues to work"
+        "Preview panel is positioned on the right side of the form",
+        "Letter preview updates instantly whenever any form field changes",
+        "No Generate button is required to update the preview",
+        "All form fields (Name, Date, Reason, School, Class) are reflected in the live preview"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Add a Copy to Clipboard button below the generated letter preview that copies the full application text to the user's clipboard. Add a Download as PDF button that downloads the generated leave application as a ready-to-print PDF file.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "Add two action buttons below the generated letter preview: Copy to Clipboard, Download as PDF"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Copy to Clipboard button successfully copies the full letter text",
+        "Download as PDF button generates and downloads a PDF file",
+        "Both buttons are positioned below the letter preview",
+        "PDF is formatted appropriately for printing"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Ensure the upgraded Leave Application Generator maintains a mobile-responsive design that remains clean, simple, and student-friendly. The live preview panel should adapt appropriately on smaller screens.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "Ensure the overall design remains mobile responsive, clean, and easy to use"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Layout is fully responsive on mobile, tablet, and desktop screens",
+        "Form and preview panel adapt appropriately for different screen sizes",
+        "UI remains clean and easy to use for students",
+        "No unnecessary complexity is added to the interface"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the Clean Notes button functionality",
-    "Do not modify the Reset Output button functionality",
-    "Do not modify the TXT Download button functionality",
-    "Do not modify the File Name option",
-    "Do not change the UI layout of the Notes Cleaner page",
-    "Preserve Basic Bullet Formatting feature",
-    "Preserve Definition Style Format feature",
-    "Preserve Headings Auto Detect feature"
+    "Only modify the Leave Application Generator page (frontend/src/pages/LeaveApplicationPage.tsx)",
+    "Do not add advanced AI features or unnecessary complexity",
+    "Maintain the existing clean and student-friendly aesthetic",
+    "Keep the design consistent with the existing StudentSathi application style"
   ],
   "nonGoals": [
-    "Implementing advanced semantic splitting (reserved for future AI Advanced Cleaning module)",
-    "Adding new features to the Notes Cleaner",
-    "Modifying other pages or components outside Notes Cleaner",
-    "Changing the styling or appearance of existing UI elements"
+    "Backend changes or data persistence",
+    "User authentication or saved applications",
+    "Advanced AI-powered features",
+    "Integration with external services",
+    "Email sending functionality",
+    "Multi-language support beyond English"
   ],
   "imageRequirements": {
     "required": [],
