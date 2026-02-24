@@ -1,0 +1,100 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-24T13:30:22.591Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 6,
+    "implemented": 6,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Add a 'Create Application' button below the input fields in the Input Section of the Leave Application page. This button must always be rendered regardless of whether any inputs are filled. Application generation must only trigger when this button is explicitly clicked. Remove any reactive/live generation logic that fires while the user is typing (e.g., useEffect or derived state that auto-updates the output on input change).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "In the Output Section of the Leave Application page, statically render the following three buttons at all times: 'Copy to Clipboard', 'Download as PDF', and 'Clear Output' (new button). Remove all conditional rendering logic that shows these buttons only when output exists. These buttons must be visible when no input has been entered, when no application has been generated, and when the output preview is empty.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Implement the 'Clear Output' button functionality in the Output Section. On click: immediately clear the generated application preview text, reset the output state to empty, and keep all three Output Section buttons ('Copy to Clipboard', 'Download as PDF', 'Clear Output') visible. Do not reload or navigate the page when clearing output.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Fix the date picker bug on the Leave Application page where users cannot navigate to or select dates beyond February. Remove any unintended maxDate restriction or month-range limit that prevents navigating past February. Ensure full month navigation (all 12 months), correct date highlighting, and valid date selection for all months of the year including future dates.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Fix language consistency for the Leave Application Generator: when Urdu or Arabic is selected as the output language, ensure the entire application content (body, subject line, date strings, salutation, signature, and all labels) is generated exclusively in that language with no English words or phrases mixed in. Automatically apply RTL (right-to-left) text direction and alignment to the entire output preview and PDF when Urdu or Arabic is selected.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/leaveApplicationLetterTemplate.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx",
+          "frontend/src/utils/leaveApplicationPdfExport.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/leaveApplicationLetterTemplate.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx",
+          "frontend/src/utils/leaveApplicationPdfExport.ts"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Optimize the PDF export of the Leave Application to match the on-screen preview exactly. Ensure consistent line spacing, intact paragraph alignment, and no extra blank lines or spaces inserted between lines in the PDF output. The PDF layout must be a faithful reproduction of the preview.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/leaveApplicationPdfExport.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/leaveApplicationPdfExport.ts",
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/pages/LeaveApplicationPage.tsx",
+    "frontend/src/utils/leaveApplicationLetterTemplate.ts",
+    "frontend/src/utils/leaveApplicationPdfExport.ts",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

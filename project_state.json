@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Application Generator Tool upgrade: switching from auto-generation to manual generation mode, with UI/UX fixes including always-visible buttons, Clear Output functionality, date picker bug fix, RTL language consistency, and PDF format optimization.",
+  "architectural_notes": [
+    "Manual generation mode: application output is only triggered by explicit button click, not on input change",
+    "Output section buttons (Copy, Download PDF, Clear Output) must be statically rendered at all times — no conditional rendering based on output state",
+    "RTL layout must be applied automatically when Urdu or Arabic output language is selected"
+  ],
+  "known_issues": [
+    "Date picker restricts navigation/selection beyond February — maxDate or month restriction bug needs removal"
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-add-a-create-application-button-below-the-input-fields-in-the-input-section-of-the-leave-application-page-this-button-must-always-be-rendered-regardless-of-whether-any-inputs-are-filled-application-generation-must-only-trigger-when-this-button-is-explicitly-clicked-remove-any-reactive-live-generation-logic-that-fires-while-the-user-is-typing-e-g-useeffect-or-derived-state-that-auto-updates-the-output-on-input-change",
+      "title": "Add a 'Create Application' button below the input fields in the Input Section of the Leave Application page. This button must always be rendered regardless of whether any inputs are filled. Application generation must only trigger when this button is explicitly clicked. Remove any reactive/live generation logic that fires while the user is typing (e.g., useEffect or derived state that auto-updates the output on input change).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-output-section-of-the-leave-application-page-statically-render-the-following-three-buttons-at-all-times-copy-to-clipboard-download-as-pdf-and-clear-output-new-button-remove-all-conditional-rendering-logic-that-shows-these-buttons-only-when-output-exists-these-buttons-must-be-visible-when-no-input-has-been-entered-when-no-application-has-been-generated-and-when-the-output-preview-is-empty",
+      "title": "In the Output Section of the Leave Application page, statically render the following three buttons at all times: 'Copy to Clipboard', 'Download as PDF', and 'Clear Output' (new button). Remove all conditional rendering logic that shows these buttons only when output exists. These buttons must be visible when no input has been entered, when no application has been generated, and when the output preview is empty.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-clear-output-button-functionality-in-the-output-section-on-click-immediately-clear-the-generated-application-preview-text-reset-the-output-state-to-empty-and-keep-all-three-output-section-buttons-copy-to-clipboard-download-as-pdf-clear-output-visible-do-not-reload-or-navigate-the-page-when-clearing-output",
+      "title": "Implement the 'Clear Output' button functionality in the Output Section. On click: immediately clear the generated application preview text, reset the output state to empty, and keep all three Output Section buttons ('Copy to Clipboard', 'Download as PDF', 'Clear Output') visible. Do not reload or navigate the page when clearing output.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-date-picker-bug-on-the-leave-application-page-where-users-cannot-navigate-to-or-select-dates-beyond-february-remove-any-unintended-maxdate-restriction-or-month-range-limit-that-prevents-navigating-past-february-ensure-full-month-navigation-all-12-months-correct-date-highlighting-and-valid-date-selection-for-all-months-of-the-year-including-future-dates",
+      "title": "Fix the date picker bug on the Leave Application page where users cannot navigate to or select dates beyond February. Remove any unintended maxDate restriction or month-range limit that prevents navigating past February. Ensure full month navigation (all 12 months), correct date highlighting, and valid date selection for all months of the year including future dates.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-language-consistency-for-the-leave-application-generator-when-urdu-or-arabic-is-selected-as-the-output-language-ensure-the-entire-application-content-body-subject-line-date-strings-salutation-signature-and-all-labels-is-generated-exclusively-in-that-language-with-no-english-words-or-phrases-mixed-in-automatically-apply-rtl-right-to-left-text-direction-and-alignment-to-the-entire-output-preview-and-pdf-when-urdu-or-arabic-is-selected",
+      "title": "Fix language consistency for the Leave Application Generator: when Urdu or Arabic is selected as the output language, ensure the entire application content (body, subject line, date strings, salutation, signature, and all labels) is generated exclusively in that language with no English words or phrases mixed in. Automatically apply RTL (right-to-left) text direction and alignment to the entire output preview and PDF when Urdu or Arabic is selected.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-optimize-the-pdf-export-of-the-leave-application-to-match-the-on-screen-preview-exactly-ensure-consistent-line-spacing-intact-paragraph-alignment-and-no-extra-blank-lines-or-spaces-inserted-between-lines-in-the-pdf-output-the-pdf-layout-must-be-a-faithful-reproduction-of-the-preview",
+      "title": "Optimize the PDF export of the Leave Application to match the on-screen preview exactly. Ensure consistent line spacing, intact paragraph alignment, and no extra blank lines or spaces inserted between lines in the PDF output. The PDF layout must be a faithful reproduction of the preview.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Add 'Create Application' button to Input Section; disable auto-generation on typing",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Always render Copy to Clipboard, Download as PDF, and Clear Output buttons in Output Section regardless of output state",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add 'Clear Output' button that clears preview and resets output state without page reload",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Fix date picker bug preventing navigation/selection of dates beyond February",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Ensure full RTL alignment and no English mixing when Urdu or Arabic is selected as output language",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Optimize PDF output to match on-screen preview with consistent line spacing, paragraph alignment, and no extra blank spaces",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Application Generator Tool",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

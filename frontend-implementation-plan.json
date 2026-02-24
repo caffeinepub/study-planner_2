@@ -1,0 +1,126 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Manual Generation Mode + UI/UX & Functional Fixes for Leave Application Generator",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Add manual 'Create Application' button below input fields and remove automatic live generation logic",
+      "acceptanceCriteria": [
+        "'Create Application' button is rendered below all input fields at all times",
+        "No output is generated or updated while the user types in any input field",
+        "Clicking the 'Create Application' button triggers the letter/application generation",
+        "Button remains visible when all fields are empty"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
+          "operation": "modify",
+          "description": "Add a 'Create Application' button below the input fields section (after all form inputs). Remove any useEffect or reactive logic that auto-generates the output while the user types. Store form values in local state without triggering generation. Wire the button's onClick handler to explicitly call a generation function that formats the letter using the current form state and updates the output state only when clicked. Ensure the button is always rendered regardless of input state."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Statically render 'Copy to Clipboard', 'Download as PDF', and 'Clear Output' buttons in Output Section at all times",
+      "acceptanceCriteria": [
+        "'Copy to Clipboard', 'Download as PDF', and 'Clear Output' buttons are all visible on page load before any input is entered",
+        "Buttons are visible when the output preview area is empty",
+        "No conditional check on output state controls button visibility",
+        "All three buttons are rendered in the Output Section in a consistent layout"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
+          "operation": "modify",
+          "description": "In the Output Section, remove all conditional rendering logic (e.g., {output && <buttons />}) that hides the three action buttons. Statically render 'Copy to Clipboard', 'Download as PDF', and 'Clear Output' buttons in a consistent button group or row layout. Ensure these buttons are visible even when the output state is empty/null. The buttons remain interactive only when output exists (show a toast/message if clicked with no output), but they must always be visible in the DOM."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Implement 'Clear Output' button to reset generated application preview without page reload",
+      "acceptanceCriteria": [
+        "Clicking 'Clear Output' clears the preview text/content immediately without page reload",
+        "Output state is reset to empty/null after clicking",
+        "All three Output Section buttons remain visible after clearing",
+        "No browser navigation or page refresh occurs on clear"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
+          "operation": "modify",
+          "description": "Add an onClick handler to the 'Clear Output' button that sets the output state to empty string or null. Ensure this action does not trigger a page reload or navigation. After clearing, the three Output Section buttons ('Copy to Clipboard', 'Download as PDF', 'Clear Output') remain visible (as per REQ-2). The preview area should display an empty or placeholder message when output is cleared."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Fix date picker month navigation bug preventing selection beyond February",
+      "acceptanceCriteria": [
+        "User can navigate forward past February to March and all subsequent months",
+        "User can select dates in any month of the year including future months",
+        "No maxDate or restrictive month cap is applied to the calendar",
+        "Date highlighting correctly reflects the selected date in any month",
+        "Date range selection (start and end date) works correctly across all months"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
+          "operation": "modify",
+          "description": "Inspect the date picker component configuration (likely a third-party library or custom component). Remove any maxDate prop or month constraint that limits navigation past February. Ensure the calendar allows full year navigation (all 12 months and future years). Verify that date selection and date range selection work correctly for all months. Update date state handlers to correctly handle dates in any month. Test that date highlighting and range display work across all months including March and beyond."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Fix language consistency for Urdu and Arabic output with full RTL support",
+      "acceptanceCriteria": [
+        "When Urdu is selected, the full letter output contains no English text",
+        "When Arabic is selected, the full letter output contains no English text",
+        "RTL text direction (dir='rtl', text-align: right) is applied to the output preview when Urdu or Arabic is selected",
+        "RTL direction is also applied to the PDF export for Urdu and Arabic",
+        "All placeholders, dates, and labels are translated/formatted in the selected language"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/leaveApplicationLetterTemplate.ts",
+          "operation": "modify",
+          "description": "Review the translation strings for Urdu and Arabic. Ensure all English placeholder text, date labels, salutation, signature, subject lines, and body content are fully translated. Remove any hardcoded English words that appear in Urdu or Arabic templates. Verify that date formatting functions use localized month/day names for these languages. Add a helper function or property to the letter template that returns whether a language requires RTL layout (returns true for Urdu and Arabic)."
+        },
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
+          "operation": "modify",
+          "description": "When rendering the output preview, conditionally apply dir='rtl' and text-align: right styles to the preview container if the selected language is Urdu or Arabic. Use the RTL detection helper from leaveApplicationLetterTemplate.ts to determine when to apply RTL. Ensure the entire output preview (including all paragraphs, dates, and labels) is wrapped in an RTL-aware container when these languages are selected. The preview must visually match the intended RTL layout."
+        },
+        {
+          "path": "frontend/src/utils/leaveApplicationPdfExport.ts",
+          "operation": "modify",
+          "description": "Update the PDF export function to conditionally apply dir='rtl' and text-align: right to the entire HTML content when the selected language is Urdu or Arabic. Ensure the print-ready HTML page includes RTL styles for these languages. Verify that the PDF output matches the on-screen RTL preview. Use language-appropriate font selection to ensure proper rendering of Urdu and Arabic scripts in the PDF."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Optimize PDF export to match on-screen preview with consistent spacing and alignment",
+      "acceptanceCriteria": [
+        "Downloaded PDF text layout matches the on-screen preview visually",
+        "No extra blank lines appear between paragraphs in the PDF",
+        "Line spacing in the PDF is consistent and matches the preview",
+        "Paragraph alignment (left, right, or RTL) is preserved in the PDF"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/leaveApplicationPdfExport.ts",
+          "operation": "modify",
+          "description": "Review the HTML structure and CSS styles applied to the print-ready page. Ensure line-height, margin, and padding properties match the on-screen preview exactly. Remove any CSS that introduces extra spacing (e.g., large paragraph margins, line breaks). Use consistent spacing units (e.g., rem or px) for both preview and PDF. Apply white-space: pre-wrap or similar properties to preserve formatting. Ensure paragraph alignment (text-align: left/right) is explicitly set and matches the preview. Test the PDF output to verify it is a faithful reproduction of the preview with no layout discrepancies."
+        },
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
+          "operation": "modify",
+          "description": "Review the CSS classes and inline styles applied to the output preview container. Ensure the preview uses the same line-height, font-size, padding, and margin values that will be applied in the PDF export. If the preview uses Tailwind utility classes, document the exact spacing values so they can be replicated in the PDF export function. Ensure the preview container's text rendering (white-space, word-wrap) matches the PDF output."
+        }
+      ]
+    }
+  ]
+}

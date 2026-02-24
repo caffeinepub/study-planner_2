@@ -1,0 +1,117 @@
+
+- This exact format text loads automatically for every new session and is the only content restored by the Reset button
+- AI-generated or user-added content must be inserted within this structure, never overwriting or replacing it
+- The format structure remains constant and unmodified regardless of any AI generation or user interaction
+- Editable fields for name, roll number, and subject
+- Live word counter and estimated A4 page count indicator (approximately 250 words per page)
+- Download functionality: "Download as PDF", "Download as Word (.docx)", and "Download as Text (.txt)" buttons with proper pagination
+- Auto-reset editor content to the fixed assignment format structure after download
+- Subject Heading panel with sample headings for Science, Computer Science, and Arts/Commerce subjects
+- Clicking subject headings inserts them into the editor at cursor position
+- Local browser draft saving using localStorage with auto-save functionality
+- Citation Helper section displaying sample citations in APA and MLA formats with clear examples
+- Teacher requirement checklist with tick boxes (Cover page included, Headings used, References added, Formatting correct, Proofread done)
+- Optional completion/progress indicator for checklist
+- "Improve my assignment (AI)" button for grammar correction and clarity improvement while maintaining academic tone
+- Clean, student-friendly layout with clear section separation and responsive design
+
+#### Student Sathi Assistant (Embedded Context-Aware Module)
+- **Identity & Positioning**: Named "Student Sathi Assistant" with friendly robotic farmer-style design using light, soft colors and rounded chat bubbles
+- Uses provided chatbot avatar image for visual identity
+- **Fixed Bottom-Right Positioning**: Assistant remains fixed at the bottom-right corner of the Assignment Format page only
+- **Default State**: Minimized as a small circular floating button with helper text: "Need help? Tap to chat" (English only)
+- **Expansion Behavior**: On click, the chat panel expands slightly upward from its position, staying within view
+- **Page Interaction**: The background page remains scrollable and not blurred or locked, with page layout and interactions remaining unaffected
+- **Toggle Functionality**: On second click, the chat panel closes, reverting to only the circular button
+- **UI Constraints**: Chat panel never becomes fullscreen, never moves to center or top, never creates overlay or locks page scroll
+- **Enhanced Chat Interface Scrolling**:
+  - Vertical scrolling enabled only within the message container area (not the entire chat board)
+  - Text input field and voice button pinned to the bottom, always visible and unaffected by message scrolling
+  - Auto-scroll to newest message when new messages arrive, with automatic pause if user scrolls up manually
+  - Smooth scroll performance with no jumping, freezing, or overlapping UI elements
+  - Lightweight behavior optimized for low-spec (4GB RAM) devices with minimal re-renders
+  - Chat state preservation when open/close toggle is used, maintaining chat history and input controls
+- **Welcome Behavior**: Auto-shows welcome message on first page entry in Urdu: "Aap mujhse pooch sakte ho ke yeh page kaise use hota hai. Agar assignment banana ho, main bana deta hoon. Aap likh kar, bol kar, ya picture bhej kar bhi kaam karwa sakte ho. Agar koi cheez samajh na aaye, poori madad milegi."
+- **Explanation Mode**: Context-aware understanding of Assignment Format page structure including title page, format settings, editor, reference helper, checklist, and download buttons
+- Responds to queries like "yeh kya hai" or "is se kya faida" with simple explanations in the same language
+- Avoids technical terminology and uses student-friendly vocabulary
+- **Assignment Creation Mode**: Generates formatted academic assignments when user requests "assignment bana do" or similar
+- Uses minimal interaction and follows existing subject headings and page structure with proper title page separation
+- Outputs ready-to-download assignments directly in assistant chat with correct pagination
+- **Image to Assignment Mode**: Accepts uploaded images (notes, chapters, question papers) and uses existing OCR (tesseract.js) to extract text and create topic-based assignments
+- **Multi-Modal Input Support**:
+  - Text typing in chat interface
+  - Audio input with mic toggle button for voice query recording and transcription
+  - Voice input automatically sends transcribed message without appearing in text box
+  - Text input remains empty and usable only for manual typing
+  - Image upload functionality within message input
+- **Multi-Modal Output Support**:
+  - Text replies (always visible in chat bubbles)
+  - Voice replies only when user sends voice questions (not for text messages)
+  - Enhanced Urdu voice TTS with Pakistani accent clarity and natural pronunciation
+  - Smooth speech speed for mixed English-Urdu sentences
+  - Download links (PDF/Word/Text) displayed directly below assignment results in chat
+- **Language Intelligence**: Auto-detects user input language (Urdu, Roman Urdu, English) and replies in the same language
+- Never modifies user input fields or existing assignment content - only assists and explains
+- **Performance Optimization**: Lightweight voice event handling optimized for 4GB RAM systems
+- Prevents re-render loops and lag after voice message submission
+- **UI Stability**: Maintains layout stability after voice chat with no shifting or repositioning
+- Keeps input controls visible and static with smooth scrolling post-message
+- **Toggle Safety**: Preserves chat state, history, and input controls after opening/closing
+- Toggle actions do not reset or disrupt ongoing chat sessions
+- **Restrictions**: Focused strictly on help, explanation, and assignment creation - not a general chatbot
+- No external links, advertisements, logins, or redirections
+- **User Interface**: Scrollable chat messages with persistent visibility throughout Assignment Format page
+- Dismissible/minimizable interface with friendly tone and minimal step-by-step responses
+- Maintains conversation state and assignment objects in local component state only
+
+### Study Planner Page
+- Checklist-style study planner interface
+- Support for daily or weekly schedule planning
+- "Create Plan" button to generate study schedules
+
+### Notes Cleaner Page
+- Text input area for rough notes
+- Output area displaying cleaned, formatted notes
+- "Clean Notes" button to process and format the input text
+
+### Student Leave Application Page
+- Form with fields: Name, Date, Reason
+- Generate formatted leave letter based on input
+- Display ready-to-copy letter format
+- "Generate Application" button
+
+### CV/Resume Builder Page
+- Form fields: Name, Education, Skills, Projects (optional)
+- Explanatory text: "This tool is for students and freshers who need a simple resume"
+- Generate simple resume format
+- "Create Resume" button
+
+### Request a Feature Page
+- Title: "Didn't find what you need?"
+- Description: "Tell us what kind of help or tool you are looking for. If many students request it, we will add it to StudentSathi"
+- Form fields: Message ("What help do you need?"), Optional email
+- "Submit" button
+- Additional text: "This website grows based on student requests"
+
+## Backend Requirements
+- Store feature requests submitted by users (message and optional email)
+- Handle AI text improvement requests for assignment content
+- Process image-to-text extraction for uploaded photos of notes or question papers
+- Support multilingual text processing for content
+- Process Student Sathi Assistant requests for assignment generation and page guidance
+- Handle assistant multi-language responses and content generation in Urdu, Roman Urdu, and English
+- Support voice-to-text transcription with automatic message sending for voice inputs
+- Process enhanced Urdu text-to-speech with Pakistani accent optimization for natural pronunciation
+- Handle conditional voice output based on input method (voice questions only)
+- Process context-aware explanations of page elements and features
+- Generate formatted academic assignments with proper title page separation and forced page breaks
+- Handle assignment generation with standalone title page containing only required fields
+- Ensure proper pagination across all export formats (PDF, Word, Text) with content starting from Page 2
+- Optimize voice processing for lightweight performance on 4GB RAM systems
+- No user authentication or accounts required for regular users
+- No user data persistence beyond feature requests and temporary processing
+
+## Navigation
+- Header navigation linking to Home and all tool pages
+- Consistent navigation across all pages

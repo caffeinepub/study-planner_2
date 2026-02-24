@@ -1,0 +1,156 @@
+{
+  "kind": "build_request",
+  "title": "Manual Generation Mode + UI/UX & Functional Fixes for Leave Application Generator",
+  "projectName": "StudentSathi Leave App",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Add a 'Create Application' button below the input fields in the Input Section of the Leave Application page. This button must always be rendered regardless of whether any inputs are filled. Application generation must only trigger when this button is explicitly clicked. Remove any reactive/live generation logic that fires while the user is typing (e.g., useEffect or derived state that auto-updates the output on input change).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Add a 'Create Application' button below the input fields in the Input Section.",
+          "Application generation must only occur when this button is clicked.",
+          "Disable automatic live generation while typing."
+        ]
+      },
+      "acceptanceCriteria": [
+        "'Create Application' button is rendered below all input fields at all times",
+        "No output is generated or updated while the user types in any input field",
+        "Clicking the 'Create Application' button triggers the letter/application generation",
+        "Button remains visible when all fields are empty"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "In the Output Section of the Leave Application page, statically render the following three buttons at all times: 'Copy to Clipboard', 'Download as PDF', and 'Clear Output' (new button). Remove all conditional rendering logic that shows these buttons only when output exists. These buttons must be visible when no input has been entered, when no application has been generated, and when the output preview is empty.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "ensure the following three buttons are always visible by default",
+          "These buttons must remain visible even when: No input is entered, No application is generated, Output preview is empty",
+          "Remove any conditional rendering logic such as: IF output exists THEN show buttons",
+          "Buttons must be statically rendered at all times."
+        ]
+      },
+      "acceptanceCriteria": [
+        "'Copy to Clipboard', 'Download as PDF', and 'Clear Output' buttons are all visible on page load before any input is entered",
+        "Buttons are visible when the output preview area is empty",
+        "No conditional check on output state controls button visibility",
+        "All three buttons are rendered in the Output Section in a consistent layout"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement the 'Clear Output' button functionality in the Output Section. On click: immediately clear the generated application preview text, reset the output state to empty, and keep all three Output Section buttons ('Copy to Clipboard', 'Download as PDF', 'Clear Output') visible. Do not reload or navigate the page when clearing output.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "On click: Instantly clear the generated application preview, Reset output state, Keep all three buttons visible",
+          "Do not reload the page on clearing output."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking 'Clear Output' clears the preview text/content immediately without page reload",
+        "Output state is reset to empty/null after clicking",
+        "All three Output Section buttons remain visible after clearing",
+        "No browser navigation or page refresh occurs on clear"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Fix the date picker bug on the Leave Application page where users cannot navigate to or select dates beyond February. Remove any unintended maxDate restriction or month-range limit that prevents navigating past February. Ensure full month navigation (all 12 months), correct date highlighting, and valid date selection for all months of the year including future dates.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Fix the 'Absent Since Date' calendar issue where users cannot select dates beyond February.",
+          "Enable full month navigation in the date picker.",
+          "Remove any unintended maxDate or month restriction.",
+          "Ensure correct date highlighting and selection for all months of the year.",
+          "The calendar must function properly for both single date and date range selection."
+        ]
+      },
+      "acceptanceCriteria": [
+        "User can navigate forward past February to March and all subsequent months",
+        "User can select dates in any month of the year including future months",
+        "No maxDate or restrictive month cap is applied to the calendar",
+        "Date highlighting correctly reflects the selected date in any month",
+        "Date range selection (start and end date) works correctly across all months"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Fix language consistency for the Leave Application Generator: when Urdu or Arabic is selected as the output language, ensure the entire application content (body, subject line, date strings, salutation, signature, and all labels) is generated exclusively in that language with no English words or phrases mixed in. Automatically apply RTL (right-to-left) text direction and alignment to the entire output preview and PDF when Urdu or Arabic is selected.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "If Urdu or Arabic is selected as the output language: Ensure the entire application content is generated in that language",
+          "Do not allow any English words or phrases in the output",
+          "Apply RTL (Right-to-Left) alignment automatically for these languages"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When Urdu is selected, the full letter output contains no English text",
+        "When Arabic is selected, the full letter output contains no English text",
+        "RTL text direction (dir='rtl', text-align: right) is applied to the output preview when Urdu or Arabic is selected",
+        "RTL direction is also applied to the PDF export for Urdu and Arabic",
+        "All placeholders, dates, and labels are translated/formatted in the selected language"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Optimize the PDF export of the Leave Application to match the on-screen preview exactly. Ensure consistent line spacing, intact paragraph alignment, and no extra blank lines or spaces inserted between lines in the PDF output. The PDF layout must be a faithful reproduction of the preview.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Ensure that the downloaded PDF: Matches the on-screen preview exactly",
+          "Maintains consistent line spacing",
+          "Keeps paragraph alignment intact",
+          "Avoids extra blank spaces between lines"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Downloaded PDF text layout matches the on-screen preview visually",
+        "No extra blank lines appear between paragraphs in the PDF",
+        "Line spacing in the PDF is consistent and matches the preview",
+        "Paragraph alignment (left, right, or RTL) is preserved in the PDF"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not reload the page when clearing output",
+    "Do not alter the backend schema or Motoko actor",
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "All button visibility changes must use static rendering, not conditional rendering based on output state"
+  ],
+  "nonGoals": [
+    "Adding new language translations beyond fixing Urdu and Arabic consistency",
+    "Changing the overall design theme or color scheme",
+    "Modifying the Study Planner, Notes Cleaner, Resume Builder, or Assignment Format pages",
+    "Backend changes of any kind",
+    "Adding authentication or user accounts to the Leave Application page"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}
