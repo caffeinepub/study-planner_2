@@ -1,62 +1,43 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Application Generator Tool upgrade: switching from auto-generation to manual generation mode, with UI/UX fixes including always-visible buttons, Clear Output functionality, date picker bug fix, RTL language consistency, and PDF format optimization.",
+  "summary": "A leave letter/application generator tool with an input form featuring multiple fields (recipient type, language, name, parent/guardian, school, class, leave dates, duration, reason, absent since, medical certificate) and an output section with generated letter display.",
   "architectural_notes": [
-    "Manual generation mode: application output is only triggered by explicit button click, not on input change",
-    "Output section buttons (Copy, Download PDF, Clear Output) must be statically rendered at all times — no conditional rendering based on output state",
-    "RTL layout must be applied automatically when Urdu or Arabic output language is selected"
+    "Input form uses CSS grid: grid-template-columns: repeat(3, 1fr) with gap:16px; collapses to 1fr below 768px",
+    "Field layout: Row1(Recipient Type, Language, Your Name), Row2(Parent/Guardian, School/College, Class/Grade), Row3(Leave Dates, Duration Type, Reason), Row4(Absent Since, Medical Certificate Checkbox, empty)"
   ],
-  "known_issues": [
-    "Date picker restricts navigation/selection beyond February — maxDate or month restriction bug needs removal"
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-add-a-create-application-button-below-the-input-fields-in-the-input-section-of-the-leave-application-page-this-button-must-always-be-rendered-regardless-of-whether-any-inputs-are-filled-application-generation-must-only-trigger-when-this-button-is-explicitly-clicked-remove-any-reactive-live-generation-logic-that-fires-while-the-user-is-typing-e-g-useeffect-or-derived-state-that-auto-updates-the-output-on-input-change",
-      "title": "Add a 'Create Application' button below the input fields in the Input Section of the Leave Application page. This button must always be rendered regardless of whether any inputs are filled. Application generation must only trigger when this button is explicitly clicked. Remove any reactive/live generation logic that fires while the user is typing (e.g., useEffect or derived state that auto-updates the output on input change).",
+      "id": "feature-redesign-the-input-section-of-leaveapplicationpage-tsx-to-use-a-css-grid-layout-with-display-grid-grid-template-columns-repeat-3-1fr-gap-16px-instead-of-the-current-full-width-stacked-layout-arrange-all-form-fields-into-exactly-4-rows-as-follows-row-1-recipient-type-language-your-name-row-2-parent-guardian-name-school-college-name-class-grade-row-3-leave-date-s-leave-duration-type-reason-for-leave-row-4-absent-since-date-medical-certificate-checkbox-empty-third-column-use-an-empty-div-placeholder-or-leave-the-cell-unstyled-do-not-change-any-form-field-functionality-values-state-or-handlers",
+      "title": "Redesign the Input Section of LeaveApplicationPage.tsx to use a CSS grid layout with `display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;` instead of the current full-width stacked layout. Arrange all form fields into exactly 4 rows as follows — Row 1: Recipient Type, Language, Your Name; Row 2: Parent/Guardian Name, School/College Name, Class/Grade; Row 3: Leave Date(s), Leave Duration Type, Reason for Leave; Row 4: Absent Since (Date), Medical Certificate Checkbox, empty third column (use an empty div placeholder or leave the cell unstyled). Do NOT change any form field functionality, values, state, or handlers.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-in-the-output-section-of-the-leave-application-page-statically-render-the-following-three-buttons-at-all-times-copy-to-clipboard-download-as-pdf-and-clear-output-new-button-remove-all-conditional-rendering-logic-that-shows-these-buttons-only-when-output-exists-these-buttons-must-be-visible-when-no-input-has-been-entered-when-no-application-has-been-generated-and-when-the-output-preview-is-empty",
-      "title": "In the Output Section of the Leave Application page, statically render the following three buttons at all times: 'Copy to Clipboard', 'Download as PDF', and 'Clear Output' (new button). Remove all conditional rendering logic that shows these buttons only when output exists. These buttons must be visible when no input has been entered, when no application has been generated, and when the output preview is empty.",
+      "id": "feature-remove-full-width-input-styling-from-all-fields-in-the-input-section-each-input-select-dropdown-and-checkbox-group-must-respect-its-grid-cell-width-remove-any-width-100-or-equivalent-overrides-that-cause-inputs-to-stretch-beyond-their-grid-cell-ensure-all-dropdowns-and-text-inputs-have-a-consistent-visual-width-matching-their-respective-grid-columns",
+      "title": "Remove full-width input styling from all fields in the Input Section. Each input, select/dropdown, and checkbox group must respect its grid cell width. Remove any `width: 100%` or equivalent overrides that cause inputs to stretch beyond their grid cell. Ensure all dropdowns and text inputs have a consistent visual width matching their respective grid columns.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-the-clear-output-button-functionality-in-the-output-section-on-click-immediately-clear-the-generated-application-preview-text-reset-the-output-state-to-empty-and-keep-all-three-output-section-buttons-copy-to-clipboard-download-as-pdf-clear-output-visible-do-not-reload-or-navigate-the-page-when-clearing-output",
-      "title": "Implement the 'Clear Output' button functionality in the Output Section. On click: immediately clear the generated application preview text, reset the output state to empty, and keep all three Output Section buttons ('Copy to Clipboard', 'Download as PDF', 'Clear Output') visible. Do not reload or navigate the page when clearing output.",
+      "id": "feature-add-a-responsive-breakpoint-to-the-input-section-grid-on-screens-with-viewport-width-below-768px-switch-the-grid-to-a-single-column-layout-using-grid-template-columns-1fr-stacking-all-fields-vertically",
+      "title": "Add a responsive breakpoint to the Input Section grid: on screens with viewport width below 768px, switch the grid to a single-column layout using `grid-template-columns: 1fr`, stacking all fields vertically.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-date-picker-bug-on-the-leave-application-page-where-users-cannot-navigate-to-or-select-dates-beyond-february-remove-any-unintended-maxdate-restriction-or-month-range-limit-that-prevents-navigating-past-february-ensure-full-month-navigation-all-12-months-correct-date-highlighting-and-valid-date-selection-for-all-months-of-the-year-including-future-dates",
-      "title": "Fix the date picker bug on the Leave Application page where users cannot navigate to or select dates beyond February. Remove any unintended maxDate restriction or month-range limit that prevents navigating past February. Ensure full month navigation (all 12 months), correct date highlighting, and valid date selection for all months of the year including future dates.",
+      "id": "feature-fix-the-spacing-between-the-input-section-card-and-the-output-section-remove-unnecessary-margin-bottom-from-the-input-card-remove-extra-padding-below-the-output-action-buttons-and-ensure-the-output-buttons-sit-close-to-the-bottom-edge-of-the-output-card-the-overall-vertical-rhythm-should-be-balanced-with-no-excessive-white-space-between-the-two-sections",
+      "title": "Fix the spacing between the Input Section card and the Output Section. Remove unnecessary `margin-bottom` from the Input card, remove extra padding below the output action buttons, and ensure the output buttons sit close to the bottom edge of the output card. The overall vertical rhythm should be balanced with no excessive white space between the two sections.",
       "reqIds": [
         "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-fix-language-consistency-for-the-leave-application-generator-when-urdu-or-arabic-is-selected-as-the-output-language-ensure-the-entire-application-content-body-subject-line-date-strings-salutation-signature-and-all-labels-is-generated-exclusively-in-that-language-with-no-english-words-or-phrases-mixed-in-automatically-apply-rtl-right-to-left-text-direction-and-alignment-to-the-entire-output-preview-and-pdf-when-urdu-or-arabic-is-selected",
-      "title": "Fix language consistency for the Leave Application Generator: when Urdu or Arabic is selected as the output language, ensure the entire application content (body, subject line, date strings, salutation, signature, and all labels) is generated exclusively in that language with no English words or phrases mixed in. Automatically apply RTL (right-to-left) text direction and alignment to the entire output preview and PDF when Urdu or Arabic is selected.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-optimize-the-pdf-export-of-the-leave-application-to-match-the-on-screen-preview-exactly-ensure-consistent-line-spacing-intact-paragraph-alignment-and-no-extra-blank-lines-or-spaces-inserted-between-lines-in-the-pdf-output-the-pdf-layout-must-be-a-faithful-reproduction-of-the-preview",
-      "title": "Optimize the PDF export of the Leave Application to match the on-screen preview exactly. Ensure consistent line spacing, intact paragraph alignment, and no extra blank lines or spaces inserted between lines in the PDF output. The PDF layout must be a faithful reproduction of the preview.",
-      "reqIds": [
-        "REQ-6"
       ],
       "version": 1
     }
@@ -64,43 +45,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add 'Create Application' button to Input Section; disable auto-generation on typing",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Always render Copy to Clipboard, Download as PDF, and Clear Output buttons in Output Section regardless of output state",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add 'Clear Output' button that clears preview and resets output state without page reload",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Fix date picker bug preventing navigation/selection of dates beyond February",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Ensure full RTL alignment and no English mixing when Urdu or Arabic is selected as output language",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Optimize PDF output to match on-screen preview with consistent line spacing, paragraph alignment, and no extra blank spaces",
+      "summary": "Redesign Input Section with 3-column CSS grid layout (repeat(3,1fr), gap:16px), 4 rows of fields, responsive single-column below 768px, and fix output section spacing",
       "reqIds": [],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Application Generator Tool",
+  "projectName": "Leave Letter Generator",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

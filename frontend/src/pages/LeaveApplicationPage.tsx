@@ -134,215 +134,241 @@ export default function LeaveApplicationPage() {
             <CardDescription>Fill in your information and click "Create Application" to generate</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="recipient">Recipient Type *</Label>
-              <Select value={recipientType} onValueChange={(value) => setRecipientType(value as RecipientType)}>
-                <SelectTrigger id="recipient">
-                  <SelectValue placeholder="Select recipient" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="principal">Principal</SelectItem>
-                  <SelectItem value="teacher">Class Teacher</SelectItem>
-                </SelectContent>
-              </Select>
+
+            {/* 3-column grid layout for form fields */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+              {/* Row 1: Recipient Type | Language | Your Name */}
+              <div className="space-y-1.5">
+                <Label htmlFor="recipient">Recipient Type *</Label>
+                <Select value={recipientType} onValueChange={(value) => setRecipientType(value as RecipientType)}>
+                  <SelectTrigger id="recipient" className="w-full">
+                    <SelectValue placeholder="Select recipient" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="principal">Principal</SelectItem>
+                    <SelectItem value="teacher">Class Teacher</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="language">Language *</Label>
+                <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
+                  <SelectTrigger id="language" className="w-full">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="english">English</SelectItem>
+                    <SelectItem value="urdu">Urdu</SelectItem>
+                    <SelectItem value="hindi">Hindi</SelectItem>
+                    <SelectItem value="arabic">Arabic</SelectItem>
+                    <SelectItem value="french">French</SelectItem>
+                    <SelectItem value="spanish">Spanish</SelectItem>
+                    <SelectItem value="german">German</SelectItem>
+                    <SelectItem value="portuguese">Portuguese</SelectItem>
+                    <SelectItem value="turkish">Turkish</SelectItem>
+                    <SelectItem value="indonesian">Indonesian</SelectItem>
+                    <SelectItem value="malay">Malay</SelectItem>
+                    <SelectItem value="bengali">Bengali</SelectItem>
+                    <SelectItem value="tamil">Tamil</SelectItem>
+                    <SelectItem value="chinese">Chinese</SelectItem>
+                    <SelectItem value="japanese">Japanese</SelectItem>
+                    <SelectItem value="korean">Korean</SelectItem>
+                    <SelectItem value="russian">Russian</SelectItem>
+                    <SelectItem value="italian">Italian</SelectItem>
+                    <SelectItem value="dutch">Dutch</SelectItem>
+                    <SelectItem value="swahili">Swahili</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="name">Your Name *</Label>
+                <Input
+                  id="name"
+                  placeholder="e.g., Rahul Kumar"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full"
+                />
+              </div>
+
+              {/* Row 2: Parent/Guardian Name | School/College Name | Class/Grade */}
+              <div className="space-y-1.5">
+                <Label htmlFor="parentName">Parent / Guardian Name *</Label>
+                <Input
+                  id="parentName"
+                  placeholder="e.g., Mr. Rajesh Kumar"
+                  value={parentName}
+                  onChange={(e) => setParentName(e.target.value)}
+                  required
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="school">School / College Name *</Label>
+                <Input
+                  id="school"
+                  placeholder="e.g., Delhi Public School"
+                  value={school}
+                  onChange={(e) => setSchool(e.target.value)}
+                  required
+                  className="w-full"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="class">Class / Grade *</Label>
+                <Input
+                  id="class"
+                  placeholder="e.g., Class 10-A"
+                  value={classGrade}
+                  onChange={(e) => setClassGrade(e.target.value)}
+                  required
+                  className="w-full"
+                />
+              </div>
+
+              {/* Row 3: Leave Date(s) | Leave Duration Type | Reason for Leave */}
+              <div className="space-y-1.5">
+                <Label>Leave Date(s) *</Label>
+                <Popover open={leaveDateOpen} onOpenChange={setLeaveDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal text-xs px-2"
+                    >
+                      <CalendarIcon className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{formatDateRangeDisplay()}</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="range"
+                      selected={dateRange}
+                      onSelect={(range) => {
+                        setDateRange(range);
+                      }}
+                      month={leaveDateMonth}
+                      onMonthChange={setLeaveDateMonth}
+                      numberOfMonths={1}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <p className="text-xs text-muted-foreground leading-tight">
+                  Single date or range
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Leave Duration Type *</Label>
+                <RadioGroup value={durationType} onValueChange={(value) => setDurationType(value as DurationType)} className="pt-1">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="full" id="full" />
+                    <Label htmlFor="full" className="font-normal cursor-pointer text-sm">Full Day</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="half" id="half" />
+                    <Label htmlFor="half" className="font-normal cursor-pointer text-sm">Half Day</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="reason">Reason for Leave *</Label>
+                <Select value={selectedReason} onValueChange={(value) => setSelectedReason(value as LeaveReason)}>
+                  <SelectTrigger id="reason" className="w-full">
+                    <SelectValue placeholder="Select a reason" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEAVE_REASONS.map((reason) => (
+                      <SelectItem key={reason.value} value={reason.value}>
+                        {reason.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Row 4: Absent Since (Date) | Medical Certificate Checkbox | empty */}
+              <div className="space-y-1.5">
+                <Label>Absent Since (Date)</Label>
+                <Popover open={absentSinceDateOpen} onOpenChange={setAbsentSinceDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal text-xs px-2"
+                    >
+                      <CalendarIcon className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{formatAbsentSinceDateDisplay()}</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={absentSinceDate}
+                      onSelect={(date) => {
+                        setAbsentSinceDate(date);
+                        setAbsentSinceDateOpen(false);
+                      }}
+                      month={absentSinceDateMonth}
+                      onMonthChange={setAbsentSinceDateMonth}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <p className="text-xs text-muted-foreground leading-tight">
+                  Optional: if already absent
+                </p>
+              </div>
+
+              {/* Medical Certificate Checkbox — only shown when sick is selected */}
+              <div className="space-y-1.5">
+                {selectedReason === 'sick' ? (
+                  <>
+                    <Label className="text-sm">Medical Certificate</Label>
+                    <div className="flex items-start space-x-2 pt-1">
+                      <Checkbox
+                        id="medicalCertificate"
+                        checked={medicalCertificate}
+                        onCheckedChange={(checked) => setMedicalCertificate(checked === true)}
+                        className="mt-0.5"
+                      />
+                      <Label htmlFor="medicalCertificate" className="font-normal cursor-pointer text-xs leading-snug">
+                        I will attach a medical certificate if required
+                      </Label>
+                    </div>
+                  </>
+                ) : (
+                  /* Empty placeholder to maintain grid structure */
+                  <div aria-hidden="true" />
+                )}
+              </div>
+
+              {/* Third column of Row 4 — intentionally empty */}
+              <div aria-hidden="true" />
+
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="language">Language *</Label>
-              <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
-                <SelectTrigger id="language">
-                  <SelectValue placeholder="Select language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="english">English</SelectItem>
-                  <SelectItem value="urdu">Urdu</SelectItem>
-                  <SelectItem value="hindi">Hindi</SelectItem>
-                  <SelectItem value="arabic">Arabic</SelectItem>
-                  <SelectItem value="french">French</SelectItem>
-                  <SelectItem value="spanish">Spanish</SelectItem>
-                  <SelectItem value="german">German</SelectItem>
-                  <SelectItem value="portuguese">Portuguese</SelectItem>
-                  <SelectItem value="turkish">Turkish</SelectItem>
-                  <SelectItem value="indonesian">Indonesian</SelectItem>
-                  <SelectItem value="malay">Malay</SelectItem>
-                  <SelectItem value="bengali">Bengali</SelectItem>
-                  <SelectItem value="tamil">Tamil</SelectItem>
-                  <SelectItem value="chinese">Chinese</SelectItem>
-                  <SelectItem value="japanese">Japanese</SelectItem>
-                  <SelectItem value="korean">Korean</SelectItem>
-                  <SelectItem value="russian">Russian</SelectItem>
-                  <SelectItem value="italian">Italian</SelectItem>
-                  <SelectItem value="dutch">Dutch</SelectItem>
-                  <SelectItem value="swahili">Swahili</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="name">Your Name *</Label>
-              <Input
-                id="name"
-                placeholder="e.g., Rahul Kumar"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="parentName">Parent / Guardian Name *</Label>
-              <Input
-                id="parentName"
-                placeholder="e.g., Mr. Rajesh Kumar"
-                value={parentName}
-                onChange={(e) => setParentName(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="school">School / College Name *</Label>
-              <Input
-                id="school"
-                placeholder="e.g., Delhi Public School"
-                value={school}
-                onChange={(e) => setSchool(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="class">Class / Grade *</Label>
-              <Input
-                id="class"
-                placeholder="e.g., Class 10-A or B.Tech 2nd Year"
-                value={classGrade}
-                onChange={(e) => setClassGrade(e.target.value)}
-                required
-              />
-            </div>
-
-            {/* Leave Date Range Picker - fixed month navigation */}
-            <div className="space-y-2">
-              <Label>Leave Date(s) *</Label>
-              <Popover open={leaveDateOpen} onOpenChange={setLeaveDateOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formatDateRangeDisplay()}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="range"
-                    selected={dateRange}
-                    onSelect={(range) => {
-                      setDateRange(range);
-                    }}
-                    month={leaveDateMonth}
-                    onMonthChange={setLeaveDateMonth}
-                    numberOfMonths={1}
-                  />
-                </PopoverContent>
-              </Popover>
-              <p className="text-xs text-muted-foreground">
-                Select a single date or a date range for multiple days
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Leave Duration Type *</Label>
-              <RadioGroup value={durationType} onValueChange={(value) => setDurationType(value as DurationType)}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="full" id="full" />
-                  <Label htmlFor="full" className="font-normal cursor-pointer">Full Day Leave</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="half" id="half" />
-                  <Label htmlFor="half" className="font-normal cursor-pointer">Half Day Leave</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="reason">Reason for Leave *</Label>
-              <Select value={selectedReason} onValueChange={(value) => setSelectedReason(value as LeaveReason)}>
-                <SelectTrigger id="reason">
-                  <SelectValue placeholder="Select a reason" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEAVE_REASONS.map((reason) => (
-                    <SelectItem key={reason.value} value={reason.value}>
-                      {reason.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
+            {/* Custom Reason textarea — full width, shown conditionally below grid */}
             {selectedReason === 'other' && (
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="customReason">Custom Reason *</Label>
                 <Textarea
                   id="customReason"
                   placeholder="Enter your reason for leave..."
                   value={customReason}
                   onChange={(e) => setCustomReason(e.target.value)}
-                  className="min-h-[100px]"
+                  className="min-h-[80px] w-full"
                   required
                 />
               </div>
             )}
 
-            {selectedReason === 'sick' && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="medicalCertificate"
-                  checked={medicalCertificate}
-                  onCheckedChange={(checked) => setMedicalCertificate(checked === true)}
-                />
-                <Label htmlFor="medicalCertificate" className="font-normal cursor-pointer">
-                  I will attach a medical certificate if required
-                </Label>
-              </div>
-            )}
-
-            {/* Absent Since Date Picker - fixed month navigation, no maxDate restriction */}
-            <div className="space-y-2">
-              <Label>Absent Since (Date)</Label>
-              <Popover open={absentSinceDateOpen} onOpenChange={setAbsentSinceDateOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formatAbsentSinceDateDisplay()}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={absentSinceDate}
-                    onSelect={(date) => {
-                      setAbsentSinceDate(date);
-                      setAbsentSinceDateOpen(false);
-                    }}
-                    month={absentSinceDateMonth}
-                    onMonthChange={setAbsentSinceDateMonth}
-                  />
-                </PopoverContent>
-              </Popover>
-              <p className="text-xs text-muted-foreground">
-                Optional: If you've already been absent, select the start date
-              </p>
-            </div>
-
-            {/* Create Application Button - always visible */}
-            <div className="pt-2">
+            {/* Create Application Button */}
+            <div className="pt-1">
               <Button
                 onClick={handleCreateApplication}
                 className="w-full"
@@ -361,7 +387,7 @@ export default function LeaveApplicationPage() {
             <CardTitle>Application Preview</CardTitle>
             <CardDescription>Click "Create Application" to generate your leave letter</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {/* Preview area */}
             <div
               className="rounded-lg bg-muted p-6 min-h-[400px] max-h-[500px] overflow-y-auto"
@@ -384,23 +410,23 @@ export default function LeaveApplicationPage() {
               )}
             </div>
 
-            {/* Action buttons - always visible */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* Action buttons - always visible, compact spacing */}
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 onClick={handleCopy}
                 variant="secondary"
                 className="flex-1"
-                size="lg"
+                size="default"
                 disabled={false}
               >
                 {copied ? (
                   <>
-                    <Check className="mr-2 h-5 w-5" />
+                    <Check className="mr-2 h-4 w-4" />
                     Copied!
                   </>
                 ) : (
                   <>
-                    <Copy className="mr-2 h-5 w-5" />
+                    <Copy className="mr-2 h-4 w-4" />
                     Copy to Clipboard
                   </>
                 )}
@@ -410,10 +436,10 @@ export default function LeaveApplicationPage() {
                 onClick={handleDownloadPDF}
                 variant="default"
                 className="flex-1"
-                size="lg"
+                size="default"
                 disabled={false}
               >
-                <Download className="mr-2 h-5 w-5" />
+                <Download className="mr-2 h-4 w-4" />
                 Download as PDF
               </Button>
 
@@ -421,10 +447,10 @@ export default function LeaveApplicationPage() {
                 onClick={handleClearOutput}
                 variant="outline"
                 className="flex-1"
-                size="lg"
+                size="default"
                 disabled={false}
               >
-                <Trash2 className="mr-2 h-5 w-5" />
+                <Trash2 className="mr-2 h-4 w-4" />
                 Clear Output
               </Button>
             </div>
@@ -439,13 +465,9 @@ export default function LeaveApplicationPage() {
             <li>• All fields marked with * are required</li>
             <li>• Fill in all details and click "Create Application" to generate your letter</li>
             <li>• Choose your preferred language for the application letter</li>
-            <li>• Select recipient type (Principal or Class Teacher) at the top</li>
-            <li>• For sick leave, you can indicate if you'll attach a medical certificate</li>
-            <li>• Choose between full day or half day leave</li>
-            <li>• If already absent, specify the start date in "Absent Since"</li>
-            <li>• Print the letter or write it neatly by hand</li>
-            <li>• Get it signed by your parent/guardian as indicated</li>
-            <li>• Submit it to your class teacher or principal's office</li>
+            <li>• The letter will be professionally formatted and ready to submit</li>
+            <li>• For sick leave, you may mention a medical certificate if applicable</li>
+            <li>• Use "Absent Since" if you've already been absent and are writing retroactively</li>
           </ul>
         </CardContent>
       </Card>

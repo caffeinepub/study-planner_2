@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-create-application-button-below-the-input-fields-in-the-input-section-of-the-leave-application-page-this-button-must-always-be-rendered-regardless-of-whether-any-inputs-are-filled-application-generation-must-only-trigger-when-this-button-is-explicitly-clicked-remove-any-reactive-live-generation-logic-that-fires-while-the-user-is-typing-e-g-useeffect-or-derived-state-that-auto-updates-the-output-on-input-change",
-      "featureTitle": "Add a 'Create Application' button below the input fields in the Input Section of the Leave Application page. This button must always be rendered regardless of whether any inputs are filled. Application generation must only trigger when this button is explicitly clicked. Remove any reactive/live generation logic that fires while the user is typing (e.g., useEffect or derived state that auto-updates the output on input change).",
+      "featureId": "feature-redesign-the-input-section-of-leaveapplicationpage-tsx-to-use-a-css-grid-layout-with-display-grid-grid-template-columns-repeat-3-1fr-gap-16px-instead-of-the-current-full-width-stacked-layout-arrange-all-form-fields-into-exactly-4-rows-as-follows-row-1-recipient-type-language-your-name-row-2-parent-guardian-name-school-college-name-class-grade-row-3-leave-date-s-leave-duration-type-reason-for-leave-row-4-absent-since-date-medical-certificate-checkbox-empty-third-column-use-an-empty-div-placeholder-or-leave-the-cell-unstyled-do-not-change-any-form-field-functionality-values-state-or-handlers",
+      "featureTitle": "Redesign the Input Section of LeaveApplicationPage.tsx to use a CSS grid layout with `display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;` instead of the current full-width stacked layout. Arrange all form fields into exactly 4 rows as follows — Row 1: Recipient Type, Language, Your Name; Row 2: Parent/Guardian Name, School/College Name, Class/Grade; Row 3: Leave Date(s), Leave Duration Type, Reason for Leave; Row 4: Absent Since (Date), Medical Certificate Checkbox, empty third column (use an empty div placeholder or leave the cell unstyled). Do NOT change any form field functionality, values, state, or handlers.",
       "files": [
         "frontend/src/pages/LeaveApplicationPage.tsx"
       ],
@@ -23,8 +23,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-in-the-output-section-of-the-leave-application-page-statically-render-the-following-three-buttons-at-all-times-copy-to-clipboard-download-as-pdf-and-clear-output-new-button-remove-all-conditional-rendering-logic-that-shows-these-buttons-only-when-output-exists-these-buttons-must-be-visible-when-no-input-has-been-entered-when-no-application-has-been-generated-and-when-the-output-preview-is-empty",
-      "featureTitle": "In the Output Section of the Leave Application page, statically render the following three buttons at all times: 'Copy to Clipboard', 'Download as PDF', and 'Clear Output' (new button). Remove all conditional rendering logic that shows these buttons only when output exists. These buttons must be visible when no input has been entered, when no application has been generated, and when the output preview is empty.",
+      "featureId": "feature-remove-full-width-input-styling-from-all-fields-in-the-input-section-each-input-select-dropdown-and-checkbox-group-must-respect-its-grid-cell-width-remove-any-width-100-or-equivalent-overrides-that-cause-inputs-to-stretch-beyond-their-grid-cell-ensure-all-dropdowns-and-text-inputs-have-a-consistent-visual-width-matching-their-respective-grid-columns",
+      "featureTitle": "Remove full-width input styling from all fields in the Input Section. Each input, select/dropdown, and checkbox group must respect its grid cell width. Remove any `width: 100%` or equivalent overrides that cause inputs to stretch beyond their grid cell. Ensure all dropdowns and text inputs have a consistent visual width matching their respective grid columns.",
       "files": [
         "frontend/src/pages/LeaveApplicationPage.tsx"
       ],
@@ -44,8 +44,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-the-clear-output-button-functionality-in-the-output-section-on-click-immediately-clear-the-generated-application-preview-text-reset-the-output-state-to-empty-and-keep-all-three-output-section-buttons-copy-to-clipboard-download-as-pdf-clear-output-visible-do-not-reload-or-navigate-the-page-when-clearing-output",
-      "featureTitle": "Implement the 'Clear Output' button functionality in the Output Section. On click: immediately clear the generated application preview text, reset the output state to empty, and keep all three Output Section buttons ('Copy to Clipboard', 'Download as PDF', 'Clear Output') visible. Do not reload or navigate the page when clearing output.",
+      "featureId": "feature-add-a-responsive-breakpoint-to-the-input-section-grid-on-screens-with-viewport-width-below-768px-switch-the-grid-to-a-single-column-layout-using-grid-template-columns-1fr-stacking-all-fields-vertically",
+      "featureTitle": "Add a responsive breakpoint to the Input Section grid: on screens with viewport width below 768px, switch the grid to a single-column layout using `grid-template-columns: 1fr`, stacking all fields vertically.",
       "files": [
         "frontend/src/pages/LeaveApplicationPage.tsx"
       ],
@@ -65,8 +65,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-date-picker-bug-on-the-leave-application-page-where-users-cannot-navigate-to-or-select-dates-beyond-february-remove-any-unintended-maxdate-restriction-or-month-range-limit-that-prevents-navigating-past-february-ensure-full-month-navigation-all-12-months-correct-date-highlighting-and-valid-date-selection-for-all-months-of-the-year-including-future-dates",
-      "featureTitle": "Fix the date picker bug on the Leave Application page where users cannot navigate to or select dates beyond February. Remove any unintended maxDate restriction or month-range limit that prevents navigating past February. Ensure full month navigation (all 12 months), correct date highlighting, and valid date selection for all months of the year including future dates.",
+      "featureId": "feature-fix-the-spacing-between-the-input-section-card-and-the-output-section-remove-unnecessary-margin-bottom-from-the-input-card-remove-extra-padding-below-the-output-action-buttons-and-ensure-the-output-buttons-sit-close-to-the-bottom-edge-of-the-output-card-the-overall-vertical-rhythm-should-be-balanced-with-no-excessive-white-space-between-the-two-sections",
+      "featureTitle": "Fix the spacing between the Input Section card and the Output Section. Remove unnecessary `margin-bottom` from the Input card, remove extra padding below the output action buttons, and ensure the output buttons sit close to the bottom edge of the output card. The overall vertical rhythm should be balanced with no excessive white space between the two sections.",
       "files": [
         "frontend/src/pages/LeaveApplicationPage.tsx"
       ],
@@ -82,51 +82,6 @@
       ],
       "testIds": [
         "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-fix-language-consistency-for-the-leave-application-generator-when-urdu-or-arabic-is-selected-as-the-output-language-ensure-the-entire-application-content-body-subject-line-date-strings-salutation-signature-and-all-labels-is-generated-exclusively-in-that-language-with-no-english-words-or-phrases-mixed-in-automatically-apply-rtl-right-to-left-text-direction-and-alignment-to-the-entire-output-preview-and-pdf-when-urdu-or-arabic-is-selected",
-      "featureTitle": "Fix language consistency for the Leave Application Generator: when Urdu or Arabic is selected as the output language, ensure the entire application content (body, subject line, date strings, salutation, signature, and all labels) is generated exclusively in that language with no English words or phrases mixed in. Automatically apply RTL (right-to-left) text direction and alignment to the entire output preview and PDF when Urdu or Arabic is selected.",
-      "files": [
-        "frontend/src/pages/LeaveApplicationPage.tsx",
-        "frontend/src/utils/leaveApplicationLetterTemplate.ts",
-        "frontend/src/utils/leaveApplicationPdfExport.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "camera@1.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-optimize-the-pdf-export-of-the-leave-application-to-match-the-on-screen-preview-exactly-ensure-consistent-line-spacing-intact-paragraph-alignment-and-no-extra-blank-lines-or-spaces-inserted-between-lines-in-the-pdf-output-the-pdf-layout-must-be-a-faithful-reproduction-of-the-preview",
-      "featureTitle": "Optimize the PDF export of the Leave Application to match the on-screen preview exactly. Ensure consistent line spacing, intact paragraph alignment, and no extra blank lines or spaces inserted between lines in the PDF output. The PDF layout must be a faithful reproduction of the preview.",
-      "files": [
-        "frontend/src/pages/LeaveApplicationPage.tsx",
-        "frontend/src/utils/leaveApplicationPdfExport.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "blob-storage@4.0.0",
-        "camera@1.0.0",
-        "authorization@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
       ],
       "confidence": "high"
     }

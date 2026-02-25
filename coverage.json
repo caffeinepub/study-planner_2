@@ -1,18 +1,18 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T13:30:22.591Z",
+  "generatedAt": "2026-02-25T13:40:47.261Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 6,
-    "implemented": 6,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a 'Create Application' button below the input fields in the Input Section of the Leave Application page. This button must always be rendered regardless of whether any inputs are filled. Application generation must only trigger when this button is explicitly clicked. Remove any reactive/live generation logic that fires while the user is typing (e.g., useEffect or derived state that auto-updates the output on input change).",
+        "summary": "Redesign the Input Section of LeaveApplicationPage.tsx to use a CSS grid layout with `display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;` instead of the current full-width stacked layout. Arrange all form fields into exactly 4 rows as follows — Row 1: Recipient Type, Language, Your Name; Row 2: Parent/Guardian Name, School/College Name, Class/Grade; Row 3: Leave Date(s), Leave Duration Type, Reason for Leave; Row 4: Absent Since (Date), Medical Certificate Checkbox, empty third column (use an empty div placeholder or leave the cell unstyled). Do NOT change any form field functionality, values, state, or handlers.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/LeaveApplicationPage.tsx"
@@ -23,7 +23,7 @@
       },
       {
         "id": "REQ-2",
-        "summary": "In the Output Section of the Leave Application page, statically render the following three buttons at all times: 'Copy to Clipboard', 'Download as PDF', and 'Clear Output' (new button). Remove all conditional rendering logic that shows these buttons only when output exists. These buttons must be visible when no input has been entered, when no application has been generated, and when the output preview is empty.",
+        "summary": "Remove full-width input styling from all fields in the Input Section. Each input, select/dropdown, and checkbox group must respect its grid cell width. Remove any `width: 100%` or equivalent overrides that cause inputs to stretch beyond their grid cell. Ensure all dropdowns and text inputs have a consistent visual width matching their respective grid columns.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/LeaveApplicationPage.tsx"
@@ -34,7 +34,7 @@
       },
       {
         "id": "REQ-3",
-        "summary": "Implement the 'Clear Output' button functionality in the Output Section. On click: immediately clear the generated application preview text, reset the output state to empty, and keep all three Output Section buttons ('Copy to Clipboard', 'Download as PDF', 'Clear Output') visible. Do not reload or navigate the page when clearing output.",
+        "summary": "Add a responsive breakpoint to the Input Section grid: on screens with viewport width below 768px, switch the grid to a single-column layout using `grid-template-columns: 1fr`, stacking all fields vertically.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/LeaveApplicationPage.tsx"
@@ -45,40 +45,12 @@
       },
       {
         "id": "REQ-4",
-        "summary": "Fix the date picker bug on the Leave Application page where users cannot navigate to or select dates beyond February. Remove any unintended maxDate restriction or month-range limit that prevents navigating past February. Ensure full month navigation (all 12 months), correct date highlighting, and valid date selection for all months of the year including future dates.",
+        "summary": "Fix the spacing between the Input Section card and the Output Section. Remove unnecessary `margin-bottom` from the Input card, remove extra padding below the output action buttons, and ensure the output buttons sit close to the bottom edge of the output card. The overall vertical rhythm should be balanced with no excessive white space between the two sections.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/LeaveApplicationPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/LeaveApplicationPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Fix language consistency for the Leave Application Generator: when Urdu or Arabic is selected as the output language, ensure the entire application content (body, subject line, date strings, salutation, signature, and all labels) is generated exclusively in that language with no English words or phrases mixed in. Automatically apply RTL (right-to-left) text direction and alignment to the entire output preview and PDF when Urdu or Arabic is selected.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/utils/leaveApplicationLetterTemplate.ts",
-          "frontend/src/pages/LeaveApplicationPage.tsx",
-          "frontend/src/utils/leaveApplicationPdfExport.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/utils/leaveApplicationLetterTemplate.ts",
-          "frontend/src/pages/LeaveApplicationPage.tsx",
-          "frontend/src/utils/leaveApplicationPdfExport.ts"
-        ]
-      },
-      {
-        "id": "REQ-6",
-        "summary": "Optimize the PDF export of the Leave Application to match the on-screen preview exactly. Ensure consistent line spacing, intact paragraph alignment, and no extra blank lines or spaces inserted between lines in the PDF output. The PDF layout must be a faithful reproduction of the preview.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/utils/leaveApplicationPdfExport.ts",
-          "frontend/src/pages/LeaveApplicationPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/utils/leaveApplicationPdfExport.ts",
           "frontend/src/pages/LeaveApplicationPage.tsx"
         ]
       }
@@ -90,8 +62,6 @@
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/pages/LeaveApplicationPage.tsx",
-    "frontend/src/utils/leaveApplicationLetterTemplate.ts",
-    "frontend/src/utils/leaveApplicationPdfExport.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

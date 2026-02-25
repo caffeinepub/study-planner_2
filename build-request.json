@@ -1,153 +1,109 @@
 {
   "kind": "build_request",
-  "title": "Manual Generation Mode + UI/UX & Functional Fixes for Leave Application Generator",
-  "projectName": "StudentSathi Leave App",
-  "priority": "high",
+  "title": "Redesign Leave Application Input Section with 3-Column CSS Grid Layout",
+  "projectName": "StudentSathi",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a 'Create Application' button below the input fields in the Input Section of the Leave Application page. This button must always be rendered regardless of whether any inputs are filled. Application generation must only trigger when this button is explicitly clicked. Remove any reactive/live generation logic that fires while the user is typing (e.g., useEffect or derived state that auto-updates the output on input change).",
+      "text": "Redesign the Input Section of LeaveApplicationPage.tsx to use a CSS grid layout with `display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;` instead of the current full-width stacked layout. Arrange all form fields into exactly 4 rows as follows — Row 1: Recipient Type, Language, Your Name; Row 2: Parent/Guardian Name, School/College Name, Class/Grade; Row 3: Leave Date(s), Leave Duration Type, Reason for Leave; Row 4: Absent Since (Date), Medical Certificate Checkbox, empty third column (use an empty div placeholder or leave the cell unstyled). Do NOT change any form field functionality, values, state, or handlers.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Add a 'Create Application' button below the input fields in the Input Section.",
-          "Application generation must only occur when this button is clicked.",
-          "Disable automatic live generation while typing."
+          "Use: display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;",
+          "Row 1: Recipient Type / Language / Your Name",
+          "Row 2: Parent / Guardian Name / School / College Name / Class / Grade",
+          "Row 3: Leave Date(s) / Leave Duration Type / Reason for Leave",
+          "Row 4: Absent Since (Date) / Medical Certificate Checkbox / (Keep third column empty or adjust spacing properly)"
         ]
       },
       "acceptanceCriteria": [
-        "'Create Application' button is rendered below all input fields at all times",
-        "No output is generated or updated while the user types in any input field",
-        "Clicking the 'Create Application' button triggers the letter/application generation",
-        "Button remains visible when all fields are empty"
+        "The input section renders fields in a 3-column grid on screens 768px and wider.",
+        "Row 1 contains: Recipient Type, Language, Your Name (left to right).",
+        "Row 2 contains: Parent/Guardian Name, School/College Name, Class/Grade (left to right).",
+        "Row 3 contains: Leave Date(s), Leave Duration Type, Reason for Leave (left to right).",
+        "Row 4 contains: Absent Since (Date) in column 1, Medical Certificate Checkbox in column 2, and an empty/invisible placeholder in column 3.",
+        "No field spans more than one grid column unless it was already spanning the full width intentionally.",
+        "All form functionality (state, handlers, validation, submission) remains unchanged."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "In the Output Section of the Leave Application page, statically render the following three buttons at all times: 'Copy to Clipboard', 'Download as PDF', and 'Clear Output' (new button). Remove all conditional rendering logic that shows these buttons only when output exists. These buttons must be visible when no input has been entered, when no application has been generated, and when the output preview is empty.",
+      "text": "Remove full-width input styling from all fields in the Input Section. Each input, select/dropdown, and checkbox group must respect its grid cell width. Remove any `width: 100%` or equivalent overrides that cause inputs to stretch beyond their grid cell. Ensure all dropdowns and text inputs have a consistent visual width matching their respective grid columns.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "ensure the following three buttons are always visible by default",
-          "These buttons must remain visible even when: No input is entered, No application is generated, Output preview is empty",
-          "Remove any conditional rendering logic such as: IF output exists THEN show buttons",
-          "Buttons must be statically rendered at all times."
+          "Remove full-width input styling.",
+          "Each input must respect grid column width.",
+          "Max width should not exceed its grid cell.",
+          "Remove width: 100% from inputs if applied.",
+          "Ensure dropdowns and text inputs are same visual width."
         ]
       },
       "acceptanceCriteria": [
-        "'Copy to Clipboard', 'Download as PDF', and 'Clear Output' buttons are all visible on page load before any input is entered",
-        "Buttons are visible when the output preview area is empty",
-        "No conditional check on output state controls button visibility",
-        "All three buttons are rendered in the Output Section in a consistent layout"
+        "No input or select element in the Input Section has inline or Tailwind `w-full` / `width: 100%` styles that exceed the grid cell boundary.",
+        "All text inputs and dropdowns are visually the same width within their respective grid columns.",
+        "The layout appears compact and professional with no inputs overflowing their cells."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Implement the 'Clear Output' button functionality in the Output Section. On click: immediately clear the generated application preview text, reset the output state to empty, and keep all three Output Section buttons ('Copy to Clipboard', 'Download as PDF', 'Clear Output') visible. Do not reload or navigate the page when clearing output.",
+      "text": "Add a responsive breakpoint to the Input Section grid: on screens with viewport width below 768px, switch the grid to a single-column layout using `grid-template-columns: 1fr`, stacking all fields vertically.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "On click: Instantly clear the generated application preview, Reset output state, Keep all three buttons visible",
-          "Do not reload the page on clearing output."
+          "On screens below 768px: Switch to: grid-template-columns: 1fr;"
         ]
       },
       "acceptanceCriteria": [
-        "Clicking 'Clear Output' clears the preview text/content immediately without page reload",
-        "Output state is reset to empty/null after clicking",
-        "All three Output Section buttons remain visible after clearing",
-        "No browser navigation or page refresh occurs on clear"
+        "On viewports ≥ 768px, the Input Section renders 3 columns.",
+        "On viewports < 768px, the Input Section collapses to a single column with all fields stacked vertically.",
+        "The responsive behavior is implemented using a CSS media query or Tailwind responsive prefix (e.g., `sm:grid-cols-3`)."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Fix the date picker bug on the Leave Application page where users cannot navigate to or select dates beyond February. Remove any unintended maxDate restriction or month-range limit that prevents navigating past February. Ensure full month navigation (all 12 months), correct date highlighting, and valid date selection for all months of the year including future dates.",
+      "text": "Fix the spacing between the Input Section card and the Output Section. Remove unnecessary `margin-bottom` from the Input card, remove extra padding below the output action buttons, and ensure the output buttons sit close to the bottom edge of the output card. The overall vertical rhythm should be balanced with no excessive white space between the two sections.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Fix the 'Absent Since Date' calendar issue where users cannot select dates beyond February.",
-          "Enable full month navigation in the date picker.",
-          "Remove any unintended maxDate or month restriction.",
-          "Ensure correct date highlighting and selection for all months of the year.",
-          "The calendar must function properly for both single date and date range selection."
+          "Remove unnecessary margin-bottom from Input card.",
+          "Remove extra padding under output buttons.",
+          "Ensure output buttons sit near bottom edge.",
+          "Maintain balanced spacing (not excessive white space)."
         ]
       },
       "acceptanceCriteria": [
-        "User can navigate forward past February to March and all subsequent months",
-        "User can select dates in any month of the year including future months",
-        "No maxDate or restrictive month cap is applied to the calendar",
-        "Date highlighting correctly reflects the selected date in any month",
-        "Date range selection (start and end date) works correctly across all months"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Fix language consistency for the Leave Application Generator: when Urdu or Arabic is selected as the output language, ensure the entire application content (body, subject line, date strings, salutation, signature, and all labels) is generated exclusively in that language with no English words or phrases mixed in. Automatically apply RTL (right-to-left) text direction and alignment to the entire output preview and PDF when Urdu or Arabic is selected.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "If Urdu or Arabic is selected as the output language: Ensure the entire application content is generated in that language",
-          "Do not allow any English words or phrases in the output",
-          "Apply RTL (Right-to-Left) alignment automatically for these languages"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When Urdu is selected, the full letter output contains no English text",
-        "When Arabic is selected, the full letter output contains no English text",
-        "RTL text direction (dir='rtl', text-align: right) is applied to the output preview when Urdu or Arabic is selected",
-        "RTL direction is also applied to the PDF export for Urdu and Arabic",
-        "All placeholders, dates, and labels are translated/formatted in the selected language"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Optimize the PDF export of the Leave Application to match the on-screen preview exactly. Ensure consistent line spacing, intact paragraph alignment, and no extra blank lines or spaces inserted between lines in the PDF output. The PDF layout must be a faithful reproduction of the preview.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "Ensure that the downloaded PDF: Matches the on-screen preview exactly",
-          "Maintains consistent line spacing",
-          "Keeps paragraph alignment intact",
-          "Avoids extra blank spaces between lines"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Downloaded PDF text layout matches the on-screen preview visually",
-        "No extra blank lines appear between paragraphs in the PDF",
-        "Line spacing in the PDF is consistent and matches the preview",
-        "Paragraph alignment (left, right, or RTL) is preserved in the PDF"
+        "The gap between the Input Section card and the Output Section is visually balanced and not excessive.",
+        "The Input card has no large bottom margin or padding that was previously used to account for a taller input layout.",
+        "The output action buttons (Copy, Download PDF, etc.) sit near the bottom edge of the output card with minimal extra padding below them.",
+        "The page does not show large blank areas between the two sections on desktop or mobile."
       ]
     }
   ],
   "constraints": [
-    "Do not reload the page when clearing output",
-    "Do not alter the backend schema or Motoko actor",
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "All button visibility changes must use static rendering, not conditional rendering based on output state"
+    "Do NOT change any form field functionality, state management, event handlers, or data flow.",
+    "Do NOT modify any files listed in frontend.immutablePaths.",
+    "Only restructure the layout and spacing — no feature changes."
   ],
   "nonGoals": [
-    "Adding new language translations beyond fixing Urdu and Arabic consistency",
-    "Changing the overall design theme or color scheme",
-    "Modifying the Study Planner, Notes Cleaner, Resume Builder, or Assignment Format pages",
-    "Backend changes of any kind",
-    "Adding authentication or user accounts to the Leave Application page"
+    "Adding new form fields or removing existing ones.",
+    "Changing the generated letter output logic or templates.",
+    "Altering PDF export functionality.",
+    "Modifying the backend or any API calls.",
+    "Redesigning the Output Section's visual style beyond spacing fixes."
   ],
   "imageRequirements": {
     "required": [],
