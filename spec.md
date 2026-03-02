@@ -1,13 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Redesign the Leave Application input section layout to a 3-column CSS grid with responsive behavior and fix spacing between the input and output sections.
+**Goal:** Apply 5 targeted fixes to the Leave Application Generator form and output section.
 
 **Planned changes:**
-- Replace the current full-width stacked layout in the LeaveApplicationPage input section with a `display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;` layout
-- Arrange form fields into exactly 4 rows: Row 1 (Recipient Type, Language, Your Name), Row 2 (Parent/Guardian Name, School/College Name, Class/Grade), Row 3 (Leave Date(s), Leave Duration Type, Reason for Leave), Row 4 (Absent Since Date, Medical Certificate Checkbox, empty placeholder)
-- Remove `width: 100%` / `w-full` styling from inputs and selects so each field respects its grid cell width
-- Add a responsive breakpoint so the grid collapses to a single column (`grid-template-columns: 1fr`) on viewports below 768px
-- Remove excessive bottom margin/padding from the input card and tighten spacing so output action buttons sit near the bottom edge of the output card
+- Add back the "Parent / Guardian Name" input field to the right of "Student Name" on the same row, each at 50% width, with required validation
+- Move "Class / Grade" field to the right of "School / Institution Name" (Row 1: Student Name + Parent/Guardian Name; Row 2: School/Institution Name + Class/Grade)
+- Move the Language dropdown to the same row as "Recipient Type", each at 50% width
+- Add a "Clear" button to the output section after "Download PDF" that clears only the preview content without affecting inputs or reloading the page
+- Fix the "Download PDF" button to use async handling with loading state ("Generating…"), button disable/re-enable, and try/catch error handling to prevent page freezing
 
-**User-visible outcome:** The leave application form displays as a compact 3-column grid on desktop and stacks vertically on mobile, with balanced spacing between the input and output sections and no fields overflowing their grid cells.
+**User-visible outcome:** The Leave Application form displays all fields in the correct two-row layout, the language selector is inline with Recipient Type, and the output section has a functioning Clear button and a non-freezing Download PDF button with loading feedback.

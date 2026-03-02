@@ -1,18 +1,18 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T13:40:47.261Z",
+  "generatedAt": "2026-03-01T16:53:30.043Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 5,
+    "implemented": 5,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Redesign the Input Section of LeaveApplicationPage.tsx to use a CSS grid layout with `display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;` instead of the current full-width stacked layout. Arrange all form fields into exactly 4 rows as follows — Row 1: Recipient Type, Language, Your Name; Row 2: Parent/Guardian Name, School/College Name, Class/Grade; Row 3: Leave Date(s), Leave Duration Type, Reason for Leave; Row 4: Absent Since (Date), Medical Certificate Checkbox, empty third column (use an empty div placeholder or leave the cell unstyled). Do NOT change any form field functionality, values, state, or handlers.",
+        "summary": "Add back the 'Parent / Guardian Name' input field in the Leave Application form. Place it on the same row as 'Student Name', to the right of it, each field taking 50% width. Apply the same styling and required validation as 'Student Name'. The row must render as: [ Student Name ] [ Parent / Guardian Name ].",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/LeaveApplicationPage.tsx"
@@ -23,7 +23,7 @@
       },
       {
         "id": "REQ-2",
-        "summary": "Remove full-width input styling from all fields in the Input Section. Each input, select/dropdown, and checkbox group must respect its grid cell width. Remove any `width: 100%` or equivalent overrides that cause inputs to stretch beyond their grid cell. Ensure all dropdowns and text inputs have a consistent visual width matching their respective grid columns.",
+        "summary": "Move the 'Class / Grade' field so it appears to the right of 'School / Institution Name' (not beside Student Name). The final two-row layout must be: Row 1: [ Student Name ] [ Parent / Guardian Name ]; Row 2: [ School / Institution Name ] [ Class / Grade ]. Do not change field styling.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/LeaveApplicationPage.tsx"
@@ -34,7 +34,7 @@
       },
       {
         "id": "REQ-3",
-        "summary": "Add a responsive breakpoint to the Input Section grid: on screens with viewport width below 768px, switch the grid to a single-column layout using `grid-template-columns: 1fr`, stacking all fields vertically.",
+        "summary": "Move the Language dropdown from its current bottom position to the same row as 'Recipient Type'. Reduce Recipient Type to 50% width and place Language on the right at 50% width. Maintain all existing dropdown functionality and styling for both fields.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/LeaveApplicationPage.tsx"
@@ -45,10 +45,22 @@
       },
       {
         "id": "REQ-4",
-        "summary": "Fix the spacing between the Input Section card and the Output Section. Remove unnecessary `margin-bottom` from the Input card, remove extra padding below the output action buttons, and ensure the output buttons sit close to the bottom edge of the output card. The overall vertical rhythm should be balanced with no excessive white space between the two sections.",
+        "summary": "Add a 'Clear' button to the output section of the Leave Application page. The final button order must be: Copy | Download TXT | Download PDF | Clear. The Clear button must clear the preview/output content only — it must not reload the page, navigate away, or affect any input fields.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/LeaveApplicationPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Fix the Download PDF button in the Leave Application output section to prevent page freezing. Use an async handler with event.preventDefault() and try/catch error handling. Disable the button immediately on click to prevent multiple rapid clicks, show a brief loading indicator (e.g., 'Generating…' label) during generation, and re-enable the button after completion or on error. Ensure no blocking synchronous operations and no infinite loops. The page must remain responsive throughout PDF generation.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/LeaveApplicationPage.tsx",
+          "frontend/src/utils/leaveApplicationPdfExport.ts"
         ],
         "matchedFiles": [
           "frontend/src/pages/LeaveApplicationPage.tsx"

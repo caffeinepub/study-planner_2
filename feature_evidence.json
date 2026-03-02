@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-redesign-the-input-section-of-leaveapplicationpage-tsx-to-use-a-css-grid-layout-with-display-grid-grid-template-columns-repeat-3-1fr-gap-16px-instead-of-the-current-full-width-stacked-layout-arrange-all-form-fields-into-exactly-4-rows-as-follows-row-1-recipient-type-language-your-name-row-2-parent-guardian-name-school-college-name-class-grade-row-3-leave-date-s-leave-duration-type-reason-for-leave-row-4-absent-since-date-medical-certificate-checkbox-empty-third-column-use-an-empty-div-placeholder-or-leave-the-cell-unstyled-do-not-change-any-form-field-functionality-values-state-or-handlers",
-      "featureTitle": "Redesign the Input Section of LeaveApplicationPage.tsx to use a CSS grid layout with `display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;` instead of the current full-width stacked layout. Arrange all form fields into exactly 4 rows as follows — Row 1: Recipient Type, Language, Your Name; Row 2: Parent/Guardian Name, School/College Name, Class/Grade; Row 3: Leave Date(s), Leave Duration Type, Reason for Leave; Row 4: Absent Since (Date), Medical Certificate Checkbox, empty third column (use an empty div placeholder or leave the cell unstyled). Do NOT change any form field functionality, values, state, or handlers.",
+      "featureId": "feature-add-back-the-parent-guardian-name-input-field-in-the-leave-application-form-place-it-on-the-same-row-as-student-name-to-the-right-of-it-each-field-taking-50-width-apply-the-same-styling-and-required-validation-as-student-name-the-row-must-render-as-student-name-parent-guardian-name",
+      "featureTitle": "Add back the 'Parent / Guardian Name' input field in the Leave Application form. Place it on the same row as 'Student Name', to the right of it, each field taking 50% width. Apply the same styling and required validation as 'Student Name'. The row must render as: [ Student Name ] [ Parent / Guardian Name ].",
       "files": [
         "frontend/src/pages/LeaveApplicationPage.tsx"
       ],
@@ -23,8 +23,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-remove-full-width-input-styling-from-all-fields-in-the-input-section-each-input-select-dropdown-and-checkbox-group-must-respect-its-grid-cell-width-remove-any-width-100-or-equivalent-overrides-that-cause-inputs-to-stretch-beyond-their-grid-cell-ensure-all-dropdowns-and-text-inputs-have-a-consistent-visual-width-matching-their-respective-grid-columns",
-      "featureTitle": "Remove full-width input styling from all fields in the Input Section. Each input, select/dropdown, and checkbox group must respect its grid cell width. Remove any `width: 100%` or equivalent overrides that cause inputs to stretch beyond their grid cell. Ensure all dropdowns and text inputs have a consistent visual width matching their respective grid columns.",
+      "featureId": "feature-move-the-class-grade-field-so-it-appears-to-the-right-of-school-institution-name-not-beside-student-name-the-final-two-row-layout-must-be-row-1-student-name-parent-guardian-name-row-2-school-institution-name-class-grade-do-not-change-field-styling",
+      "featureTitle": "Move the 'Class / Grade' field so it appears to the right of 'School / Institution Name' (not beside Student Name). The final two-row layout must be: Row 1: [ Student Name ] [ Parent / Guardian Name ]; Row 2: [ School / Institution Name ] [ Class / Grade ]. Do not change field styling.",
       "files": [
         "frontend/src/pages/LeaveApplicationPage.tsx"
       ],
@@ -44,8 +44,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-responsive-breakpoint-to-the-input-section-grid-on-screens-with-viewport-width-below-768px-switch-the-grid-to-a-single-column-layout-using-grid-template-columns-1fr-stacking-all-fields-vertically",
-      "featureTitle": "Add a responsive breakpoint to the Input Section grid: on screens with viewport width below 768px, switch the grid to a single-column layout using `grid-template-columns: 1fr`, stacking all fields vertically.",
+      "featureId": "feature-move-the-language-dropdown-from-its-current-bottom-position-to-the-same-row-as-recipient-type-reduce-recipient-type-to-50-width-and-place-language-on-the-right-at-50-width-maintain-all-existing-dropdown-functionality-and-styling-for-both-fields",
+      "featureTitle": "Move the Language dropdown from its current bottom position to the same row as 'Recipient Type'. Reduce Recipient Type to 50% width and place Language on the right at 50% width. Maintain all existing dropdown functionality and styling for both fields.",
       "files": [
         "frontend/src/pages/LeaveApplicationPage.tsx"
       ],
@@ -65,8 +65,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-spacing-between-the-input-section-card-and-the-output-section-remove-unnecessary-margin-bottom-from-the-input-card-remove-extra-padding-below-the-output-action-buttons-and-ensure-the-output-buttons-sit-close-to-the-bottom-edge-of-the-output-card-the-overall-vertical-rhythm-should-be-balanced-with-no-excessive-white-space-between-the-two-sections",
-      "featureTitle": "Fix the spacing between the Input Section card and the Output Section. Remove unnecessary `margin-bottom` from the Input card, remove extra padding below the output action buttons, and ensure the output buttons sit close to the bottom edge of the output card. The overall vertical rhythm should be balanced with no excessive white space between the two sections.",
+      "featureId": "feature-add-a-clear-button-to-the-output-section-of-the-leave-application-page-the-final-button-order-must-be-copy-download-txt-download-pdf-clear-the-clear-button-must-clear-the-preview-output-content-only-it-must-not-reload-the-page-navigate-away-or-affect-any-input-fields",
+      "featureTitle": "Add a 'Clear' button to the output section of the Leave Application page. The final button order must be: Copy | Download TXT | Download PDF | Clear. The Clear button must clear the preview/output content only — it must not reload the page, navigate away, or affect any input fields.",
       "files": [
         "frontend/src/pages/LeaveApplicationPage.tsx"
       ],
@@ -82,6 +82,27 @@
       ],
       "testIds": [
         "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-download-pdf-button-in-the-leave-application-output-section-to-prevent-page-freezing-use-an-async-handler-with-event-preventdefault-and-try-catch-error-handling-disable-the-button-immediately-on-click-to-prevent-multiple-rapid-clicks-show-a-brief-loading-indicator-e-g-generating-label-during-generation-and-re-enable-the-button-after-completion-or-on-error-ensure-no-blocking-synchronous-operations-and-no-infinite-loops-the-page-must-remain-responsive-throughout-pdf-generation",
+      "featureTitle": "Fix the Download PDF button in the Leave Application output section to prevent page freezing. Use an async handler with event.preventDefault() and try/catch error handling. Disable the button immediately on click to prevent multiple rapid clicks, show a brief loading indicator (e.g., 'Generating…' label) during generation, and re-enable the button after completion or on error. Ensure no blocking synchronous operations and no infinite loops. The page must remain responsive throughout PDF generation.",
+      "files": [
+        "frontend/src/pages/LeaveApplicationPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "authorization@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
       ],
       "confidence": "high"
     }

@@ -1,74 +1,102 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Redesign Leave Application Input Section with 3-Column CSS Grid Layout",
+  "title": "Apply 5 targeted fixes to Leave Application Generator",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Redesign the Input Section of LeaveApplicationPage.tsx to use a CSS grid layout with 3 columns arranged in exactly 4 rows as specified, without changing any form field functionality, values, state, or handlers",
+      "summary": "Add back 'Parent / Guardian Name' field next to 'Student Name' with equal width and required validation",
       "acceptanceCriteria": [
-        "The input section renders fields in a 3-column grid on screens 768px and wider.",
-        "Row 1 contains: Recipient Type, Language, Your Name (left to right).",
-        "Row 2 contains: Parent/Guardian Name, School/College Name, Class/Grade (left to right).",
-        "Row 3 contains: Leave Date(s), Leave Duration Type, Reason for Leave (left to right).",
-        "Row 4 contains: Absent Since (Date) in column 1, Medical Certificate Checkbox in column 2, and an empty/invisible placeholder in column 3.",
-        "No field spans more than one grid column unless it was already spanning the full width intentionally.",
-        "All form functionality (state, handlers, validation, submission) remains unchanged."
+        "Parent / Guardian Name field is visible in the form",
+        "It appears to the right of Student Name on the same row",
+        "Both fields share equal width (50% each)",
+        "Field is required and shows validation error if left empty on submit",
+        "Styling matches the Student Name field exactly"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/LeaveApplicationPage.tsx",
           "operation": "modify",
-          "description": "Restructure the Input Section form fields to use CSS grid layout with `display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;`. Arrange fields into 4 rows: Row 1 (Recipient Type, Language, Your Name), Row 2 (Parent/Guardian Name, School/College Name, Class/Grade), Row 3 (Leave Date(s), Leave Duration Type, Reason for Leave), Row 4 (Absent Since Date, Medical Certificate Checkbox, empty placeholder div). Keep all existing state variables, handlers, validation logic, and submission flow unchanged. Only modify the JSX structure and CSS classes to implement the grid layout."
+          "description": "Add the 'Parent / Guardian Name' input field with state management (parentGuardianName). Place it in a flex row with 'Student Name', each field taking 50% width using flex-1 or w-1/2. Apply the same input styling, label structure, and required validation as the 'Student Name' field. Update the form submission to include parentGuardianName in the letter generation logic."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Remove full-width input styling from all fields in the Input Section so each input, select, and checkbox group respects its grid cell width",
+      "summary": "Move 'Class / Grade' field to the right of 'School / Institution Name' maintaining two-row layout",
       "acceptanceCriteria": [
-        "No input or select element in the Input Section has inline or Tailwind `w-full` / `width: 100%` styles that exceed the grid cell boundary.",
-        "All text inputs and dropdowns are visually the same width within their respective grid columns.",
-        "The layout appears compact and professional with no inputs overflowing their cells."
+        "Class / Grade no longer appears beside Student Name",
+        "Class / Grade appears to the right of School / Institution Name on the same row",
+        "Row 1 shows Student Name and Parent / Guardian Name",
+        "Row 2 shows School / Institution Name and Class / Grade",
+        "No styling changes applied to either field"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/LeaveApplicationPage.tsx",
           "operation": "modify",
-          "description": "Remove `w-full` or `width: 100%` classes from all input elements, select dropdowns, and form controls within the Input Section grid. Replace with appropriate width constraints that respect the grid cell boundaries. Ensure all text inputs and select elements have consistent visual width within their respective grid columns."
+          "description": "Restructure the JSX layout to move 'Class / Grade' from its current position to a flex row with 'School / Institution Name'. Ensure Row 1 contains Student Name and Parent / Guardian Name, and Row 2 contains School / Institution Name and Class / Grade. Use the same flex layout (flex-1 or w-1/2) for both fields in Row 2. Do not modify field styling or validation logic."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add a responsive breakpoint to the Input Section grid so it switches to a single-column layout on screens below 768px",
+      "summary": "Move Language dropdown to the same row as 'Recipient Type' with 50% width each",
       "acceptanceCriteria": [
-        "On viewports ≥ 768px, the Input Section renders 3 columns.",
-        "On viewports < 768px, the Input Section collapses to a single column with all fields stacked vertically.",
-        "The responsive behavior is implemented using a CSS media query or Tailwind responsive prefix (e.g., `sm:grid-cols-3`)."
+        "Language dropdown no longer appears at the bottom of the form",
+        "Language dropdown is on the same row as Recipient Type",
+        "Recipient Type takes 50% width, Language takes 50% width",
+        "All language options remain functional",
+        "Existing dropdown styling is unchanged"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/LeaveApplicationPage.tsx",
           "operation": "modify",
-          "description": "Add responsive Tailwind classes to the Input Section grid container: use `grid-cols-1` as the base (mobile-first) and `md:grid-cols-3` for viewports 768px and wider. This ensures the grid collapses to a single column on mobile devices while maintaining the 3-column layout on larger screens."
+          "description": "Move the Language dropdown (select element) from its current bottom position to a flex row with 'Recipient Type'. Apply flex-1 or w-1/2 to both Recipient Type and Language dropdowns so each takes 50% width. Ensure all existing language options, state management, and styling remain unchanged."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Fix the spacing between the Input Section card and the Output Section by removing unnecessary margins and padding to achieve balanced vertical rhythm",
+      "summary": "Add Clear button to output section that clears preview content without affecting input fields or reloading page",
       "acceptanceCriteria": [
-        "The gap between the Input Section card and the Output Section is visually balanced and not excessive.",
-        "The Input card has no large bottom margin or padding that was previously used to account for a taller input layout.",
-        "The output action buttons (Copy, Download PDF, etc.) sit near the bottom edge of the output card with minimal extra padding below them.",
-        "The page does not show large blank areas between the two sections on desktop or mobile."
+        "Clear button is present in the output section after Download PDF",
+        "Clicking Clear removes the generated letter preview text",
+        "Page does not reload when Clear is clicked",
+        "All input fields retain their values after clicking Clear",
+        "Copy, Download TXT, and Download PDF buttons are still present and functional"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/LeaveApplicationPage.tsx",
           "operation": "modify",
-          "description": "Review and adjust vertical spacing classes on the Input Section Card component and Output Section container. Remove excessive `mb-*` (margin-bottom) classes from the Input card wrapper. Reduce padding below the output action buttons container to ensure they sit close to the bottom edge of the output card. Adjust the gap between the two sections to achieve balanced vertical rhythm without large blank areas."
+          "description": "Add a 'Clear' button to the output section button group, positioned after the 'Download PDF' button. The button order must be: Copy | Download TXT | Download PDF | Clear. Implement a handleClear function that sets the generatedLetter state to an empty string (or null) to clear the preview content. Do not reload the page, navigate away, or reset any input field state. Apply consistent button styling to match existing output buttons."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Fix Download PDF button to prevent page freezing with async handler, loading state, and error handling",
+      "acceptanceCriteria": [
+        "Clicking Download PDF does not freeze or lock the page",
+        "PDF is generated and downloaded on a single click",
+        "Button is disabled immediately upon click and re-enabled after completion or error",
+        "A loading state (e.g., 'Generating…') is shown on the button while PDF is being created",
+        "Multiple rapid clicks do not trigger multiple PDF generations",
+        "Errors during PDF generation are caught and the button is re-enabled",
+        "No page reload occurs during or after PDF generation"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/LeaveApplicationPage.tsx",
+          "operation": "modify",
+          "description": "Refactor the Download PDF button click handler to be async with event.preventDefault(). Add isGeneratingPdf state to track loading. Disable the button immediately on click by setting isGeneratingPdf to true. Replace the button label with 'Generating…' while isGeneratingPdf is true. Wrap the PDF generation logic in a try/catch block and ensure isGeneratingPdf is set to false in both success and error paths using finally. Prevent multiple rapid clicks by checking isGeneratingPdf before starting generation. Ensure the page remains responsive throughout."
+        },
+        {
+          "path": "frontend/src/utils/leaveApplicationPdfExport.ts",
+          "operation": "modify",
+          "description": "Review and refactor the PDF export function to ensure it returns a Promise and does not contain blocking synchronous operations or infinite loops. Ensure the function is fully async-compatible and can be awaited in the page component. If html2pdf is used, ensure the promise chain is properly returned and does not hang."
         }
       ]
     }
