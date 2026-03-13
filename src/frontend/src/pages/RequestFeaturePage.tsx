@@ -1,23 +1,29 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { MessageSquarePlus } from 'lucide-react';
-import { toast } from 'sonner';
-import { useSubmitFeatureRequest } from '../hooks/useQueries';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { MessageSquarePlus } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useSubmitFeatureRequest } from "../hooks/useQueries";
 
 export default function RequestFeaturePage() {
-  const [message, setMessage] = useState('');
-  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState("");
   const submitMutation = useSubmitFeatureRequest();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!message.trim()) {
-      toast.error('Please tell us what help you need');
+      toast.error("Please tell us what help you need");
       return;
     }
 
@@ -27,20 +33,23 @@ export default function RequestFeaturePage() {
         email: email.trim() || null,
       });
 
-      toast.success('Thank you! Your request has been submitted.');
-      setMessage('');
-      setEmail('');
-    } catch (error) {
-      toast.error('Failed to submit request. Please try again.');
+      toast.success("Thank you! Your request has been submitted.");
+      setMessage("");
+      setEmail("");
+    } catch (_error) {
+      toast.error("Failed to submit request. Please try again.");
     }
   };
 
   return (
     <div className="container py-8 md:py-12 max-w-3xl">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold mb-3">Didn't find what you need?</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-3">
+          Didn't find what you need?
+        </h1>
         <p className="text-lg text-muted-foreground">
-          Tell us what kind of help or tool you are looking for. If many students request it, we will add it to StudentSathi.
+          Tell us what kind of help or tool you are looking for. If many
+          students request it, we will add it to StudentSathi.
         </p>
       </div>
 
@@ -78,7 +87,8 @@ export default function RequestFeaturePage() {
                 onChange={(e) => setEmail(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                We'll only use this to update you if we add your requested feature
+                We'll only use this to update you if we add your requested
+                feature
               </p>
             </div>
 
@@ -88,13 +98,14 @@ export default function RequestFeaturePage() {
               size="lg"
               disabled={submitMutation.isPending}
             >
-              {submitMutation.isPending ? 'Submitting...' : 'Submit Request'}
+              {submitMutation.isPending ? "Submitting..." : "Submit Request"}
             </Button>
           </form>
 
           <div className="mt-6 rounded-lg bg-accent/50 p-4">
             <p className="text-sm text-muted-foreground">
-              💡 <strong>Your voice matters!</strong> We review all requests and prioritize features that help the most students.
+              💡 <strong>Your voice matters!</strong> We review all requests and
+              prioritize features that help the most students.
             </p>
           </div>
         </CardContent>

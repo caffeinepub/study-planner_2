@@ -1,19 +1,23 @@
-import { Outlet, Link, useNavigate } from '@tanstack/react-router';
-import { Button } from '../components/primitives/Button';
-import { Sheet, SheetContent, SheetTrigger } from '../components/primitives/Sheet';
-import { Menu, Heart } from 'lucide-react';
+import { Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { Heart, Menu } from "lucide-react";
+import { Button } from "../components/primitives/Button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "../components/primitives/Sheet";
 
 export default function Layout() {
   const navigate = useNavigate();
 
   const navLinks = [
-    { path: '/', label: 'Home' },
-    { path: '/assignment-format', label: 'Assignment Format' },
-    { path: '/study-planner', label: 'Study Planner' },
-    { path: '/notes-cleaner', label: 'Notes Cleaner' },
-    { path: '/leave-application', label: 'Leave Application' },
-    { path: '/resume-builder', label: 'Resume Builder' },
-    { path: '/request-feature', label: 'Request Feature' },
+    { path: "/", label: "Home" },
+    { path: "/assignment-format", label: "Assignment Format" },
+    { path: "/study-planner", label: "Study Planner" },
+    { path: "/notes-cleaner", label: "Notes Cleaner" },
+    { path: "/leave-application", label: "Leave Application" },
+    { path: "/resume-builder", label: "Resume Builder" },
+    { path: "/request-feature", label: "Request Feature" },
   ];
 
   return (
@@ -21,7 +25,9 @@ export default function Layout() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-primary">StudentSathi</span>
+            <span className="text-2xl font-bold text-primary">
+              StudentSathi
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -74,9 +80,10 @@ export default function Layout() {
               Built to make student life easier.
             </p>
             <p className="text-sm text-muted-foreground flex items-center gap-1">
-              © {new Date().getFullYear()}. Built with <Heart className="h-4 w-4 text-accent fill-accent" /> using{' '}
+              © {new Date().getFullYear()}. Built with{" "}
+              <Heart className="h-4 w-4 text-accent fill-accent" /> using{" "}
               <a
-                href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== 'undefined' ? window.location.hostname : 'studentsathi')}`}
+                href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "studentsathi")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-primary hover:underline"

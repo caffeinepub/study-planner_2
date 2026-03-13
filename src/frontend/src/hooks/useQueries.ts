@@ -1,6 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
-import { StudyTaskPublic, StudyPlannerView, OptionalTime, Time } from '@/backend';
+import {
+  type OptionalTime,
+  StudyPlannerView,
+  type StudyTaskPublic,
+  type Time,
+} from "@/backend";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useActor } from "./useActor";
 
 // Re-export types for convenience
 export type StudyTask = StudyTaskPublic;
@@ -25,12 +30,15 @@ export function useSubmitFeatureRequest() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ message, email }: { message: string; email: string | null }) => {
-      if (!actor) throw new Error('Actor not available');
+    mutationFn: async ({
+      message,
+      email,
+    }: { message: string; email: string | null }) => {
+      if (!actor) throw new Error("Actor not available");
       return actor.submitFeatureRequest(message, email);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['featureRequests'] });
+      queryClient.invalidateQueries({ queryKey: ["featureRequests"] });
     },
   });
 }
@@ -38,16 +46,18 @@ export function useSubmitFeatureRequest() {
 // Assignment Generation (frontend-only, no backend call)
 export function useGenerateAssignment() {
   return useMutation({
-    mutationFn: async (userInput: string): Promise<AssignmentGenerationResult> => {
+    mutationFn: async (
+      userInput: string,
+    ): Promise<AssignmentGenerationResult> => {
       // Frontend-only assignment parameter extraction
       const topic = extractTopic(userInput);
       const params: AssignmentParams = {
         topic,
-        level: 'Intermediate',
-        length: 'Medium',
-        language: 'English',
+        level: "Intermediate",
+        length: "Medium",
+        language: "English",
       };
-      
+
       return {
         params,
         needsConfirmation: true,
@@ -58,33 +68,31 @@ export function useGenerateAssignment() {
 
 // Helper function to extract topic from user input
 function extractTopic(input: string): string {
-  const lowerInput = input.toLowerCase();
-  
   // Remove common assignment request phrases
   const phrasesToRemove = [
-    'assignment on',
-    'assignment about',
-    'create assignment on',
-    'write assignment on',
-    'generate assignment on',
-    'mujhe',
-    'par assignment',
-    'chahiye',
-    'bana do',
-    'likh do',
-    'assignment',
-    'create',
-    'write',
-    'generate',
+    "assignment on",
+    "assignment about",
+    "create assignment on",
+    "write assignment on",
+    "generate assignment on",
+    "mujhe",
+    "par assignment",
+    "chahiye",
+    "bana do",
+    "likh do",
+    "assignment",
+    "create",
+    "write",
+    "generate",
   ];
-  
+
   let topic = input;
-  phrasesToRemove.forEach(phrase => {
-    const regex = new RegExp(phrase, 'gi');
-    topic = topic.replace(regex, '');
-  });
-  
-  return topic.trim() || 'General Topic';
+  for (const phrase of phrasesToRemove) {
+    const regex = new RegExp(phrase, "gi");
+    topic = topic.replace(regex, "");
+  }
+
+  return topic.trim() || "General Topic";
 }
 
 // Confirm Assignment Generation (frontend-only)
@@ -92,13 +100,14 @@ export function useConfirmAssignmentGeneration() {
   return useMutation({
     mutationFn: async (confirmation: string): Promise<void> => {
       // Frontend-only confirmation
-      const isConfirmed = confirmation.toLowerCase().trim() === 'yes' || 
-                         confirmation.toLowerCase().trim() === 'haan' ||
-                         confirmation.toLowerCase().trim() === 'han' ||
-                         confirmation.toLowerCase().trim() === 'y';
-      
+      const isConfirmed =
+        confirmation.toLowerCase().trim() === "yes" ||
+        confirmation.toLowerCase().trim() === "haan" ||
+        confirmation.toLowerCase().trim() === "han" ||
+        confirmation.toLowerCase().trim() === "y";
+
       if (!isConfirmed) {
-        throw new Error('ERR: Confirmation required');
+        throw new Error("ERR: Confirmation required");
       }
     },
   });
@@ -109,8 +118,11 @@ export function useSaveConversationEntry() {
   const { actor } = useActor();
 
   return useMutation({
-    mutationFn: async ({ question, answer }: { question: string; answer: string }) => {
-      if (!actor) throw new Error('Actor not available');
+    mutationFn: async ({
+      question,
+      answer,
+    }: { question: string; answer: string }) => {
+      if (!actor) throw new Error("Actor not available");
       return actor.saveConversationEntry(question, answer);
     },
   });
@@ -136,21 +148,23 @@ export function useAddTask() {
       topic: string;
       duration: string;
       priority: string | null;
-      viewType?: 'daily' | 'weekly';
+      viewType?: "daily" | "weekly";
       subjectColor?: string;
       date?: Time | null;
       time?: OptionalTime | null;
     }) => {
-      if (!actor) throw new Error('ACTOR_NOT_READY');
+      if (!actor) throw new Error("ACTOR_NOT_READY");
 
       // Validate required fields
       if (!subject.trim() || !topic.trim() || !duration.trim()) {
-        throw new Error('All fields are required. Please complete all fields before adding a task.');
+        throw new Error(
+          "All fields are required. Please complete all fields before adding a task.",
+        );
       }
 
       // Convert viewType to backend enum format
       const backendViewType = viewType
-        ? viewType === 'daily'
+        ? viewType === "daily"
           ? StudyPlannerView.daily
           : StudyPlannerView.weekly
         : null;
@@ -163,26 +177,29 @@ export function useAddTask() {
         backendViewType,
         subjectColor || null,
         date || null,
-        time || null
+        time || null,
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['studyTasks'] });
+      queryClient.invalidateQueries({ queryKey: ["studyTasks"] });
     },
   });
 }
 
-export function useGetStudyTasks(enabled: boolean, viewType?: 'daily' | 'weekly') {
+export function useGetStudyTasks(
+  enabled: boolean,
+  viewType?: "daily" | "weekly",
+) {
   const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<StudyTask[]>({
-    queryKey: ['studyTasks', viewType],
+    queryKey: ["studyTasks", viewType],
     queryFn: async () => {
       if (!actor) return [];
 
       // Convert viewType to backend enum format
       const backendViewType = viewType
-        ? viewType === 'daily'
+        ? viewType === "daily"
           ? StudyPlannerView.daily
           : StudyPlannerView.weekly
         : null;
@@ -193,84 +210,98 @@ export function useGetStudyTasks(enabled: boolean, viewType?: 'daily' | 'weekly'
   });
 }
 
-export function useToggleTaskCompletion(viewType?: 'daily' | 'weekly') {
+export function useToggleTaskCompletion(viewType?: "daily" | "weekly") {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (taskId: bigint) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.toggleTaskCompletion(taskId);
     },
     onMutate: async (taskId: bigint) => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['studyTasks', viewType] });
+      await queryClient.cancelQueries({ queryKey: ["studyTasks", viewType] });
 
       // Snapshot the previous value
-      const previousTasks = queryClient.getQueryData<StudyTask[]>(['studyTasks', viewType]);
+      const previousTasks = queryClient.getQueryData<StudyTask[]>([
+        "studyTasks",
+        viewType,
+      ]);
 
       // Optimistically update to the new value
       if (previousTasks) {
         queryClient.setQueryData<StudyTask[]>(
-          ['studyTasks', viewType],
+          ["studyTasks", viewType],
           previousTasks.map((task) =>
-            task.id === taskId ? { ...task, isCompleted: !task.isCompleted } : task
-          )
+            task.id === taskId
+              ? { ...task, isCompleted: !task.isCompleted }
+              : task,
+          ),
         );
       }
 
       // Return a context object with the snapshotted value
       return { previousTasks };
     },
-    onError: (err, taskId, context) => {
+    onError: (_err, _taskId, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       if (context?.previousTasks) {
-        queryClient.setQueryData(['studyTasks', viewType], context.previousTasks);
+        queryClient.setQueryData(
+          ["studyTasks", viewType],
+          context.previousTasks,
+        );
       }
     },
     onSettled: () => {
       // Always refetch after error or success to ensure we're in sync with the server
-      queryClient.invalidateQueries({ queryKey: ['studyTasks', viewType] });
+      queryClient.invalidateQueries({ queryKey: ["studyTasks", viewType] });
     },
   });
 }
 
-export function useDeleteTask(viewType?: 'daily' | 'weekly') {
+export function useDeleteTask(viewType?: "daily" | "weekly") {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (taskId: bigint) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.deleteTask(taskId);
     },
     onMutate: async (taskId: bigint) => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['studyTasks', viewType] });
+      await queryClient.cancelQueries({ queryKey: ["studyTasks", viewType] });
 
       // Snapshot the previous value
-      const previousTasks = queryClient.getQueryData<StudyTask[]>(['studyTasks', viewType]);
+      const previousTasks = queryClient.getQueryData<StudyTask[]>([
+        "studyTasks",
+        viewType,
+      ]);
 
       // Optimistically update to the new value
       if (previousTasks) {
         queryClient.setQueryData<StudyTask[]>(
-          ['studyTasks', viewType],
-          previousTasks.filter((task) => task.id !== taskId)
+          ["studyTasks", viewType],
+          previousTasks.filter((task) => task.id !== taskId),
         );
       }
 
       // Return a context object with the snapshotted value
       return { previousTasks };
     },
-    onError: (err, taskId, context) => {
+    onError: (_err, _taskId, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       if (context?.previousTasks) {
-        queryClient.setQueryData(['studyTasks', viewType], context.previousTasks);
+        queryClient.setQueryData(
+          ["studyTasks", viewType],
+          context.previousTasks,
+        );
       }
     },
     onSettled: () => {
       // Always refetch after error or success to ensure we're in sync with the server
-      queryClient.invalidateQueries({ queryKey: ['studyTasks', viewType] });
+      queryClient.invalidateQueries({ queryKey: ["studyTasks", viewType] });
     },
   });
 }

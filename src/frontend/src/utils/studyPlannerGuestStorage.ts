@@ -7,14 +7,14 @@ export interface GuestStudyTask {
   duration: string;
   priority: string | null;
   isCompleted: boolean;
-  viewType?: 'daily' | 'weekly';
+  viewType?: "daily" | "weekly";
   subjectColor?: string;
   created: number;
   date?: number;
   time?: { hour: number; minute: number };
 }
 
-const STORAGE_KEY = 'studyPlanner_guestTasks';
+const STORAGE_KEY = "studyPlanner_guestTasks";
 
 let nextGuestTaskId = 1;
 
@@ -23,14 +23,14 @@ let nextGuestTaskId = 1;
  * Safely handles legacy tasks with color overrides by ignoring them
  */
 export function loadGuestTasks(): GuestStudyTask[] {
-  if (typeof window === 'undefined') return [];
+  if (typeof window === "undefined") return [];
 
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return [];
 
     const parsed = JSON.parse(stored);
-    
+
     if (!Array.isArray(parsed)) return [];
 
     // Upgrade legacy tasks: strip any colorOverride field
@@ -47,7 +47,7 @@ export function loadGuestTasks(): GuestStudyTask[] {
 
     return upgradedTasks;
   } catch (error) {
-    console.error('Failed to load guest tasks:', error);
+    console.error("Failed to load guest tasks:", error);
     return [];
   }
 }
@@ -56,12 +56,12 @@ export function loadGuestTasks(): GuestStudyTask[] {
  * Save guest tasks to localStorage
  */
 function saveGuestTasks(tasks: GuestStudyTask[]): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   } catch (error) {
-    console.error('Failed to save guest tasks:', error);
+    console.error("Failed to save guest tasks:", error);
   }
 }
 
@@ -73,10 +73,10 @@ export function addGuestTask(
   topic: string,
   duration: string,
   priority: string | null,
-  viewType: 'daily' | 'weekly',
+  viewType: "daily" | "weekly",
   subjectColor?: string,
   date?: number,
-  time?: { hour: number; minute: number }
+  time?: { hour: number; minute: number },
 ): void {
   const tasks = loadGuestTasks();
 
@@ -124,7 +124,7 @@ export function deleteGuestTask(taskId: number): void {
  * Clear all guest tasks
  */
 export function clearAllGuestTasks(): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEY);
   nextGuestTaskId = 1;
 }

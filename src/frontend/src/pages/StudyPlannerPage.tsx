@@ -1,75 +1,127 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Trash2, Download, AlertCircle, Info, ArrowUpDown, FileText } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { toast } from 'sonner';
-import { useAddTask, useToggleTaskCompletion, useDeleteTask, useGetStudyTasks, type StudyTask } from '@/hooks/useQueries';
-import { useInternetIdentity } from '@/hooks/useInternetIdentity';
-import { useStudyPlannerView } from '@/hooks/useStudyPlannerView';
-import { useStudyPlannerSort } from '@/hooks/useStudyPlannerSort';
-import { useStudyPlannerSubjectFilter } from '@/hooks/useStudyPlannerSubjectFilter';
-import { SubjectBadge } from '@/components/studyPlanner/SubjectBadge';
-import { SubjectFilterDropdown } from '@/components/studyPlanner/SubjectFilterDropdown';
-import { ProgressChartsSection } from '@/components/studyPlanner/ProgressChartsSection';
-import { getPersistedSubjectColor, getIndicatorColorClass } from '@/utils/subjectColorMapping';
-import { exportTasksToPdf } from '@/utils/studyPlannerPdfExport';
-import { exportTasksToTxt } from '@/utils/studyPlannerTxtExport';
-import { sortTasks } from '@/utils/studyPlannerSort';
+import { ProgressChartsSection } from "@/components/studyPlanner/ProgressChartsSection";
+import { SubjectBadge } from "@/components/studyPlanner/SubjectBadge";
+import { SubjectFilterDropdown } from "@/components/studyPlanner/SubjectFilterDropdown";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useInternetIdentity } from "@/hooks/useInternetIdentity";
+import {
+  type StudyTask,
+  useAddTask,
+  useDeleteTask,
+  useGetStudyTasks,
+  useToggleTaskCompletion,
+} from "@/hooks/useQueries";
+import { useStudyPlannerSort } from "@/hooks/useStudyPlannerSort";
+import { useStudyPlannerSubjectFilter } from "@/hooks/useStudyPlannerSubjectFilter";
+import { useStudyPlannerView } from "@/hooks/useStudyPlannerView";
+import {
+  formatMinutesToDuration,
+  parseDurationToMinutes,
+} from "@/utils/studyPlannerDuration";
+import {
+  type GuestStudyTask,
+  addGuestTask,
+  clearAllGuestTasks,
+  deleteGuestTask,
+  loadGuestTasks,
+  toggleGuestTaskCompletion,
+} from "@/utils/studyPlannerGuestStorage";
+import { exportTasksToPdf } from "@/utils/studyPlannerPdfExport";
+import { sortTasks } from "@/utils/studyPlannerSort";
 import {
   dateInputToTimestamp,
-  timeInputToOptionalTime,
   formatTaskDateTime,
-} from '@/utils/studyPlannerTaskDateTime';
+  timeInputToOptionalTime,
+} from "@/utils/studyPlannerTaskDateTime";
+import { exportTasksToTxt } from "@/utils/studyPlannerTxtExport";
 import {
-  loadGuestTasks,
-  addGuestTask,
-  toggleGuestTaskCompletion,
-  deleteGuestTask,
-  clearAllGuestTasks,
-  type GuestStudyTask,
-} from '@/utils/studyPlannerGuestStorage';
-import { parseDurationToMinutes, formatMinutesToDuration } from '@/utils/studyPlannerDuration';
+  getIndicatorColorClass,
+  getPersistedSubjectColor,
+} from "@/utils/subjectColorMapping";
+import {
+  AlertCircle,
+  ArrowUpDown,
+  Download,
+  FileText,
+  Info,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
-type ViewType = 'daily' | 'weekly';
+type ViewType = "daily" | "weekly";
 
 const SUBJECTS = [
-  'Mathematics',
-  'Science',
-  'English',
-  'History',
-  'Geography',
-  'Physics',
-  'Chemistry',
-  'Biology',
-  'Computer Science',
-  'Economics',
-  'Literature',
-  'Social Studies',
-  'Urdu',
+  "Mathematics",
+  "Science",
+  "English",
+  "History",
+  "Geography",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Computer Science",
+  "Economics",
+  "Literature",
+  "Social Studies",
+  "Urdu",
 ];
 
-const DURATIONS = ['30 minutes', '45 minutes', '1 hour', '1.5 hours', '2 hours', '2.5 hours', '3 hours', '3.5 hours', '4 hours', '4.5 hours', '5 hours', '5.5 hours', '6 hours'];
+const DURATIONS = [
+  "30 minutes",
+  "45 minutes",
+  "1 hour",
+  "1.5 hours",
+  "2 hours",
+  "2.5 hours",
+  "3 hours",
+  "3.5 hours",
+  "4 hours",
+  "4.5 hours",
+  "5 hours",
+  "5.5 hours",
+  "6 hours",
+];
 
 export default function StudyPlannerPage() {
   // Persistent view and sort state
   const [currentView, setCurrentView] = useStudyPlannerView();
   const [sortMode, setSortMode] = useStudyPlannerSort();
-  const [subjectFilter, setSubjectFilter] = useStudyPlannerSubjectFilter(currentView);
+  const [subjectFilter, setSubjectFilter] =
+    useStudyPlannerSubjectFilter(currentView);
 
   // Form state
-  const [subject, setSubject] = useState('');
-  const [topic, setTopic] = useState('');
-  const [duration, setDuration] = useState('');
-  const [priority, setPriority] = useState('');
-  const [taskDate, setTaskDate] = useState('');
-  const [taskTime, setTaskTime] = useState('');
+  const [subject, setSubject] = useState("");
+  const [topic, setTopic] = useState("");
+  const [duration, setDuration] = useState("");
+  const [priority, setPriority] = useState("");
+  const [taskDate, setTaskDate] = useState("");
+  const [taskTime, setTaskTime] = useState("");
 
   // Submission guard
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,11 +133,12 @@ export default function StudyPlannerPage() {
   const addTaskMutation = useAddTask();
   const toggleCompletionMutation = useToggleTaskCompletion(currentView);
   const deleteTaskMutation = useDeleteTask(currentView);
-  
+
   const isAuthenticated = !!identity;
-  
+
   // Fetch backend tasks filtered by current view when authenticated
-  const { data: backendTasks = [], isLoading: tasksLoading } = useGetStudyTasks(isAuthenticated, currentView);
+  const { data: backendTasks = [], isLoading: _tasksLoading } =
+    useGetStudyTasks(isAuthenticated, currentView);
 
   // Load guest tasks on mount and when auth changes
   useEffect(() => {
@@ -95,22 +148,28 @@ export default function StudyPlannerPage() {
   }, [isAuthenticated]);
 
   // Unified task list - use backend tasks when authenticated, guest tasks otherwise
-  const allTasks: Array<StudyTask | GuestStudyTask> = isAuthenticated ? backendTasks : guestTasks;
+  const allTasks: Array<StudyTask | GuestStudyTask> = isAuthenticated
+    ? backendTasks
+    : guestTasks;
 
   // Filter tasks based on current view
   const filteredTasks = allTasks.filter((task) => {
     if (!task.viewType) return true;
-    
+
     const taskViewType = task.viewType;
-    
-    if (typeof taskViewType === 'string') {
+
+    if (typeof taskViewType === "string") {
       return taskViewType === currentView;
     }
-    
-    if (typeof taskViewType === 'object' && taskViewType !== null && '__kind__' in taskViewType) {
+
+    if (
+      typeof taskViewType === "object" &&
+      taskViewType !== null &&
+      "__kind__" in taskViewType
+    ) {
       return (taskViewType as any).__kind__ === currentView;
     }
-    
+
     return true;
   });
 
@@ -126,12 +185,12 @@ export default function StudyPlannerPage() {
   // Compute subject counts for the current view (before subject filter is applied)
   const subjectCounts = useMemo(() => {
     const counts = new Map<string, number>();
-    
-    filteredTasks.forEach((task) => {
+
+    for (const task of filteredTasks) {
       const subject = task.subject;
       counts.set(subject, (counts.get(subject) || 0) + 1);
-    });
-    
+    }
+
     return Array.from(counts.entries())
       .map(([subject, count]) => ({ subject, count }))
       .sort((a, b) => a.subject.localeCompare(b.subject));
@@ -145,22 +204,32 @@ export default function StudyPlannerPage() {
 
   // Sort toggle handler
   const handleSortChange = () => {
-    const newMode = sortMode === 'default' ? 'dateTime' : 'default';
+    const newMode = sortMode === "default" ? "dateTime" : "default";
     setSortMode(newMode);
-    toast.success(newMode === 'dateTime' ? 'Sorted by date & time' : 'Sorted by creation order');
+    toast.success(
+      newMode === "dateTime"
+        ? "Sorted by date & time"
+        : "Sorted by creation order",
+    );
   };
 
   const validateFields = (): boolean => {
     if (!subject.trim()) {
-      toast.error('Please select a subject', { icon: <AlertCircle className="h-4 w-4" /> });
+      toast.error("Please select a subject", {
+        icon: <AlertCircle className="h-4 w-4" />,
+      });
       return false;
     }
     if (!topic.trim()) {
-      toast.error('Please enter a topic', { icon: <AlertCircle className="h-4 w-4" /> });
+      toast.error("Please enter a topic", {
+        icon: <AlertCircle className="h-4 w-4" />,
+      });
       return false;
     }
     if (!duration.trim()) {
-      toast.error('Please select a duration', { icon: <AlertCircle className="h-4 w-4" /> });
+      toast.error("Please select a duration", {
+        icon: <AlertCircle className="h-4 w-4" />,
+      });
       return false;
     }
     return true;
@@ -180,28 +249,26 @@ export default function StudyPlannerPage() {
 
       if (isAuthenticated) {
         // Authenticated mode
-        await addTaskMutation.mutateAsync(
-          {
-            subject: subject.trim(),
-            topic: topic.trim(),
-            duration: duration.trim(),
-            priority: priorityValue,
-            viewType: currentView,
-            subjectColor,
-            date: dateValue,
-            time: timeValue,
-          }
-        );
+        await addTaskMutation.mutateAsync({
+          subject: subject.trim(),
+          topic: topic.trim(),
+          duration: duration.trim(),
+          priority: priorityValue,
+          viewType: currentView,
+          subjectColor,
+          date: dateValue,
+          time: timeValue,
+        });
 
         // Reset form
-        setSubject('');
-        setTopic('');
-        setDuration('');
-        setPriority('');
-        setTaskDate('');
-        setTaskTime('');
+        setSubject("");
+        setTopic("");
+        setDuration("");
+        setPriority("");
+        setTaskDate("");
+        setTaskTime("");
 
-        toast.success('Task added to your study plan!');
+        toast.success("Task added to your study plan!");
       } else {
         // Guest mode
         const guestDateValue = dateValue ? Number(dateValue) : undefined;
@@ -217,31 +284,33 @@ export default function StudyPlannerPage() {
           currentView,
           subjectColor,
           guestDateValue,
-          guestTimeValue
+          guestTimeValue,
         );
-        
-        setGuestTasks(loadGuestTasks());
-        
-        // Reset form
-        setSubject('');
-        setTopic('');
-        setDuration('');
-        setPriority('');
-        setTaskDate('');
-        setTaskTime('');
 
-        toast.success('Task added to your study plan!');
+        setGuestTasks(loadGuestTasks());
+
+        // Reset form
+        setSubject("");
+        setTopic("");
+        setDuration("");
+        setPriority("");
+        setTaskDate("");
+        setTaskTime("");
+
+        toast.success("Task added to your study plan!");
       }
     } catch (error: any) {
-      const errorMsg = error?.message || '';
-      console.error('Add task error:', error);
+      const errorMsg = error?.message || "";
+      console.error("Add task error:", error);
 
-      if (errorMsg === 'ACTOR_NOT_READY') {
-        toast.error('Please wait while the app is loading...');
-      } else if (errorMsg.includes('All fields are required')) {
-        toast.error('All fields are required. Please complete all fields before adding a task.');
+      if (errorMsg === "ACTOR_NOT_READY") {
+        toast.error("Please wait while the app is loading...");
+      } else if (errorMsg.includes("All fields are required")) {
+        toast.error(
+          "All fields are required. Please complete all fields before adding a task.",
+        );
       } else {
-        toast.error('Failed to add task. Please try again.');
+        toast.error("Failed to add task. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -252,7 +321,7 @@ export default function StudyPlannerPage() {
     if (isAuthenticated) {
       toggleCompletionMutation.mutate(taskId as bigint, {
         onError: (error: any) => {
-          toast.error(error?.message || 'Failed to toggle task completion');
+          toast.error(error?.message || "Failed to toggle task completion");
         },
       });
     } else {
@@ -260,8 +329,8 @@ export default function StudyPlannerPage() {
         toggleGuestTaskCompletion(taskId as number);
         setGuestTasks(loadGuestTasks());
       } catch (error) {
-        console.error('Guest task toggle error:', error);
-        toast.error('Failed to toggle task completion');
+        console.error("Guest task toggle error:", error);
+        toast.error("Failed to toggle task completion");
       }
     }
   };
@@ -270,47 +339,51 @@ export default function StudyPlannerPage() {
     if (isAuthenticated) {
       deleteTaskMutation.mutate(taskId as bigint, {
         onSuccess: () => {
-          toast.success('Task removed');
+          toast.success("Task removed");
         },
         onError: (error: any) => {
-          toast.error(error?.message || 'Failed to delete task');
+          toast.error(error?.message || "Failed to delete task");
         },
       });
     } else {
       try {
         deleteGuestTask(taskId as number);
         setGuestTasks(loadGuestTasks());
-        toast.success('Task removed');
+        toast.success("Task removed");
       } catch (error) {
-        console.error('Guest task delete error:', error);
-        toast.error('Failed to delete task');
+        console.error("Guest task delete error:", error);
+        toast.error("Failed to delete task");
       }
     }
   };
 
   const handleClearAllTasks = () => {
     if (sortedTasks.length === 0) {
-      toast.info('No tasks to clear');
+      toast.info("No tasks to clear");
       return;
     }
 
-    if (confirm('Are you sure you want to clear all tasks? This action cannot be undone.')) {
+    if (
+      confirm(
+        "Are you sure you want to clear all tasks? This action cannot be undone.",
+      )
+    ) {
       if (isAuthenticated) {
-        allTasks.forEach((task) => {
+        for (const task of allTasks) {
           deleteTaskMutation.mutate((task as StudyTask).id);
-        });
-        toast.success('All tasks cleared');
+        }
+        toast.success("All tasks cleared");
       } else {
         clearAllGuestTasks();
         setGuestTasks([]);
-        toast.success('All tasks cleared');
+        toast.success("All tasks cleared");
       }
     }
   };
 
   const handleDownloadTxt = async () => {
     if (sortedTasks.length === 0) {
-      toast.info('No tasks to export. Add some tasks first!', {
+      toast.info("No tasks to export. Add some tasks first!", {
         icon: <Info className="h-4 w-4" />,
       });
       return;
@@ -321,16 +394,16 @@ export default function StudyPlannerPage() {
         tasks: sortedTasks,
         viewType: currentView,
       });
-      toast.success('Study plan exported as TXT!');
+      toast.success("Study plan exported as TXT!");
     } catch (error) {
-      console.error('TXT export error:', error);
-      toast.error('Failed to export study plan. Please try again.');
+      console.error("TXT export error:", error);
+      toast.error("Failed to export study plan. Please try again.");
     }
   };
 
   const handleDownloadPdf = async () => {
     if (sortedTasks.length === 0) {
-      toast.info('No tasks to export. Add some tasks first!', {
+      toast.info("No tasks to export. Add some tasks first!", {
         icon: <Info className="h-4 w-4" />,
       });
       return;
@@ -341,25 +414,29 @@ export default function StudyPlannerPage() {
         tasks: sortedTasks,
         viewType: currentView,
       });
-      toast.success('Study plan exported as PDF!');
+      toast.success("Study plan exported as PDF!");
     } catch (error) {
-      console.error('PDF export error:', error);
-      toast.error('Failed to export PDF. Please try again.');
+      console.error("PDF export error:", error);
+      toast.error("Failed to export PDF. Please try again.");
     }
   };
 
   const completedCount = sortedTasks.filter((t) => t.isCompleted).length;
   const totalCount = sortedTasks.length;
-  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const progressPercent =
+    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   // Weekly Summary calculations
-  const pendingCount = totalCount - completedCount;
+  const _pendingCount = totalCount - completedCount;
   const totalStudyMinutes = sortedTasks.reduce((sum, task) => {
     return sum + parseDurationToMinutes(task.duration);
   }, 0);
-  const totalStudyTime = formatMinutesToDuration(totalStudyMinutes);
+  const _totalStudyTime = formatMinutesToDuration(totalStudyMinutes);
 
-  const taskPanelHeading = currentView === 'daily' ? 'Your Daily Study Tasks' : 'Your Weekly Study Tasks';
+  const taskPanelHeading =
+    currentView === "daily"
+      ? "Your Daily Study Tasks"
+      : "Your Weekly Study Tasks";
 
   return (
     <TooltipProvider>
@@ -384,21 +461,23 @@ export default function StudyPlannerPage() {
             className="h-6 w-6"
           />
           <button
-            onClick={() => handleViewChange('daily')}
+            type="button"
+            onClick={() => handleViewChange("daily")}
             className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              currentView === 'daily'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              currentView === "daily"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
             Daily
           </button>
           <button
-            onClick={() => handleViewChange('weekly')}
+            type="button"
+            onClick={() => handleViewChange("weekly")}
             className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              currentView === 'weekly'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              currentView === "weekly"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
             Weekly
@@ -413,7 +492,9 @@ export default function StudyPlannerPage() {
                 <Plus className="h-5 w-5" />
                 Add Study Task
               </CardTitle>
-              <CardDescription>Create a new task for your study plan</CardDescription>
+              <CardDescription>
+                Create a new task for your study plan
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -435,7 +516,10 @@ export default function StudyPlannerPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="topic" className="flex items-center gap-2 font-normal text-sm">
+                <Label
+                  htmlFor="topic"
+                  className="flex items-center gap-2 font-normal text-sm"
+                >
                   Topic <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -507,7 +591,10 @@ export default function StudyPlannerPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taskDate" className="flex items-center gap-2 font-normal text-sm">
+                <Label
+                  htmlFor="taskDate"
+                  className="flex items-center gap-2 font-normal text-sm"
+                >
                   Date (Optional)
                 </Label>
                 <Input
@@ -520,7 +607,10 @@ export default function StudyPlannerPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="taskTime" className="flex items-center gap-2 font-normal text-sm">
+                <Label
+                  htmlFor="taskTime"
+                  className="flex items-center gap-2 font-normal text-sm"
+                >
                   Time (Optional)
                 </Label>
                 <Input
@@ -537,7 +627,7 @@ export default function StudyPlannerPage() {
                 disabled={isSubmitting}
                 className="w-full"
               >
-                {isSubmitting ? 'Adding...' : 'Add Task'}
+                {isSubmitting ? "Adding..." : "Add Task"}
               </Button>
             </CardContent>
           </Card>
@@ -566,7 +656,11 @@ export default function StudyPlannerPage() {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{sortMode === 'default' ? 'Sort by date & time' : 'Sort by creation order'}</p>
+                      <p>
+                        {sortMode === "default"
+                          ? "Sort by date & time"
+                          : "Sort by creation order"}
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                   <Tooltip>
@@ -602,7 +696,9 @@ export default function StudyPlannerPage() {
                 </div>
               </div>
               <CardDescription>
-                {totalCount === 0 ? 'No tasks yet' : `${completedCount} of ${totalCount} completed`}
+                {totalCount === 0
+                  ? "No tasks yet"
+                  : `${completedCount} of ${totalCount} completed`}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -620,32 +716,41 @@ export default function StudyPlannerPage() {
                 {sortedTasks.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <p>No tasks added yet.</p>
-                    <p className="text-sm mt-1">Create your first task to get started!</p>
+                    <p className="text-sm mt-1">
+                      Create your first task to get started!
+                    </p>
                   </div>
                 ) : (
                   sortedTasks.map((task) => {
                     const taskId = task.id;
                     const isCompleted = task.isCompleted;
                     const indicatorColor = getIndicatorColorClass(task.subject);
-                    const dateTimeDisplay = formatTaskDateTime(task.date, task.time);
+                    const dateTimeDisplay = formatTaskDateTime(
+                      task.date,
+                      task.time,
+                    );
 
                     return (
                       <div
                         key={String(taskId)}
                         className={`p-4 rounded-lg border-2 transition-all ${
                           isCompleted
-                            ? 'bg-muted/50 border-muted'
-                            : 'bg-card border-border hover:border-primary/50'
+                            ? "bg-muted/50 border-muted"
+                            : "bg-card border-border hover:border-primary/50"
                         }`}
                       >
                         <div className="flex items-start gap-3">
-                          <div className={`w-1 h-full rounded-full ${indicatorColor} flex-shrink-0 mt-1`} />
+                          <div
+                            className={`w-1 h-full rounded-full ${indicatorColor} flex-shrink-0 mt-1`}
+                          />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2 mb-2">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <Checkbox
                                   checked={isCompleted}
-                                  onCheckedChange={() => handleToggleComplete(taskId)}
+                                  onCheckedChange={() =>
+                                    handleToggleComplete(taskId)
+                                  }
                                   id={`task-${taskId}`}
                                 />
                                 <SubjectBadge subject={task.subject} />
@@ -653,11 +758,11 @@ export default function StudyPlannerPage() {
                                   <Badge
                                     variant="outline"
                                     className={`text-xs ${
-                                      task.priority === 'High'
-                                        ? 'border-red-500 text-red-700 dark:text-red-400'
-                                        : task.priority === 'Medium'
-                                        ? 'border-yellow-500 text-yellow-700 dark:text-yellow-400'
-                                        : 'border-green-500 text-green-700 dark:text-green-400'
+                                      task.priority === "High"
+                                        ? "border-red-500 text-red-700 dark:text-red-400"
+                                        : task.priority === "Medium"
+                                          ? "border-yellow-500 text-yellow-700 dark:text-yellow-400"
+                                          : "border-green-500 text-green-700 dark:text-green-400"
                                     }`}
                                   >
                                     {task.priority}
@@ -676,7 +781,9 @@ export default function StudyPlannerPage() {
                             <label
                               htmlFor={`task-${taskId}`}
                               className={`block text-sm font-medium mb-1 cursor-pointer ${
-                                isCompleted ? 'line-through text-muted-foreground' : ''
+                                isCompleted
+                                  ? "line-through text-muted-foreground"
+                                  : ""
                               }`}
                             >
                               {task.topic}

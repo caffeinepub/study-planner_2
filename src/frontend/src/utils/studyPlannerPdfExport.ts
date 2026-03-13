@@ -1,32 +1,35 @@
 // PDF export utility for Study Planner tasks
 // Uses browser-native approach to generate PDF-like formatted text
 
-import type { StudyTask } from '@/hooks/useQueries';
-import type { GuestStudyTask } from './studyPlannerGuestStorage';
-import { formatTaskDateTime } from './studyPlannerTaskDateTime';
+import type { StudyTask } from "@/hooks/useQueries";
+import type { GuestStudyTask } from "./studyPlannerGuestStorage";
+import { formatTaskDateTime } from "./studyPlannerTaskDateTime";
 
 interface ExportOptions {
   tasks: Array<StudyTask | GuestStudyTask>;
-  viewType: 'daily' | 'weekly';
+  viewType: "daily" | "weekly";
 }
 
 /**
  * Export tasks to a well-formatted text file with PDF-like structure
  * This creates a clean, printable document that can be saved as PDF by the user
  */
-export async function exportTasksToPdf({ tasks, viewType }: ExportOptions): Promise<void> {
+export async function exportTasksToPdf({
+  tasks,
+  viewType,
+}: ExportOptions): Promise<void> {
   // Create a formatted HTML document that can be printed as PDF
   const htmlContent = generatePdfHtml(tasks, viewType);
-  
+
   // Open in new window for printing
-  const printWindow = window.open('', '_blank');
+  const printWindow = window.open("", "_blank");
   if (!printWindow) {
-    throw new Error('Could not open print window. Please allow popups.');
+    throw new Error("Could not open print window. Please allow popups.");
   }
-  
+
   printWindow.document.write(htmlContent);
   printWindow.document.close();
-  
+
   // Wait for content to load, then trigger print dialog
   printWindow.onload = () => {
     printWindow.focus();
@@ -34,27 +37,31 @@ export async function exportTasksToPdf({ tasks, viewType }: ExportOptions): Prom
   };
 }
 
-function generatePdfHtml(tasks: Array<StudyTask | GuestStudyTask>, viewType: 'daily' | 'weekly'): string {
+function generatePdfHtml(
+  tasks: Array<StudyTask | GuestStudyTask>,
+  viewType: "daily" | "weekly",
+): string {
   const totalCount = tasks.length;
   const completedCount = tasks.filter((t) => t.isCompleted).length;
   const pendingCount = totalCount - completedCount;
-  
-  const generatedDate = new Date().toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+
+  const generatedDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
-  let tasksHtml = '';
-  
+  let tasksHtml = "";
+
   if (tasks.length === 0) {
-    tasksHtml = '<p style="text-align: center; color: #666; margin: 40px 0;">No tasks to display.</p>';
+    tasksHtml =
+      '<p style="text-align: center; color: #666; margin: 40px 0;">No tasks to display.</p>';
   } else {
     tasks.forEach((task, index) => {
-      const status = task.isCompleted ? '✔' : '○';
-      const statusText = task.isCompleted ? 'Completed' : 'Pending';
+      const status = task.isCompleted ? "✔" : "○";
+      const statusText = task.isCompleted ? "Completed" : "Pending";
       const dateTimeDisplay = formatTaskDateTime(task.date, task.time);
-      
+
       tasksHtml += `
         <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #e0e0e0; border-radius: 8px; page-break-inside: avoid;">
           <div style="font-weight: bold; font-size: 14px; margin-bottom: 12px;">
@@ -64,8 +71,8 @@ function generatePdfHtml(tasks: Array<StudyTask | GuestStudyTask>, viewType: 'da
             <div><strong>Subject:</strong> ${escapeHtml(task.subject)}</div>
             <div><strong>Topic:</strong> ${escapeHtml(task.topic)}</div>
             <div><strong>Duration:</strong> ${escapeHtml(task.duration)}</div>
-            ${dateTimeDisplay ? `<div><strong>Date & Time:</strong> ${escapeHtml(dateTimeDisplay)}</div>` : ''}
-            ${task.priority ? `<div><strong>Priority:</strong> ${escapeHtml(task.priority)}</div>` : ''}
+            ${dateTimeDisplay ? `<div><strong>Date & Time:</strong> ${escapeHtml(dateTimeDisplay)}</div>` : ""}
+            ${task.priority ? `<div><strong>Priority:</strong> ${escapeHtml(task.priority)}</div>` : ""}
           </div>
         </div>
       `;
@@ -77,7 +84,7 @@ function generatePdfHtml(tasks: Array<StudyTask | GuestStudyTask>, viewType: 'da
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>Study Planner - ${viewType === 'daily' ? 'Daily' : 'Weekly'}</title>
+      <title>Study Planner - ${viewType === "daily" ? "Daily" : "Weekly"}</title>
       <style>
         @media print {
           body { margin: 0; }
@@ -128,7 +135,7 @@ function generatePdfHtml(tasks: Array<StudyTask | GuestStudyTask>, viewType: 'da
     </head>
     <body>
       <h1>STUDY PLANNER</h1>
-      <div class="subtitle">View: ${viewType === 'daily' ? 'Daily' : 'Weekly'}</div>
+      <div class="subtitle">View: ${viewType === "daily" ? "Daily" : "Weekly"}</div>
       <div class="subtitle">Generated: ${generatedDate}</div>
       
       <div class="summary">
@@ -148,7 +155,7 @@ function generatePdfHtml(tasks: Array<StudyTask | GuestStudyTask>, viewType: 'da
 }
 
 function escapeHtml(text: string): string {
-  const div = document.createElement('div');
+  const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }

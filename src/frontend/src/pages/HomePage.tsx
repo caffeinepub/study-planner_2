@@ -1,53 +1,66 @@
-import { useNavigate } from '@tanstack/react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/primitives/Card';
-import { Button } from '../components/primitives/Button';
-import { FileText, Calendar, FileEdit, Mail, FileUser, MessageSquarePlus } from 'lucide-react';
+import { useNavigate } from "@tanstack/react-router";
+import {
+  Calendar,
+  FileEdit,
+  FileText,
+  FileUser,
+  Mail,
+  MessageSquarePlus,
+} from "lucide-react";
+import { Button } from "../components/primitives/Button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/primitives/Card";
 
 export default function HomePage() {
   const navigate = useNavigate();
 
   const tools = [
     {
-      title: 'Assignment & Project Format',
-      description: 'Get clear assignment structure and formatting guidelines',
+      title: "Assignment & Project Format",
+      description: "Get clear assignment structure and formatting guidelines",
       icon: FileText,
-      path: '/assignment-format',
-      image: '/assets/generated/assignment-icon.dim_64x64.png',
+      path: "/assignment-format",
+      image: "/assets/generated/assignment-icon.dim_64x64.png",
     },
     {
-      title: 'Study Planner',
-      description: 'Plan your daily or weekly study schedule easily',
+      title: "Study Planner",
+      description: "Plan your daily or weekly study schedule easily",
       icon: Calendar,
-      path: '/study-planner',
-      image: '/assets/generated/planner-icon.dim_64x64.png',
+      path: "/study-planner",
+      image: "/assets/generated/planner-icon.dim_64x64.png",
     },
     {
-      title: 'Notes Cleaner',
-      description: 'Convert rough notes to clean, readable format',
+      title: "Notes Cleaner",
+      description: "Convert rough notes to clean, readable format",
       icon: FileEdit,
-      path: '/notes-cleaner',
-      image: '/assets/generated/notes-icon.dim_64x64.png',
+      path: "/notes-cleaner",
+      image: "/assets/generated/notes-icon.dim_64x64.png",
     },
     {
-      title: 'Leave Application',
-      description: 'Generate ready-to-use leave letters for school/college',
+      title: "Leave Application",
+      description: "Generate ready-to-use leave letters for school/college",
       icon: Mail,
-      path: '/leave-application',
-      image: '/assets/generated/leave-icon.dim_64x64.png',
+      path: "/leave-application",
+      image: "/assets/generated/leave-icon.dim_64x64.png",
     },
     {
-      title: 'Resume Builder',
-      description: 'Create a simple resume for students and freshers',
+      title: "Resume Builder",
+      description: "Create a simple resume for students and freshers",
       icon: FileUser,
-      path: '/resume-builder',
-      image: '/assets/generated/resume-icon.dim_64x64.png',
+      path: "/resume-builder",
+      image: "/assets/generated/resume-icon.dim_64x64.png",
     },
     {
-      title: 'Request a Feature',
-      description: 'Tell us what tool you need and we will add it',
+      title: "Request a Feature",
+      description: "Tell us what tool you need and we will add it",
       icon: MessageSquarePlus,
-      path: '/request-feature',
-      image: '/assets/generated/request-icon.dim_64x64.png',
+      path: "/request-feature",
+      image: "/assets/generated/request-icon.dim_64x64.png",
     },
   ];
 
@@ -67,7 +80,8 @@ export default function HomePage() {
             StudentSathi – Simple Help for Everyday Student Work
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
-            Assignments, study planning, notes cleaning, resumes, and student applications — all in one place.
+            Assignments, study planning, notes cleaning, resumes, and student
+            applications — all in one place.
           </p>
           <p className="text-base md:text-lg text-muted-foreground font-medium">
             No confusion. No pressure. Just simple help.
@@ -92,7 +106,9 @@ export default function HomePage() {
                       <Icon className="h-12 w-12 text-primary" />
                     </div>
                   </div>
-                  <CardTitle className="text-xl text-center">{tool.title}</CardTitle>
+                  <CardTitle className="text-xl text-center">
+                    {tool.title}
+                  </CardTitle>
                   <CardDescription className="text-center text-base">
                     {tool.description}
                   </CardDescription>

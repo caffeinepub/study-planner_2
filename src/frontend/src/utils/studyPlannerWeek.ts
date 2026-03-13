@@ -3,7 +3,7 @@
  * Provides robust date normalization for both backend (bigint nanoseconds) and guest (number milliseconds) tasks.
  */
 
-import type { Time } from '@/backend';
+import type { Time } from "@/backend";
 
 /**
  * Unwrap backend optional date values that may be represented as Candid optional arrays.
@@ -11,11 +11,11 @@ import type { Time } from '@/backend';
  * Returns: Time | number | undefined | null (ready for normalizeTaskDate)
  */
 export function unwrapOptionalDate(
-  date: Time | number | undefined | null | [] | [Time]
+  date: Time | number | undefined | null | [] | [Time],
 ): Time | number | undefined | null {
   // Handle null/undefined
   if (date == null) return null;
-  
+
   // Handle Candid optional array representation: [] means None, [value] means Some(value)
   if (Array.isArray(date)) {
     if (date.length === 0) return null;
@@ -23,7 +23,7 @@ export function unwrapOptionalDate(
     // Unexpected array length, treat as null
     return null;
   }
-  
+
   // Already unwrapped: Time (bigint) or number
   return date;
 }
@@ -33,17 +33,19 @@ export function unwrapOptionalDate(
  * Handles both backend bigint (nanoseconds) and guest number (milliseconds).
  * Returns null for invalid/missing dates.
  */
-export function normalizeTaskDate(date: Time | number | undefined | null): Date | null {
+export function normalizeTaskDate(
+  date: Time | number | undefined | null,
+): Date | null {
   if (date == null) return null;
 
   try {
     let milliseconds: number;
 
-    if (typeof date === 'bigint') {
+    if (typeof date === "bigint") {
       // Backend: nanoseconds stored as bigint
       // Convert to milliseconds: divide by 1,000,000
       milliseconds = Number(date / BigInt(1000000));
-    } else if (typeof date === 'number') {
+    } else if (typeof date === "number") {
       // Guest: already in milliseconds
       milliseconds = date;
     } else {
@@ -51,9 +53,9 @@ export function normalizeTaskDate(date: Time | number | undefined | null): Date 
     }
 
     const dateObj = new Date(milliseconds);
-    
+
     // Validate the date
-    if (isNaN(dateObj.getTime())) {
+    if (Number.isNaN(dateObj.getTime())) {
       return null;
     }
 
@@ -69,14 +71,14 @@ export function normalizeTaskDate(date: Time | number | undefined | null): Date 
 export function getCurrentWeekStart(): Date {
   const now = new Date();
   const currentDay = now.getDay();
-  
+
   // Calculate offset to Monday (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
   const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
-  
+
   const monday = new Date(now);
   monday.setDate(now.getDate() + mondayOffset);
   monday.setHours(0, 0, 0, 0);
-  
+
   return monday;
 }
 
@@ -88,7 +90,7 @@ export function getCurrentWeekEnd(): Date {
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
   sunday.setHours(23, 59, 59, 999);
-  
+
   return sunday;
 }
 
@@ -98,7 +100,7 @@ export function getCurrentWeekEnd(): Date {
 export function isDateInCurrentWeek(date: Date): boolean {
   const weekStart = getCurrentWeekStart();
   const weekEnd = getCurrentWeekEnd();
-  
+
   return date >= weekStart && date <= weekEnd;
 }
 
@@ -109,16 +111,18 @@ export function isDateInCurrentWeek(date: Date): boolean {
  */
 export function getWeekDayIndex(date: Date): number | null {
   if (!isDateInCurrentWeek(date)) return null;
-  
+
   const weekStart = getCurrentWeekStart();
   const dayStart = new Date(date);
   dayStart.setHours(0, 0, 0, 0);
-  
-  const daysDiff = Math.floor((dayStart.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24));
-  
+
+  const daysDiff = Math.floor(
+    (dayStart.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
   if (daysDiff >= 0 && daysDiff < 7) {
     return daysDiff;
   }
-  
+
   return null;
 }

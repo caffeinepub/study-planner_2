@@ -1,13 +1,13 @@
-import { useState, useMemo } from 'react';
-import { Check, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Check, Search } from "lucide-react";
+import { useMemo, useState } from "react";
 
 interface SubjectCount {
   subject: string;
@@ -28,42 +28,40 @@ export function SubjectFilterDropdown({
   onSelectSubject,
 }: SubjectFilterDropdownProps) {
   const [open, setOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Create a map for quick count lookup
   const countMap = useMemo(() => {
     const map = new Map<string, number>();
-    subjectCounts.forEach(({ subject, count }) => {
+    for (const { subject, count } of subjectCounts) {
       map.set(subject, count);
-    });
+    }
     return map;
   }, [subjectCounts]);
 
   // Filter subjects based on search query
   const filteredSubjects = useMemo(() => {
     if (!searchQuery.trim()) return subjects;
-    
+
     const query = searchQuery.toLowerCase();
-    return subjects.filter((subject) =>
-      subject.toLowerCase().includes(query)
-    );
+    return subjects.filter((subject) => subject.toLowerCase().includes(query));
   }, [subjects, searchQuery]);
 
   const handleSelect = (subject: string) => {
-    onSelectSubject(subject === selectedSubject ? '' : subject);
+    onSelectSubject(subject === selectedSubject ? "" : subject);
     setOpen(false);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
-  const displayValue = selectedSubject || 'All Subjects';
+  const displayValue = selectedSubject || "All Subjects";
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          role="combobox"
           aria-expanded={open}
+          aria-haspopup="listbox"
           className="justify-between"
         >
           {displayValue}
@@ -76,6 +74,7 @@ export function SubjectFilterDropdown({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            aria-hidden="true"
           >
             <polyline points="6 9 12 15 18 9" />
           </svg>
@@ -93,16 +92,15 @@ export function SubjectFilterDropdown({
         </div>
         <div className="max-h-[300px] overflow-y-auto p-1">
           <button
-            onClick={() => handleSelect('')}
+            type="button"
+            onClick={() => handleSelect("")}
             className={cn(
-              'relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground',
-              !selectedSubject && 'bg-accent'
+              "relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
+              !selectedSubject && "bg-accent",
             )}
           >
             <span>All Subjects</span>
-            {!selectedSubject && (
-              <Check className="h-4 w-4" />
-            )}
+            {!selectedSubject && <Check className="h-4 w-4" />}
           </button>
           {filteredSubjects.length === 0 ? (
             <div className="py-6 text-center text-sm text-muted-foreground">
@@ -112,14 +110,15 @@ export function SubjectFilterDropdown({
             filteredSubjects.map((subject) => {
               const count = countMap.get(subject) || 0;
               const isSelected = selectedSubject === subject;
-              
+
               return (
                 <button
+                  type="button"
                   key={subject}
                   onClick={() => handleSelect(subject)}
                   className={cn(
-                    'relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground',
-                    isSelected && 'bg-accent'
+                    "relative flex w-full cursor-pointer select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
+                    isSelected && "bg-accent",
                   )}
                 >
                   <span className="flex items-center gap-2">
@@ -128,9 +127,7 @@ export function SubjectFilterDropdown({
                       ({count})
                     </span>
                   </span>
-                  {isSelected && (
-                    <Check className="h-4 w-4" />
-                  )}
+                  {isSelected && <Check className="h-4 w-4" />}
                 </button>
               );
             })

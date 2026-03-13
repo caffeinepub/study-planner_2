@@ -1,11 +1,17 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Copy, Check, Plus, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Check, Copy, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface Project {
   id: string;
@@ -14,20 +20,20 @@ interface Project {
 }
 
 export default function ResumeBuilderPage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [education, setEducation] = useState('');
-  const [skills, setSkills] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [education, setEducation] = useState("");
+  const [skills, setSkills] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
-  const [projectTitle, setProjectTitle] = useState('');
-  const [projectDesc, setProjectDesc] = useState('');
-  const [resume, setResume] = useState('');
+  const [projectTitle, setProjectTitle] = useState("");
+  const [projectDesc, setProjectDesc] = useState("");
+  const [resume, setResume] = useState("");
   const [copied, setCopied] = useState(false);
 
   const handleAddProject = () => {
     if (!projectTitle.trim() || !projectDesc.trim()) {
-      toast.error('Please fill in project details');
+      toast.error("Please fill in project details");
       return;
     }
 
@@ -38,23 +44,23 @@ export default function ResumeBuilderPage() {
     };
 
     setProjects([...projects, newProject]);
-    setProjectTitle('');
-    setProjectDesc('');
-    toast.success('Project added!');
+    setProjectTitle("");
+    setProjectDesc("");
+    toast.success("Project added!");
   };
 
   const handleDeleteProject = (id: string) => {
-    setProjects(projects.filter(p => p.id !== id));
+    setProjects(projects.filter((p) => p.id !== id));
   };
 
   const handleGenerate = () => {
     if (!name.trim() || !email.trim() || !education.trim() || !skills.trim()) {
-      toast.error('Please fill in all required fields');
+      toast.error("Please fill in all required fields");
       return;
     }
 
     let resumeText = `${name.trim().toUpperCase()}
-${email.trim()} | ${phone.trim() || 'Phone Number'}
+${email.trim()} | ${phone.trim() || "Phone Number"}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -65,7 +71,7 @@ SKILLS
 ${skills.trim()}`;
 
     if (projects.length > 0) {
-      resumeText += `\n\nPROJECTS`;
+      resumeText += "\n\nPROJECTS";
       projects.forEach((project, index) => {
         resumeText += `\n\n${index + 1}. ${project.title}
    ${project.description}`;
@@ -73,20 +79,22 @@ ${skills.trim()}`;
     }
 
     setResume(resumeText);
-    toast.success('Resume created successfully!');
+    toast.success("Resume created successfully!");
   };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(resume);
     setCopied(true);
-    toast.success('Resume copied to clipboard!');
+    toast.success("Resume copied to clipboard!");
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className="container py-8 md:py-12 max-w-6xl">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold mb-3">CV / Resume Builder</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-3">
+          CV / Resume Builder
+        </h1>
         <p className="text-lg text-muted-foreground">
           This tool is for students and freshers who need a simple resume
         </p>
@@ -135,7 +143,9 @@ ${skills.trim()}`;
           <Card className="border-2">
             <CardHeader>
               <CardTitle>Education & Skills</CardTitle>
-              <CardDescription>Your academic background and abilities</CardDescription>
+              <CardDescription>
+                Your academic background and abilities
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -164,7 +174,9 @@ ${skills.trim()}`;
           <Card className="border-2">
             <CardHeader>
               <CardTitle>Projects (Optional)</CardTitle>
-              <CardDescription>Add your academic or personal projects</CardDescription>
+              <CardDescription>
+                Add your academic or personal projects
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -186,7 +198,11 @@ ${skills.trim()}`;
                   className="min-h-[80px]"
                 />
               </div>
-              <Button onClick={handleAddProject} variant="secondary" className="w-full">
+              <Button
+                onClick={handleAddProject}
+                variant="secondary"
+                className="w-full"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Project
               </Button>
@@ -195,10 +211,15 @@ ${skills.trim()}`;
                 <div className="space-y-2 mt-4">
                   <Label>Added Projects:</Label>
                   {projects.map((project) => (
-                    <div key={project.id} className="flex items-start gap-2 p-3 rounded-lg border bg-muted">
+                    <div
+                      key={project.id}
+                      className="flex items-start gap-2 p-3 rounded-lg border bg-muted"
+                    >
                       <div className="flex-1">
                         <p className="font-medium text-sm">{project.title}</p>
-                        <p className="text-xs text-muted-foreground">{project.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {project.description}
+                        </p>
                       </div>
                       <Button
                         variant="ghost"
@@ -234,7 +255,12 @@ ${skills.trim()}`;
                     {resume}
                   </pre>
                 </div>
-                <Button onClick={handleCopy} variant="secondary" className="w-full" size="lg">
+                <Button
+                  onClick={handleCopy}
+                  variant="secondary"
+                  className="w-full"
+                  size="lg"
+                >
                   {copied ? (
                     <>
                       <Check className="mr-2 h-5 w-5" />
@@ -250,7 +276,10 @@ ${skills.trim()}`;
               </>
             ) : (
               <div className="flex items-center justify-center min-h-[400px] text-center text-muted-foreground">
-                <p>Fill in your details and click "Create Resume" to generate your resume</p>
+                <p>
+                  Fill in your details and click "Create Resume" to generate
+                  your resume
+                </p>
               </div>
             )}
           </CardContent>
