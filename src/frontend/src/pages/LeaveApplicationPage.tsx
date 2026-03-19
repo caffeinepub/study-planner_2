@@ -42,7 +42,6 @@ const RECIPIENT_TYPES: { value: RecipientType; label: string }[] = [
   { value: "hr", label: "HR Manager" },
 ];
 
-// Predefined reasons — "other" triggers custom text input and is never auto-translated
 const LEAVE_REASONS = [
   { value: "sick", label: "Sick Leave" },
   { value: "family", label: "Family Function" },
@@ -128,7 +127,6 @@ export default function LeaveApplicationPage() {
   const [copySuccess, setCopySuccess] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // Auto-set recipient based on application type
   useEffect(() => {
     if (applicationType === "office") {
       setRecipientType("manager");
@@ -137,7 +135,6 @@ export default function LeaveApplicationPage() {
     }
   }, [applicationType]);
 
-  // AI Reason Assist expansion
   useEffect(() => {
     if (!aiAssistEnabled) {
       setAssistedReason("");
@@ -148,19 +145,16 @@ export default function LeaveApplicationPage() {
       setAssistedReason("");
       return;
     }
-    // Only assist short keywords (≤5 words, no terminal punctuation)
     const wordCount = normalized.split(/\s+/).length;
     const hasTerminalPunct = /[.?!]$/.test(normalized);
     if (wordCount > 5 || hasTerminalPunct) {
       setAssistedReason("");
       return;
     }
-    // Exact match
     if (REASON_EXPAND_MAP[normalized]) {
       setAssistedReason(REASON_EXPAND_MAP[normalized]);
       return;
     }
-    // Partial match
     const key = Object.keys(REASON_EXPAND_MAP).find(
       (k) => normalized.includes(k) || k.includes(normalized),
     );
@@ -183,7 +177,6 @@ export default function LeaveApplicationPage() {
 
     setIsGenerating(true);
 
-    // For "other": use assistedReason if AI assist is on, otherwise raw custom text
     const finalReason =
       reason === "other"
         ? aiAssistEnabled && assistedReason
@@ -268,7 +261,6 @@ export default function LeaveApplicationPage() {
       return;
     }
 
-    // Resolve the final reason key (predefined key or custom text)
     const finalReason =
       reason === "other"
         ? aiAssistEnabled && assistedReason
@@ -310,7 +302,6 @@ export default function LeaveApplicationPage() {
       const studentNameVal = studentName.trim() || "Student";
       const isRTLVal = isRTLLanguage(language);
 
-      // Use Google Fonts for Urdu (Noto Nastaliq) and Hindi (Noto Sans Devanagari)
       const fontLinks = `
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&family=Noto+Sans+Devanagari&family=Noto+Naskh+Arabic&display=swap" rel="stylesheet" />
@@ -360,7 +351,6 @@ ${fontLinks}
         setTimeout(resolve, 1000);
       });
 
-      // Extra wait for fonts to load
       await new Promise<void>((resolve) => setTimeout(resolve, 500));
 
       const iframeBody = iframe.contentDocument?.body;
@@ -469,16 +459,16 @@ ${fontLinks}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Input Form */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* ── Input Form ── */}
           <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-foreground mb-4">
               Application Details
             </h2>
 
             <div className="grid grid-cols-2 gap-4">
-              {/* Application Type — first, full width */}
-              <div className="col-span-2">
+              {/* Row 1: Application Type | Recipient Type */}
+              <div>
                 <label
                   htmlFor="applicationType"
                   className="block text-sm font-medium text-foreground mb-1"
@@ -501,84 +491,7 @@ ${fontLinks}
                 </select>
               </div>
 
-              {/* Row 1: Student Name + Parent/Guardian Name */}
-              <div className="col-span-2 sm:col-span-1">
-                <label
-                  htmlFor="studentName"
-                  className="block text-sm font-medium text-foreground mb-1"
-                >
-                  Student Name <span className="text-destructive">*</span>
-                </label>
-                <input
-                  id="studentName"
-                  data-ocid="leave.studentname.input"
-                  type="text"
-                  value={studentName}
-                  onChange={(e) => setStudentName(e.target.value)}
-                  placeholder="Your full name"
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                />
-              </div>
-
-              <div className="col-span-2 sm:col-span-1">
-                <label
-                  htmlFor="parentGuardianName"
-                  className="block text-sm font-medium text-foreground mb-1"
-                >
-                  Parent / Guardian Name{" "}
-                  <span className="text-destructive">*</span>
-                </label>
-                <input
-                  id="parentGuardianName"
-                  data-ocid="leave.parentname.input"
-                  type="text"
-                  value={parentGuardianName}
-                  onChange={(e) => setParentGuardianName(e.target.value)}
-                  placeholder="Parent or guardian name"
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                />
-              </div>
-
-              {/* Row 2: School Name + Class/Grade */}
-              <div className="col-span-2 sm:col-span-1">
-                <label
-                  htmlFor="schoolName"
-                  className="block text-sm font-medium text-foreground mb-1"
-                >
-                  School / Institution Name{" "}
-                  <span className="text-destructive">*</span>
-                </label>
-                <input
-                  id="schoolName"
-                  data-ocid="leave.schoolname.input"
-                  type="text"
-                  value={schoolName}
-                  onChange={(e) => setSchoolName(e.target.value)}
-                  placeholder="e.g. Government High School"
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                />
-              </div>
-
-              <div className="col-span-2 sm:col-span-1">
-                <label
-                  htmlFor="className"
-                  className="block text-sm font-medium text-foreground mb-1"
-                >
-                  Class / Grade <span className="text-destructive">*</span>
-                </label>
-                <input
-                  id="className"
-                  data-ocid="leave.classname.input"
-                  type="text"
-                  value={className}
-                  onChange={(e) => setClassName(e.target.value)}
-                  placeholder="e.g. Class 10-A"
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                />
-              </div>
-
-              {/* Row 3: Recipient Type + Language */}
-              <div className="col-span-2 sm:col-span-1">
+              <div>
                 <label
                   htmlFor="recipientType"
                   className="block text-sm font-medium text-foreground mb-1"
@@ -602,7 +515,84 @@ ${fontLinks}
                 </select>
               </div>
 
-              <div className="col-span-2 sm:col-span-1">
+              {/* Row 2: Student Name | Parent/Guardian Name */}
+              <div>
+                <label
+                  htmlFor="studentName"
+                  className="block text-sm font-medium text-foreground mb-1"
+                >
+                  Student Name <span className="text-destructive">*</span>
+                </label>
+                <input
+                  id="studentName"
+                  data-ocid="leave.studentname.input"
+                  type="text"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                  placeholder="Your full name"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="parentGuardianName"
+                  className="block text-sm font-medium text-foreground mb-1"
+                >
+                  Parent / Guardian Name{" "}
+                  <span className="text-destructive">*</span>
+                </label>
+                <input
+                  id="parentGuardianName"
+                  data-ocid="leave.parentname.input"
+                  type="text"
+                  value={parentGuardianName}
+                  onChange={(e) => setParentGuardianName(e.target.value)}
+                  placeholder="Parent or guardian name"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </div>
+
+              {/* Row 3: School Name | Class/Grade */}
+              <div>
+                <label
+                  htmlFor="schoolName"
+                  className="block text-sm font-medium text-foreground mb-1"
+                >
+                  School / Institution Name{" "}
+                  <span className="text-destructive">*</span>
+                </label>
+                <input
+                  id="schoolName"
+                  data-ocid="leave.schoolname.input"
+                  type="text"
+                  value={schoolName}
+                  onChange={(e) => setSchoolName(e.target.value)}
+                  placeholder="e.g. Government High School"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="className"
+                  className="block text-sm font-medium text-foreground mb-1"
+                >
+                  Class / Grade <span className="text-destructive">*</span>
+                </label>
+                <input
+                  id="className"
+                  data-ocid="leave.classname.input"
+                  type="text"
+                  value={className}
+                  onChange={(e) => setClassName(e.target.value)}
+                  placeholder="e.g. Class 10-A"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </div>
+
+              {/* Row 4: Language | Leave Duration Type */}
+              <div>
                 <label
                   htmlFor="language"
                   className="block text-sm font-medium text-foreground mb-1"
@@ -624,7 +614,37 @@ ${fontLinks}
                 </select>
               </div>
 
-              {/* Reason for Leave */}
+              <div>
+                <span className="block text-sm font-medium text-foreground mb-2">
+                  Leave Duration Type
+                </span>
+                <div className="flex items-center gap-4 h-[38px]">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="durationType"
+                      value="full"
+                      checked={durationType === "full"}
+                      onChange={() => setDurationType("full")}
+                      className="accent-primary"
+                    />
+                    <span className="text-sm text-foreground">Full Day</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="durationType"
+                      value="half"
+                      checked={durationType === "half"}
+                      onChange={() => setDurationType("half")}
+                      className="accent-primary"
+                    />
+                    <span className="text-sm text-foreground">Half Day</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Row 5: Reason for Leave (full width) */}
               <div className="col-span-2">
                 <label
                   htmlFor="leaveReason"
@@ -686,8 +706,8 @@ ${fontLinks}
                 )}
               </div>
 
-              {/* Leave Start Date */}
-              <div className="col-span-2 sm:col-span-1">
+              {/* Row 6: Leave Start Date | Leave End Date */}
+              <div>
                 <label
                   htmlFor="startDate"
                   className="block text-sm font-medium text-foreground mb-1"
@@ -704,8 +724,7 @@ ${fontLinks}
                 />
               </div>
 
-              {/* Leave End Date */}
-              <div className="col-span-2 sm:col-span-1">
+              <div>
                 <label
                   htmlFor="endDate"
                   className="block text-sm font-medium text-foreground mb-1"
@@ -725,39 +744,8 @@ ${fontLinks}
                 />
               </div>
 
-              {/* Leave Duration Type */}
-              <div className="col-span-2">
-                <span className="block text-sm font-medium text-foreground mb-2">
-                  Leave Duration Type
-                </span>
-                <div className="flex items-center gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="durationType"
-                      value="full"
-                      checked={durationType === "full"}
-                      onChange={() => setDurationType("full")}
-                      className="accent-primary"
-                    />
-                    <span className="text-sm text-foreground">Full Day</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="durationType"
-                      value="half"
-                      checked={durationType === "half"}
-                      onChange={() => setDurationType("half")}
-                      className="accent-primary"
-                    />
-                    <span className="text-sm text-foreground">Half Day</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Absent Since (Date) */}
-              <div className="col-span-2">
+              {/* Row 7: Absent Since (Date) */}
+              <div>
                 <label
                   htmlFor="absentSinceDate"
                   className="block text-sm font-medium text-foreground mb-1"
@@ -790,104 +778,102 @@ ${fontLinks}
             </button>
           </div>
 
-          {/* Output Section */}
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col flex-1">
-              <h2 className="text-lg font-semibold text-foreground mb-4">
-                Application Preview
-              </h2>
+          {/* ── Output Section ── */}
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
+              Application Preview
+            </h2>
 
-              {/* Preview Box */}
-              <div
-                className="border border-border rounded-lg bg-white overflow-y-auto"
-                style={{ height: "420px" }}
+            {/* Preview Box — grows to fill available vertical space */}
+            <div
+              className="border border-border rounded-lg bg-white overflow-y-auto flex-1"
+              style={{ minHeight: "420px" }}
+            >
+              {generatedLetter ? (
+                <div
+                  id="leaveAppPdfContent"
+                  ref={previewRef}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  className="p-4 text-sm leading-relaxed"
+                  // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted generated HTML
+                  dangerouslySetInnerHTML={{ __html: generatedLetter }}
+                />
+              ) : (
+                <div
+                  className="h-full flex flex-col items-center justify-center text-muted-foreground gap-3 px-4 text-center"
+                  style={{ minHeight: "420px" }}
+                >
+                  <FileText className="w-12 h-12 opacity-30" />
+                  <p className="text-sm">
+                    Fill in the details and click Generate to preview your leave
+                    application.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Output Buttons */}
+            <div
+              className="flex flex-wrap gap-2 justify-end"
+              style={{
+                marginTop: "15px",
+                paddingTop: "12px",
+                borderTop: "1px solid #eee",
+              }}
+            >
+              <button
+                type="button"
+                data-ocid="leave.copy.button"
+                onClick={handleCopyText}
+                disabled={!generatedLetter}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {generatedLetter ? (
-                  <div
-                    id="leaveAppPdfContent"
-                    ref={previewRef}
-                    dir={isRTL ? "rtl" : "ltr"}
-                    className="p-4 text-sm leading-relaxed"
-                    // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted generated HTML
-                    dangerouslySetInnerHTML={{ __html: generatedLetter }}
-                  />
-                ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-3 px-4 text-center">
-                    <FileText className="w-12 h-12 opacity-30" />
-                    <p className="text-sm">
-                      Fill in the details and click Generate to preview your
-                      leave application.
-                    </p>
-                  </div>
-                )}
-              </div>
+                <Copy className="w-4 h-4" />
+                {copySuccess ? "Copied!" : "Copy Text"}
+              </button>
 
-              {/* Output Buttons */}
-              <div
-                style={{
-                  marginTop: "15px",
-                  paddingTop: "10px",
-                  borderTop: "1px solid #eee",
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "10px",
-                  flexWrap: "wrap",
-                }}
+              <button
+                type="button"
+                data-ocid="leave.downloadtxt.button"
+                onClick={handleDownloadText}
+                disabled={!generatedLetter}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <button
-                  type="button"
-                  data-ocid="leave.copy.button"
-                  onClick={handleCopyText}
-                  disabled={!generatedLetter}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <Copy className="w-4 h-4" />
-                  {copySuccess ? "Copied!" : "Copy Text"}
-                </button>
+                <Download className="w-4 h-4" />
+                Download TXT
+              </button>
 
-                <button
-                  type="button"
-                  data-ocid="leave.downloadtxt.button"
-                  onClick={handleDownloadText}
-                  disabled={!generatedLetter}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <Download className="w-4 h-4" />
-                  Download TXT
-                </button>
+              <button
+                type="button"
+                data-ocid="leave.whatsapp.button"
+                onClick={handleWhatsAppShare}
+                disabled={!generatedLetter}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <MessageCircle className="w-4 h-4" />📲 WhatsApp
+              </button>
 
-                <button
-                  type="button"
-                  data-ocid="leave.whatsapp.button"
-                  onClick={handleWhatsAppShare}
-                  disabled={!generatedLetter}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <MessageCircle className="w-4 h-4" />📲 WhatsApp
-                </button>
+              <button
+                type="button"
+                id="downloadBtn"
+                data-ocid="leave.downloadpdf.button"
+                onClick={handleDownloadPdf}
+                disabled={!generatedLetter || isGeneratingPdf}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <FileText className="w-4 h-4" />
+                {isGeneratingPdf ? "Generating..." : "Download PDF"}
+              </button>
 
-                <button
-                  type="button"
-                  id="downloadBtn"
-                  data-ocid="leave.downloadpdf.button"
-                  onClick={handleDownloadPdf}
-                  disabled={!generatedLetter || isGeneratingPdf}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <FileText className="w-4 h-4" />
-                  {isGeneratingPdf ? "Generating..." : "Download PDF"}
-                </button>
-
-                <button
-                  type="button"
-                  data-ocid="leave.clear.button"
-                  onClick={handleClearOutput}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm hover:bg-muted transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Clear
-                </button>
-              </div>
+              <button
+                type="button"
+                data-ocid="leave.clear.button"
+                onClick={handleClearOutput}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm hover:bg-muted transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Clear
+              </button>
             </div>
           </div>
         </div>
