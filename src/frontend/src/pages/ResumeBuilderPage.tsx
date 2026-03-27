@@ -197,67 +197,82 @@ function loadScript(src: string): Promise<void> {
   });
 }
 
-async function generatePDFFromElement(element: HTMLElement): Promise<void> {
-  console.log("generatePDFFromElement called", element);
-
-  await loadScript(
-    "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
-  );
-  await loadScript(
-    "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
-  );
-
-  // Wait for all images to fully load
-  const images = element.querySelectorAll("img");
-  await Promise.all(
-    Array.from(images).map(
-      (img) =>
-        new Promise<void>((resolve) => {
-          if ((img as HTMLImageElement).complete) {
-            resolve();
-          } else {
-            img.onload = () => resolve();
-            img.onerror = () => resolve();
-          }
-        }),
-    ),
-  );
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const h2c = (window as any).html2canvas;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { jsPDF } = (window as any).jspdf;
-
-  const canvas = await h2c(element, {
-    scale: 2,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: "#ffffff",
-    logging: false,
-  });
-
-  const imgData = canvas.toDataURL("image/png");
-  const pdf = new jsPDF("p", "mm", "a4");
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = (canvas.height * pageWidth) / canvas.width;
-  const a4Height = pdf.internal.pageSize.getHeight();
-
-  if (pageHeight <= a4Height) {
-    pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
-  } else {
-    let yOffset = 0;
-    let remainingHeight = pageHeight;
-    let isFirst = true;
-    while (remainingHeight > 0) {
-      if (!isFirst) pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, -yOffset, pageWidth, pageHeight);
-      yOffset += a4Height;
-      remainingHeight -= a4Height;
-      isFirst = false;
-    }
+async function generatePDFFromElement(
+  buttonEl: HTMLButtonElement | null,
+): Promise<void> {
+  const element = document.querySelector("#live-preview") as HTMLElement;
+  if (!element) {
+    alert("Preview not found");
+    return;
   }
 
-  pdf.save("Resume.pdf");
+  if (buttonEl) {
+    buttonEl.disabled = true;
+    buttonEl.innerText = "Downloading...";
+  }
+
+  try {
+    await loadScript(
+      "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+    );
+    await loadScript(
+      "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+    );
+
+    // Wait for images
+    const images = element.querySelectorAll("img");
+    await Promise.all(
+      Array.from(images).map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            if ((img as HTMLImageElement).complete) resolve();
+            else {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }
+          }),
+      ),
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const canvas = await (window as any).html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+    const imgData = canvas.toDataURL("image/png");
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pdf = new (window as any).jspdf.jsPDF("p", "mm", "a4");
+    const width = pdf.internal.pageSize.getWidth();
+    const height = (canvas.height * width) / canvas.width;
+    const a4Height = pdf.internal.pageSize.getHeight();
+
+    if (height <= a4Height) {
+      pdf.addImage(imgData, "PNG", 0, 0, width, height);
+    } else {
+      let yOffset = 0;
+      let remaining = height;
+      let isFirst = true;
+      while (remaining > 0) {
+        if (!isFirst) pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, -yOffset, width, height);
+        yOffset += a4Height;
+        remaining -= a4Height;
+        isFirst = false;
+      }
+    }
+
+    pdf.save("resume.pdf");
+  } catch (err) {
+    console.error(err);
+    alert("PDF failed");
+  } finally {
+    if (buttonEl) {
+      buttonEl.disabled = false;
+      buttonEl.innerText = "Download PDF";
+    }
+  }
 }
 
 // ─── Section Card ─────────────────────────────────────────────────────────────
@@ -1084,25 +1099,28 @@ export default function ResumeBuilderPage() {
     console.log("Generate Full Resume button clicked");
     if (isGenerating) return;
     setIsGenerating(true);
-    await new Promise((r) => setTimeout(r, 600));
 
-    // Use ONLY current user data — do NOT overwrite with sample data
+    // Force DOM re-render via display trick
+    const preview = document.querySelector(
+      "#live-preview",
+    ) as HTMLElement | null;
+    if (preview) {
+      preview.style.display = "none";
+      await new Promise((r) => setTimeout(r, 100));
+      preview.style.display = "block";
+    }
+
     setData((prev) => {
       const updated = { ...prev };
-
-      // Auto-fill summary from user's own data only if empty
       if (!updated.summary.trim()) {
         const skills =
           prev.skills.map((s) => s.name).join(", ") || "various technologies";
         const degree = prev.education[0]?.degree || "Computer Science";
         updated.summary = `A motivated ${degree} graduate with expertise in ${skills}. Passionate about building impactful software solutions with a strong academic and practical foundation.`;
       }
-
-      // Force a new object reference to guarantee re-render
       return { ...updated };
     });
 
-    // Open all sections so user sees the full resume in the form
     setBasicOpen(true);
     setSummaryOpen(true);
     setEducationOpen(true);
@@ -1119,17 +1137,13 @@ export default function ResumeBuilderPage() {
   // ── DOWNLOAD PDF — 3 independent loading states ────────────────────────────
   const downloadPDF = async (
     setLoading: (v: boolean) => void,
+    buttonEl?: HTMLButtonElement | null,
   ): Promise<void> => {
     console.log("Download PDF clicked");
-    const el = previewRef.current;
-    if (!el) {
-      alert("Preview container not found. Please try again.");
-      return;
-    }
     setLoading(true);
     try {
-      await new Promise((r) => setTimeout(r, 300)); // ensure DOM fully rendered
-      await generatePDFFromElement(el);
+      await new Promise((r) => setTimeout(r, 300));
+      await generatePDFFromElement(buttonEl ?? null);
       toast.success("PDF downloaded successfully!");
     } catch (err) {
       console.error("PDF error:", err);
@@ -1139,9 +1153,12 @@ export default function ResumeBuilderPage() {
     }
   };
 
-  const handleDownloadPDFTop = () => downloadPDF(setDownloadTopLoading);
-  const handleDownloadPDFMiddle = () => downloadPDF(setDownloadMiddleLoading);
-  const handleDownloadPDFBottom = () => downloadPDF(setDownloadBottomLoading);
+  const handleDownloadPDFTop = (e: React.MouseEvent<HTMLButtonElement>) =>
+    downloadPDF(setDownloadTopLoading, e.currentTarget);
+  const handleDownloadPDFMiddle = (e: React.MouseEvent<HTMLButtonElement>) =>
+    downloadPDF(setDownloadMiddleLoading, e.currentTarget);
+  const handleDownloadPDFBottom = (e: React.MouseEvent<HTMLButtonElement>) =>
+    downloadPDF(setDownloadBottomLoading, e.currentTarget);
 
   // ── Copy resume text to clipboard ────────────────────────────────────────────
   const handleCopyResume = () => {
@@ -2066,7 +2083,7 @@ export default function ResumeBuilderPage() {
               {/* This div is the PDF capture target */}
               <div
                 ref={previewRef}
-                id="resume-preview-container"
+                id="live-preview"
                 className="min-h-[200px] bg-white"
               >
                 <ResumePreview data={data} template={template} />
