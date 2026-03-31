@@ -181,98 +181,19 @@ const SAMPLE_RESUME_DATA: ResumeData = {
   },
 };
 
-// ─── Dynamic PDF loader (CDN-based) ──────────────────────────────────────────
+// ─── Print-based PDF download ─────────────────────────────────────────────
 
-function loadScript(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) {
-      resolve();
-      return;
-    }
-    const s = document.createElement("script");
-    s.src = src;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-    document.head.appendChild(s);
-  });
-}
-
-async function generatePDFFromElement(
-  buttonEl: HTMLButtonElement | null,
-): Promise<void> {
-  const element = document.querySelector("#live-preview") as HTMLElement;
-  if (!element) {
+function downloadPDFViaPrint(): void {
+  const preview = document.querySelector("#live-preview");
+  if (!preview) {
     alert("Preview not found");
     return;
   }
-
-  if (buttonEl) {
-    buttonEl.disabled = true;
-    buttonEl.innerText = "Downloading...";
-  }
-
-  try {
-    await loadScript(
-      "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
-    );
-    await loadScript(
-      "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
-    );
-
-    // Wait for images
-    const images = element.querySelectorAll("img");
-    await Promise.all(
-      Array.from(images).map(
-        (img) =>
-          new Promise<void>((resolve) => {
-            if ((img as HTMLImageElement).complete) resolve();
-            else {
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-            }
-          }),
-      ),
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const canvas = await (window as any).html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-    });
-    const imgData = canvas.toDataURL("image/png");
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdf = new (window as any).jspdf.jsPDF("p", "mm", "a4");
-    const width = pdf.internal.pageSize.getWidth();
-    const height = (canvas.height * width) / canvas.width;
-    const a4Height = pdf.internal.pageSize.getHeight();
-
-    if (height <= a4Height) {
-      pdf.addImage(imgData, "PNG", 0, 0, width, height);
-    } else {
-      let yOffset = 0;
-      let remaining = height;
-      let isFirst = true;
-      while (remaining > 0) {
-        if (!isFirst) pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, -yOffset, width, height);
-        yOffset += a4Height;
-        remaining -= a4Height;
-        isFirst = false;
-      }
-    }
-
-    pdf.save("resume.pdf");
-  } catch (err) {
-    console.error(err);
-    alert("PDF failed");
-  } finally {
-    if (buttonEl) {
-      buttonEl.disabled = false;
-      buttonEl.innerText = "Download PDF";
-    }
-  }
+  const originalContent = document.body.innerHTML;
+  document.body.innerHTML = (preview as HTMLElement).outerHTML;
+  window.print();
+  document.body.innerHTML = originalContent;
+  location.reload();
 }
 
 // ─── Section Card ─────────────────────────────────────────────────────────────
@@ -946,9 +867,7 @@ export default function ResumeBuilderPage() {
   const [socialOpen, setSocialOpen] = useState(false);
 
   // Button loading states
-  const [downloadTopLoading, setDownloadTopLoading] = useState(false);
-  const [downloadMiddleLoading, setDownloadMiddleLoading] = useState(false);
-  const [downloadBottomLoading, setDownloadBottomLoading] = useState(false);
+
   const [isImproving, setIsImproving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSampling, setIsSampling] = useState(false);
@@ -1134,31 +1053,19 @@ export default function ResumeBuilderPage() {
     toast.success("Resume generated! Preview updated on the right.");
   };
 
-  // ── DOWNLOAD PDF — 3 independent loading states ────────────────────────────
-  const downloadPDF = async (
-    setLoading: (v: boolean) => void,
-    buttonEl?: HTMLButtonElement | null,
-  ): Promise<void> => {
+  // ── DOWNLOAD PDF — browser print method ───────────────────────────────────
+  const handleDownloadPDFTop = () => {
     console.log("Download PDF clicked");
-    setLoading(true);
-    try {
-      await new Promise((r) => setTimeout(r, 300));
-      await generatePDFFromElement(buttonEl ?? null);
-      toast.success("PDF downloaded successfully!");
-    } catch (err) {
-      console.error("PDF error:", err);
-      toast.error("Download failed, try again");
-    } finally {
-      setLoading(false);
-    }
+    downloadPDFViaPrint();
   };
-
-  const handleDownloadPDFTop = (e: React.MouseEvent<HTMLButtonElement>) =>
-    downloadPDF(setDownloadTopLoading, e.currentTarget);
-  const handleDownloadPDFMiddle = (e: React.MouseEvent<HTMLButtonElement>) =>
-    downloadPDF(setDownloadMiddleLoading, e.currentTarget);
-  const handleDownloadPDFBottom = (e: React.MouseEvent<HTMLButtonElement>) =>
-    downloadPDF(setDownloadBottomLoading, e.currentTarget);
+  const handleDownloadPDFMiddle = () => {
+    console.log("Download PDF clicked");
+    downloadPDFViaPrint();
+  };
+  const handleDownloadPDFBottom = () => {
+    console.log("Download PDF clicked");
+    downloadPDFViaPrint();
+  };
 
   // ── Copy resume text to clipboard ────────────────────────────────────────────
   const handleCopyResume = () => {
@@ -1290,15 +1197,10 @@ export default function ResumeBuilderPage() {
               data-ocid="resume.download_button"
               size="sm"
               onClick={handleDownloadPDFTop}
-              disabled={downloadTopLoading}
               className="text-xs"
             >
-              {downloadTopLoading ? (
-                <Loader2 size={13} className="mr-1 animate-spin" />
-              ) : (
-                <Download size={13} className="mr-1" />
-              )}
-              {downloadTopLoading ? "Generating..." : "Download PDF"}
+              <Download size={13} className="mr-1" />
+              Download PDF
             </Button>
           </div>
         </div>
@@ -2029,14 +1931,9 @@ export default function ResumeBuilderPage() {
                   onClick={handleDownloadPDFBottom}
                   className="justify-start gap-2"
                   size="sm"
-                  disabled={downloadBottomLoading}
                 >
-                  {downloadBottomLoading ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <Download size={14} />
-                  )}
-                  {downloadBottomLoading ? "Generating PDF..." : "Download PDF"}
+                  <Download size={14} />
+                  Download PDF
                 </Button>
                 <Button
                   data-ocid="download.copy_button"
@@ -2114,15 +2011,10 @@ export default function ResumeBuilderPage() {
           data-ocid="fab.download_button"
           type="button"
           onClick={handleDownloadPDFMiddle}
-          disabled={downloadMiddleLoading}
-          className="flex items-center gap-2 bg-white text-primary border-2 border-primary px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-sm font-medium disabled:opacity-70"
+          className="flex items-center gap-2 bg-white text-primary border-2 border-primary px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-sm font-medium"
         >
-          {downloadMiddleLoading ? (
-            <Loader2 size={15} className="animate-spin" />
-          ) : (
-            <Download size={15} />
-          )}
-          {downloadMiddleLoading ? "Generating..." : "Download PDF"}
+          <Download size={15} />
+          Download PDF
         </button>
       </div>
 

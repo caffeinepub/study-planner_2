@@ -123,7 +123,6 @@ export default function LeaveApplicationPage() {
   const [generatedLetter, setGeneratedLetter] = useState("");
   const [generatedText, setGeneratedText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -287,133 +286,22 @@ export default function LeaveApplicationPage() {
     );
   };
 
-  const handleDownloadPdf = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDownloadPdf = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (isGeneratingPdf) return;
-
     if (!generatedLetter) {
       alert("Please generate the application first.");
       return;
     }
-
-    setIsGeneratingPdf(true);
-
-    try {
-      const studentNameVal = studentName.trim() || "Student";
-      const isRTLVal = isRTLLanguage(language);
-
-      const fontLinks = `
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&family=Noto+Sans+Devanagari&family=Noto+Naskh+Arabic&display=swap" rel="stylesheet" />
-      `;
-
-      const htmlDoc = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-${fontLinks}
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Arial', 'Noto Nastaliq Urdu', 'Noto Sans Devanagari', 'Noto Naskh Arabic', sans-serif;
-    margin: 0;
-    padding: 32px 36px;
-    font-size: 13px;
-    line-height: 1.8;
-    color: #1a1a1a;
-    direction: ${isRTLVal ? "rtl" : "ltr"};
-    background: #fff;
-  }
-  p { margin-bottom: 0; }
-</style>
-</head>
-<body>${generatedLetter}</body>
-</html>`;
-
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "fixed";
-      iframe.style.top = "-9999px";
-      iframe.style.left = "-9999px";
-      iframe.style.width = "794px";
-      iframe.style.height = "1123px";
-      iframe.style.border = "none";
-      iframe.style.visibility = "hidden";
-      document.body.appendChild(iframe);
-
-      await new Promise<void>((resolve) => {
-        iframe.onload = () => resolve();
-        const doc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (doc) {
-          doc.open();
-          doc.write(htmlDoc);
-          doc.close();
-        }
-        setTimeout(resolve, 1000);
-      });
-
-      await new Promise<void>((resolve) => setTimeout(resolve, 500));
-
-      const iframeBody = iframe.contentDocument?.body;
-      if (!iframeBody) throw new Error("iframe body not available");
-
-      // biome-ignore lint/suspicious/noExplicitAny: CDN globals from index.html
-      const html2canvasFn = (window as any).html2canvas as (
-        el: HTMLElement,
-        opts?: Record<string, unknown>,
-      ) => Promise<HTMLCanvasElement>;
-
-      // biome-ignore lint/suspicious/noExplicitAny: CDN globals from index.html
-      const { jsPDF } = (window as any).jspdf;
-
-      const canvas = await html2canvasFn(iframeBody, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        windowWidth: 794,
-        width: 794,
-        logging: false,
-      });
-
-      document.body.removeChild(iframe);
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgHeightMm = (canvas.height * pageWidth) / canvas.width;
-
-      if (imgHeightMm <= pageHeight) {
-        pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeightMm);
-      } else {
-        let yOffset = 0;
-        while (yOffset < imgHeightMm) {
-          if (yOffset > 0) pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, -yOffset, pageWidth, imgHeightMm);
-          yOffset += pageHeight;
-        }
-      }
-
-      pdf.save(`Leave_Application_${studentNameVal}.pdf`);
-    } catch (err) {
-      console.error("PDF Error:", err);
-      try {
-        const printWindow = window.open("", "_blank");
-        if (printWindow) {
-          const isRTLVal = isRTLLanguage(language);
-          printWindow.document.write(`<!DOCTYPE html>
-<html><head><meta charset="UTF-8"/><title>Leave Application</title>
-<style>body{font-family:Arial,sans-serif;margin:40px;font-size:13px;line-height:1.6;direction:${isRTLVal ? "rtl" : "ltr"};}</style>
-</head><body>${generatedLetter}<script>window.onload=function(){window.print();window.close();}<\/script></body></html>`);
-          printWindow.document.close();
-        }
-      } catch {
-        alert(
-          "PDF generation failed. Please try the Download TXT option instead.",
-        );
-      }
-    } finally {
-      setIsGeneratingPdf(false);
+    const preview = document.querySelector("#leaveAppPdfContent");
+    if (!preview) {
+      alert("Preview not found");
+      return;
     }
+    const originalContent = document.body.innerHTML;
+    document.body.innerHTML = (preview as HTMLElement).outerHTML;
+    window.print();
+    document.body.innerHTML = originalContent;
+    location.reload();
   };
 
   const handleClearOutput = () => {
@@ -858,11 +746,11 @@ ${fontLinks}
                 id="downloadBtn"
                 data-ocid="leave.downloadpdf.button"
                 onClick={handleDownloadPdf}
-                disabled={!generatedLetter || isGeneratingPdf}
+                disabled={!generatedLetter}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <FileText className="w-4 h-4" />
-                {isGeneratingPdf ? "Generating..." : "Download PDF"}
+                Download PDF
               </button>
 
               <button
