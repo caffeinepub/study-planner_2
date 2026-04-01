@@ -183,17 +183,42 @@ const SAMPLE_RESUME_DATA: ResumeData = {
 
 // ─── Print-based PDF download ─────────────────────────────────────────────
 
-function downloadPDFViaPrint(): void {
-  const preview = document.querySelector("#live-preview");
+function downloadPDF(): void {
+  const preview = document.querySelector("#live-preview") as HTMLElement | null;
   if (!preview) {
     alert("Preview not found");
     return;
   }
-  const originalContent = document.body.innerHTML;
-  document.body.innerHTML = (preview as HTMLElement).outerHTML;
-  window.print();
-  document.body.innerHTML = originalContent;
-  location.reload();
+  const printWindow = window.open("", "", "width=800,height=600");
+  if (!printWindow) {
+    alert("Could not open print window. Please allow pop-ups.");
+    return;
+  }
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Resume</title>
+        <style>
+          body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: white; }
+          #resume { width: 210mm; min-height: 297mm; margin: auto; }
+          h1 { font-size: 18px; }
+          h2 { font-size: 14px; }
+          h3 { font-size: 12px; }
+          p { font-size: 11px; margin: 4px 0; }
+          .section { margin-bottom: 10px; page-break-inside: avoid; }
+        </style>
+      </head>
+      <body>
+        <div id="resume">${preview.innerHTML}</div>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.onload = () => {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
 }
 
 // ─── Section Card ─────────────────────────────────────────────────────────────
@@ -869,7 +894,6 @@ export default function ResumeBuilderPage() {
   // Button loading states
 
   const [isImproving, setIsImproving] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isSampling, setIsSampling] = useState(false);
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -1014,58 +1038,14 @@ export default function ResumeBuilderPage() {
   };
 
   // ── GENERATE FULL RESUME — uses ONLY current user input ─────────────────────
-  const handleGenerateFullResume = async () => {
-    console.log("Generate Full Resume button clicked");
-    if (isGenerating) return;
-    setIsGenerating(true);
-
-    // Force DOM re-render via display trick
-    const preview = document.querySelector(
-      "#live-preview",
-    ) as HTMLElement | null;
-    if (preview) {
-      preview.style.display = "none";
-      await new Promise((r) => setTimeout(r, 100));
-      preview.style.display = "block";
-    }
-
-    setData((prev) => {
-      const updated = { ...prev };
-      if (!updated.summary.trim()) {
-        const skills =
-          prev.skills.map((s) => s.name).join(", ") || "various technologies";
-        const degree = prev.education[0]?.degree || "Computer Science";
-        updated.summary = `A motivated ${degree} graduate with expertise in ${skills}. Passionate about building impactful software solutions with a strong academic and practical foundation.`;
-      }
-      return { ...updated };
-    });
-
-    setBasicOpen(true);
-    setSummaryOpen(true);
-    setEducationOpen(true);
-    setSkillsOpen(true);
-    setProjectsOpen(true);
-    setExperienceOpen(true);
-    setAchievementsOpen(true);
-    setSocialOpen(true);
-
-    setIsGenerating(false);
-    toast.success("Resume generated! Preview updated on the right.");
+  const handleGenerateFullResume = () => {
+    alert("AI Resume generation coming soon");
   };
 
   // ── DOWNLOAD PDF — browser print method ───────────────────────────────────
-  const handleDownloadPDFTop = () => {
-    console.log("Download PDF clicked");
-    downloadPDFViaPrint();
-  };
-  const handleDownloadPDFMiddle = () => {
-    console.log("Download PDF clicked");
-    downloadPDFViaPrint();
-  };
-  const handleDownloadPDFBottom = () => {
-    console.log("Download PDF clicked");
-    downloadPDFViaPrint();
-  };
+  const handleDownloadPDFTop = downloadPDF;
+  const handleDownloadPDFMiddle = downloadPDF;
+  const handleDownloadPDFBottom = downloadPDF;
 
   // ── Copy resume text to clipboard ────────────────────────────────────────────
   const handleCopyResume = () => {
@@ -1162,866 +1142,894 @@ export default function ResumeBuilderPage() {
     );
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* ── Header ──────────────────────────────────────────────── */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
-        <div className="max-w-[1400px] mx-auto px-5 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <FileText size={16} className="text-primary-foreground" />
+    <>
+      <style>{`
+      @media print {
+        body { margin: 0; font-size: 11px; background: white; }
+        body * { visibility: hidden; }
+        #live-preview, #live-preview * { visibility: visible; }
+        #live-preview {
+          position: absolute;
+          top: 0; left: 0;
+          width: 210mm;
+          min-height: 297mm;
+          padding: 15mm;
+          background: white;
+          box-sizing: border-box;
+        }
+        h1 { font-size: 18px; margin-bottom: 6px; }
+        h2 { font-size: 14px; margin-bottom: 4px; }
+        h3 { font-size: 12px; margin-bottom: 3px; }
+        p { margin: 2px 0; line-height: 1.3; }
+        .section { margin-bottom: 8px; page-break-inside: avoid; }
+        ul { padding-left: 16px; margin: 2px 0; }
+        li { margin-bottom: 2px; }
+        .page-break { page-break-before: always; }
+        .no-print { display: none !important; }
+      }
+    `}</style>
+      <div className="min-h-screen bg-slate-50">
+        {/* ── Header ──────────────────────────────────────────────── */}
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
+          <div className="max-w-[1400px] mx-auto px-5 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <FileText size={16} className="text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="font-bold text-slate-900 text-sm leading-none">
+                  AI Resume Builder
+                </h1>
+                <p className="text-xs text-slate-400">StudentSathi</p>
+              </div>
             </div>
-            <div>
-              <h1 className="font-bold text-slate-900 text-sm leading-none">
-                AI Resume Builder
-              </h1>
-              <p className="text-xs text-slate-400">StudentSathi</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              data-ocid="resume.sample_button"
-              variant="outline"
-              size="sm"
-              onClick={handleSampleResume}
-              disabled={isSampling}
-              className="text-xs"
-            >
-              {isSampling ? (
-                <Loader2 size={13} className="mr-1 animate-spin" />
-              ) : (
-                <Sparkles size={13} className="mr-1" />
-              )}
-              {isSampling ? "Loading..." : "Sample Resume"}
-            </Button>
-            <Button
-              data-ocid="resume.download_button"
-              size="sm"
-              onClick={handleDownloadPDFTop}
-              className="text-xs"
-            >
-              <Download size={13} className="mr-1" />
-              Download PDF
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* ── Main 3-col grid ─────────────────────────────────────── */}
-      <main className="max-w-[1400px] mx-auto px-5 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_380px] gap-6 items-start">
-          {/* ── FORM GRID (spans cols 1+2) ───────────────────────── */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* 2-col form grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              {/* Row 1 */}
-              <SectionCard
-                id="basic"
-                icon={<User size={16} />}
-                title="Basic Information"
-                open={basicOpen}
-                onToggle={() => setBasicOpen((v) => !v)}
+            <div className="flex items-center gap-2">
+              <Button
+                data-ocid="resume.sample_button"
+                variant="outline"
+                size="sm"
+                onClick={handleSampleResume}
+                disabled={isSampling}
+                className="text-xs"
               >
-                <div className="space-y-3 mt-2">
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      className="w-14 h-14 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:bg-slate-200 transition-colors overflow-hidden flex-shrink-0"
-                      onClick={() => fileRef.current?.click()}
-                      data-ocid="basic.upload_button"
-                    >
-                      {data.photo ? (
-                        <img
-                          src={data.photo}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Camera size={18} className="text-slate-400" />
-                      )}
-                    </button>
-                    <div className="flex-1">
-                      <p className="text-xs text-slate-500">
-                        Profile photo (optional)
-                      </p>
+                {isSampling ? (
+                  <Loader2 size={13} className="mr-1 animate-spin" />
+                ) : (
+                  <Sparkles size={13} className="mr-1" />
+                )}
+                {isSampling ? "Loading..." : "Sample Resume"}
+              </Button>
+              <Button
+                data-ocid="resume.download_button"
+                size="sm"
+                onClick={handleDownloadPDFTop}
+                className="text-xs"
+              >
+                <Download size={13} className="mr-1" />
+                Download PDF
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        {/* ── Main 3-col grid ─────────────────────────────────────── */}
+        <main className="max-w-[1400px] mx-auto px-5 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_380px] gap-6 items-start">
+            {/* ── FORM GRID (spans cols 1+2) ───────────────────────── */}
+            <div className="lg:col-span-2 space-y-4">
+              {/* 2-col form grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                {/* Row 1 */}
+                <SectionCard
+                  id="basic"
+                  icon={<User size={16} />}
+                  title="Basic Information"
+                  open={basicOpen}
+                  onToggle={() => setBasicOpen((v) => !v)}
+                >
+                  <div className="space-y-3 mt-2">
+                    <div className="flex items-center gap-3">
                       <button
                         type="button"
+                        className="w-14 h-14 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center cursor-pointer hover:bg-slate-200 transition-colors overflow-hidden flex-shrink-0"
                         onClick={() => fileRef.current?.click()}
-                        className="text-xs text-primary hover:underline"
+                        data-ocid="basic.upload_button"
                       >
-                        Upload photo
+                        {data.photo ? (
+                          <img
+                            src={data.photo}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Camera size={18} className="text-slate-400" />
+                        )}
                       </button>
-                      {data.photo && (
+                      <div className="flex-1">
+                        <p className="text-xs text-slate-500">
+                          Profile photo (optional)
+                        </p>
                         <button
                           type="button"
-                          onClick={() => set("photo", null)}
-                          className="text-xs text-red-400 hover:underline ml-2"
+                          onClick={() => fileRef.current?.click()}
+                          className="text-xs text-primary hover:underline"
                         >
-                          Remove
+                          Upload photo
                         </button>
-                      )}
-                    </div>
-                    <input
-                      ref={fileRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handlePhoto}
-                    />
-                  </div>
-
-                  <Field label="Full Name">
-                    <Input
-                      data-ocid="basic.name_input"
-                      className={inputCls}
-                      value={data.name}
-                      onChange={(e) => set("name", e.target.value)}
-                      placeholder="Ahmed Khan"
-                    />
-                  </Field>
-                  <Field label="Email Address">
-                    <Input
-                      data-ocid="basic.email_input"
-                      className={inputCls}
-                      type="email"
-                      value={data.email}
-                      onChange={(e) => set("email", e.target.value)}
-                      placeholder="ahmed@email.com"
-                    />
-                  </Field>
-                  <Field label="Phone Number">
-                    <Input
-                      data-ocid="basic.phone_input"
-                      className={inputCls}
-                      value={data.phone}
-                      onChange={(e) => set("phone", e.target.value)}
-                      placeholder="+92 300 0000000"
-                    />
-                  </Field>
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                id="summary"
-                icon={<FileText size={16} />}
-                title="Professional Summary"
-                open={summaryOpen}
-                onToggle={() => setSummaryOpen((v) => !v)}
-              >
-                <div className="space-y-3 mt-2">
-                  <Field label="Summary">
-                    <Textarea
-                      data-ocid="summary.textarea"
-                      className="min-h-[100px] rounded-lg border border-slate-200 px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-150 w-full"
-                      value={data.summary}
-                      onChange={(e) => set("summary", e.target.value)}
-                      placeholder="Write a short professional summary..."
-                    />
-                  </Field>
-                  <Button
-                    data-ocid="summary.ai_button"
-                    type="button"
-                    size="sm"
-                    onClick={handleGenerateSummary}
-                    className="w-full"
-                  >
-                    <Sparkles size={14} className="mr-1.5" /> Generate Summary
-                    with AI
-                  </Button>
-                </div>
-              </SectionCard>
-
-              {/* Row 2 */}
-              <SectionCard
-                id="education"
-                icon={<GraduationCap size={16} />}
-                title="Education"
-                open={educationOpen}
-                onToggle={() => setEducationOpen((v) => !v)}
-              >
-                <div className="space-y-4 mt-2">
-                  {data.education.map((edu, idx) => (
-                    <div
-                      key={edu.id}
-                      className="space-y-2 pb-3 border-b border-slate-100 last:border-0 last:pb-0"
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs font-medium text-slate-500">
-                          Entry {idx + 1}
-                        </p>
-                        {data.education.length > 1 && (
+                        {data.photo && (
                           <button
-                            data-ocid={`education.delete_button.${idx + 1}`}
                             type="button"
-                            onClick={() => removeEdu(edu.id)}
+                            onClick={() => set("photo", null)}
+                            className="text-xs text-red-400 hover:underline ml-2"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        ref={fileRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handlePhoto}
+                      />
+                    </div>
+
+                    <Field label="Full Name">
+                      <Input
+                        data-ocid="basic.name_input"
+                        className={inputCls}
+                        value={data.name}
+                        onChange={(e) => set("name", e.target.value)}
+                        placeholder="Ahmed Khan"
+                      />
+                    </Field>
+                    <Field label="Email Address">
+                      <Input
+                        data-ocid="basic.email_input"
+                        className={inputCls}
+                        type="email"
+                        value={data.email}
+                        onChange={(e) => set("email", e.target.value)}
+                        placeholder="ahmed@email.com"
+                      />
+                    </Field>
+                    <Field label="Phone Number">
+                      <Input
+                        data-ocid="basic.phone_input"
+                        className={inputCls}
+                        value={data.phone}
+                        onChange={(e) => set("phone", e.target.value)}
+                        placeholder="+92 300 0000000"
+                      />
+                    </Field>
+                  </div>
+                </SectionCard>
+
+                <SectionCard
+                  id="summary"
+                  icon={<FileText size={16} />}
+                  title="Professional Summary"
+                  open={summaryOpen}
+                  onToggle={() => setSummaryOpen((v) => !v)}
+                >
+                  <div className="space-y-3 mt-2">
+                    <Field label="Summary">
+                      <Textarea
+                        data-ocid="summary.textarea"
+                        className="min-h-[100px] rounded-lg border border-slate-200 px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-150 w-full"
+                        value={data.summary}
+                        onChange={(e) => set("summary", e.target.value)}
+                        placeholder="Write a short professional summary..."
+                      />
+                    </Field>
+                    <Button
+                      data-ocid="summary.ai_button"
+                      type="button"
+                      size="sm"
+                      onClick={handleGenerateSummary}
+                      className="w-full"
+                    >
+                      <Sparkles size={14} className="mr-1.5" /> Generate Summary
+                      with AI
+                    </Button>
+                  </div>
+                </SectionCard>
+
+                {/* Row 2 */}
+                <SectionCard
+                  id="education"
+                  icon={<GraduationCap size={16} />}
+                  title="Education"
+                  open={educationOpen}
+                  onToggle={() => setEducationOpen((v) => !v)}
+                >
+                  <div className="space-y-4 mt-2">
+                    {data.education.map((edu, idx) => (
+                      <div
+                        key={edu.id}
+                        className="space-y-2 pb-3 border-b border-slate-100 last:border-0 last:pb-0"
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-medium text-slate-500">
+                            Entry {idx + 1}
+                          </p>
+                          {data.education.length > 1 && (
+                            <button
+                              data-ocid={`education.delete_button.${idx + 1}`}
+                              type="button"
+                              onClick={() => removeEdu(edu.id)}
+                              className="text-red-400 hover:text-red-600 transition-colors"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          )}
+                        </div>
+                        <Field label="Degree">
+                          <Input
+                            className={inputCls}
+                            value={edu.degree}
+                            onChange={(e) =>
+                              updateEdu(edu.id, "degree", e.target.value)
+                            }
+                            placeholder="B.Sc Computer Science"
+                          />
+                        </Field>
+                        <Field label="Institute">
+                          <Input
+                            className={inputCls}
+                            value={edu.institute}
+                            onChange={(e) =>
+                              updateEdu(edu.id, "institute", e.target.value)
+                            }
+                            placeholder="FAST-NUCES"
+                          />
+                        </Field>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Field label="Duration">
+                            <Input
+                              className={inputCls}
+                              value={edu.duration}
+                              onChange={(e) =>
+                                updateEdu(edu.id, "duration", e.target.value)
+                              }
+                              placeholder="2021–2025"
+                            />
+                          </Field>
+                          <Field label="CGPA / %">
+                            <Input
+                              className={inputCls}
+                              value={edu.cgpa}
+                              onChange={(e) =>
+                                updateEdu(edu.id, "cgpa", e.target.value)
+                              }
+                              placeholder="3.5 / 4.0"
+                            />
+                          </Field>
+                        </div>
+                      </div>
+                    ))}
+                    <Button
+                      data-ocid="education.add_button"
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addEdu}
+                      className="w-full"
+                    >
+                      <Plus size={13} className="mr-1" /> Add Education
+                    </Button>
+                  </div>
+                </SectionCard>
+
+                <SectionCard
+                  id="skills"
+                  icon={<Zap size={16} />}
+                  title="Skills"
+                  open={skillsOpen}
+                  onToggle={() => setSkillsOpen((v) => !v)}
+                >
+                  <div className="space-y-2 mt-2">
+                    {data.skills.map((skill, idx) => (
+                      <div key={skill.id} className="flex gap-2 items-center">
+                        <Input
+                          data-ocid={`skills.input.${idx + 1}`}
+                          className={`${inputCls} flex-1`}
+                          value={skill.name}
+                          onChange={(e) =>
+                            updateSkill(skill.id, "name", e.target.value)
+                          }
+                          placeholder="React, Python..."
+                        />
+                        <select
+                          data-ocid={`skills.select.${idx + 1}`}
+                          value={skill.level}
+                          onChange={(e) =>
+                            updateSkill(skill.id, "level", e.target.value)
+                          }
+                          className="h-10 rounded-lg border border-slate-200 px-2 text-xs text-slate-700 bg-white focus:ring-2 focus:ring-primary/20"
+                        >
+                          <option>Beginner</option>
+                          <option>Intermediate</option>
+                          <option>Advanced</option>
+                        </select>
+                        <button
+                          data-ocid={`skills.delete_button.${idx + 1}`}
+                          type="button"
+                          onClick={() => removeSkill(skill.id)}
+                          className="text-red-400 hover:text-red-600 transition-colors flex-shrink-0"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                    {data.skills.length === 0 && (
+                      <p className="text-xs text-slate-400 py-2 text-center">
+                        No skills added yet
+                      </p>
+                    )}
+                    <Button
+                      data-ocid="skills.add_button"
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addSkill}
+                      className="w-full"
+                    >
+                      <Plus size={13} className="mr-1" /> Add Skill
+                    </Button>
+                    {data.skills.filter((s) => s.name).length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {data.skills
+                          .filter((s) => s.name)
+                          .map((s) => (
+                            <Badge
+                              key={s.id}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {s.name} · {s.level}
+                            </Badge>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                </SectionCard>
+
+                {/* Row 3 */}
+                <SectionCard
+                  id="projects"
+                  icon={<FolderOpen size={16} />}
+                  title="Projects"
+                  open={projectsOpen}
+                  onToggle={() => setProjectsOpen((v) => !v)}
+                >
+                  <div className="space-y-4 mt-2">
+                    {data.projects.map((proj, idx) => (
+                      <div
+                        key={proj.id}
+                        className="space-y-2 pb-3 border-b border-slate-100 last:border-0 last:pb-0"
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-medium text-slate-500">
+                            Project {idx + 1}
+                          </p>
+                          <button
+                            data-ocid={`projects.delete_button.${idx + 1}`}
+                            type="button"
+                            onClick={() => removeProject(proj.id)}
                             className="text-red-400 hover:text-red-600 transition-colors"
                           >
                             <Trash2 size={13} />
                           </button>
-                        )}
+                        </div>
+                        <Field label="Project Title">
+                          <Input
+                            className={inputCls}
+                            value={proj.title}
+                            onChange={(e) =>
+                              updateProject(proj.id, "title", e.target.value)
+                            }
+                            placeholder="My Cool Project"
+                          />
+                        </Field>
+                        <Field label="Description">
+                          <Textarea
+                            className="min-h-[70px] rounded-lg border border-slate-200 px-3 py-2 text-sm resize-none w-full focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            value={proj.description}
+                            onChange={(e) =>
+                              updateProject(
+                                proj.id,
+                                "description",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="Describe what this project does..."
+                          />
+                        </Field>
                       </div>
-                      <Field label="Degree">
-                        <Input
-                          className={inputCls}
-                          value={edu.degree}
-                          onChange={(e) =>
-                            updateEdu(edu.id, "degree", e.target.value)
-                          }
-                          placeholder="B.Sc Computer Science"
-                        />
-                      </Field>
-                      <Field label="Institute">
-                        <Input
-                          className={inputCls}
-                          value={edu.institute}
-                          onChange={(e) =>
-                            updateEdu(edu.id, "institute", e.target.value)
-                          }
-                          placeholder="FAST-NUCES"
-                        />
-                      </Field>
-                      <div className="grid grid-cols-2 gap-2">
+                    ))}
+                    {data.projects.length === 0 && (
+                      <p className="text-xs text-slate-400 py-2 text-center">
+                        No projects added yet
+                      </p>
+                    )}
+                    <Button
+                      data-ocid="projects.add_button"
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addProject}
+                      className="w-full"
+                    >
+                      <Plus size={13} className="mr-1" /> Add Project
+                    </Button>
+                  </div>
+                </SectionCard>
+
+                <SectionCard
+                  id="experience"
+                  icon={<Briefcase size={16} />}
+                  title="Work Experience"
+                  open={experienceOpen}
+                  onToggle={() => setExperienceOpen((v) => !v)}
+                >
+                  <div className="space-y-4 mt-2">
+                    {data.experience.map((exp, idx) => (
+                      <div
+                        key={exp.id}
+                        className="space-y-2 pb-3 border-b border-slate-100 last:border-0 last:pb-0"
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-medium text-slate-500">
+                            Experience {idx + 1}
+                          </p>
+                          <button
+                            data-ocid={`experience.delete_button.${idx + 1}`}
+                            type="button"
+                            onClick={() => removeExp(exp.id)}
+                            className="text-red-400 hover:text-red-600 transition-colors"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                        <Field label="Company">
+                          <Input
+                            className={inputCls}
+                            value={exp.company}
+                            onChange={(e) =>
+                              updateExp(exp.id, "company", e.target.value)
+                            }
+                            placeholder="TechCorp Ltd."
+                          />
+                        </Field>
+                        <Field label="Role / Title">
+                          <Input
+                            className={inputCls}
+                            value={exp.role}
+                            onChange={(e) =>
+                              updateExp(exp.id, "role", e.target.value)
+                            }
+                            placeholder="Frontend Developer"
+                          />
+                        </Field>
                         <Field label="Duration">
                           <Input
                             className={inputCls}
-                            value={edu.duration}
+                            value={exp.duration}
                             onChange={(e) =>
-                              updateEdu(edu.id, "duration", e.target.value)
+                              updateExp(exp.id, "duration", e.target.value)
                             }
-                            placeholder="2021–2025"
+                            placeholder="Jun 2023 – Aug 2023"
                           />
                         </Field>
-                        <Field label="CGPA / %">
-                          <Input
-                            className={inputCls}
-                            value={edu.cgpa}
+                        <Field label="Description">
+                          <Textarea
+                            className="min-h-[70px] rounded-lg border border-slate-200 px-3 py-2 text-sm resize-none w-full focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            value={exp.description}
                             onChange={(e) =>
-                              updateEdu(edu.id, "cgpa", e.target.value)
+                              updateExp(exp.id, "description", e.target.value)
                             }
-                            placeholder="3.5 / 4.0"
-                          />
-                        </Field>
-                      </div>
-                    </div>
-                  ))}
-                  <Button
-                    data-ocid="education.add_button"
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addEdu}
-                    className="w-full"
-                  >
-                    <Plus size={13} className="mr-1" /> Add Education
-                  </Button>
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                id="skills"
-                icon={<Zap size={16} />}
-                title="Skills"
-                open={skillsOpen}
-                onToggle={() => setSkillsOpen((v) => !v)}
-              >
-                <div className="space-y-2 mt-2">
-                  {data.skills.map((skill, idx) => (
-                    <div key={skill.id} className="flex gap-2 items-center">
-                      <Input
-                        data-ocid={`skills.input.${idx + 1}`}
-                        className={`${inputCls} flex-1`}
-                        value={skill.name}
-                        onChange={(e) =>
-                          updateSkill(skill.id, "name", e.target.value)
-                        }
-                        placeholder="React, Python..."
-                      />
-                      <select
-                        data-ocid={`skills.select.${idx + 1}`}
-                        value={skill.level}
-                        onChange={(e) =>
-                          updateSkill(skill.id, "level", e.target.value)
-                        }
-                        className="h-10 rounded-lg border border-slate-200 px-2 text-xs text-slate-700 bg-white focus:ring-2 focus:ring-primary/20"
-                      >
-                        <option>Beginner</option>
-                        <option>Intermediate</option>
-                        <option>Advanced</option>
-                      </select>
-                      <button
-                        data-ocid={`skills.delete_button.${idx + 1}`}
-                        type="button"
-                        onClick={() => removeSkill(skill.id)}
-                        className="text-red-400 hover:text-red-600 transition-colors flex-shrink-0"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
-                  {data.skills.length === 0 && (
-                    <p className="text-xs text-slate-400 py-2 text-center">
-                      No skills added yet
-                    </p>
-                  )}
-                  <Button
-                    data-ocid="skills.add_button"
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addSkill}
-                    className="w-full"
-                  >
-                    <Plus size={13} className="mr-1" /> Add Skill
-                  </Button>
-                  {data.skills.filter((s) => s.name).length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {data.skills
-                        .filter((s) => s.name)
-                        .map((s) => (
-                          <Badge
-                            key={s.id}
-                            variant="secondary"
-                            className="text-xs"
-                          >
-                            {s.name} · {s.level}
-                          </Badge>
-                        ))}
-                    </div>
-                  )}
-                </div>
-              </SectionCard>
-
-              {/* Row 3 */}
-              <SectionCard
-                id="projects"
-                icon={<FolderOpen size={16} />}
-                title="Projects"
-                open={projectsOpen}
-                onToggle={() => setProjectsOpen((v) => !v)}
-              >
-                <div className="space-y-4 mt-2">
-                  {data.projects.map((proj, idx) => (
-                    <div
-                      key={proj.id}
-                      className="space-y-2 pb-3 border-b border-slate-100 last:border-0 last:pb-0"
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs font-medium text-slate-500">
-                          Project {idx + 1}
-                        </p>
-                        <button
-                          data-ocid={`projects.delete_button.${idx + 1}`}
-                          type="button"
-                          onClick={() => removeProject(proj.id)}
-                          className="text-red-400 hover:text-red-600 transition-colors"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                      <Field label="Project Title">
-                        <Input
-                          className={inputCls}
-                          value={proj.title}
-                          onChange={(e) =>
-                            updateProject(proj.id, "title", e.target.value)
-                          }
-                          placeholder="My Cool Project"
-                        />
-                      </Field>
-                      <Field label="Description">
-                        <Textarea
-                          className="min-h-[70px] rounded-lg border border-slate-200 px-3 py-2 text-sm resize-none w-full focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                          value={proj.description}
-                          onChange={(e) =>
-                            updateProject(
-                              proj.id,
-                              "description",
-                              e.target.value,
-                            )
-                          }
-                          placeholder="Describe what this project does..."
-                        />
-                      </Field>
-                    </div>
-                  ))}
-                  {data.projects.length === 0 && (
-                    <p className="text-xs text-slate-400 py-2 text-center">
-                      No projects added yet
-                    </p>
-                  )}
-                  <Button
-                    data-ocid="projects.add_button"
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addProject}
-                    className="w-full"
-                  >
-                    <Plus size={13} className="mr-1" /> Add Project
-                  </Button>
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                id="experience"
-                icon={<Briefcase size={16} />}
-                title="Work Experience"
-                open={experienceOpen}
-                onToggle={() => setExperienceOpen((v) => !v)}
-              >
-                <div className="space-y-4 mt-2">
-                  {data.experience.map((exp, idx) => (
-                    <div
-                      key={exp.id}
-                      className="space-y-2 pb-3 border-b border-slate-100 last:border-0 last:pb-0"
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs font-medium text-slate-500">
-                          Experience {idx + 1}
-                        </p>
-                        <button
-                          data-ocid={`experience.delete_button.${idx + 1}`}
-                          type="button"
-                          onClick={() => removeExp(exp.id)}
-                          className="text-red-400 hover:text-red-600 transition-colors"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                      <Field label="Company">
-                        <Input
-                          className={inputCls}
-                          value={exp.company}
-                          onChange={(e) =>
-                            updateExp(exp.id, "company", e.target.value)
-                          }
-                          placeholder="TechCorp Ltd."
-                        />
-                      </Field>
-                      <Field label="Role / Title">
-                        <Input
-                          className={inputCls}
-                          value={exp.role}
-                          onChange={(e) =>
-                            updateExp(exp.id, "role", e.target.value)
-                          }
-                          placeholder="Frontend Developer"
-                        />
-                      </Field>
-                      <Field label="Duration">
-                        <Input
-                          className={inputCls}
-                          value={exp.duration}
-                          onChange={(e) =>
-                            updateExp(exp.id, "duration", e.target.value)
-                          }
-                          placeholder="Jun 2023 – Aug 2023"
-                        />
-                      </Field>
-                      <Field label="Description">
-                        <Textarea
-                          className="min-h-[70px] rounded-lg border border-slate-200 px-3 py-2 text-sm resize-none w-full focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                          value={exp.description}
-                          onChange={(e) =>
-                            updateExp(exp.id, "description", e.target.value)
-                          }
-                          placeholder="What did you accomplish?"
-                        />
-                      </Field>
-                    </div>
-                  ))}
-                  {data.experience.length === 0 && (
-                    <p className="text-xs text-slate-400 py-2 text-center">
-                      No experience added yet
-                    </p>
-                  )}
-                  <Button
-                    data-ocid="experience.add_button"
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addExp}
-                    className="w-full"
-                  >
-                    <Plus size={13} className="mr-1" /> Add Experience
-                  </Button>
-                </div>
-              </SectionCard>
-
-              {/* Row 4 */}
-              <SectionCard
-                id="achievements"
-                icon={<Award size={16} />}
-                title="Achievements & Certifications"
-                open={achievementsOpen}
-                onToggle={() => setAchievementsOpen((v) => !v)}
-              >
-                <div className="space-y-3 mt-2">
-                  {data.achievements.map((ach, idx) => (
-                    <div
-                      key={ach.id}
-                      className="space-y-2 pb-3 border-b border-slate-100 last:border-0 last:pb-0"
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs font-medium text-slate-500">
-                          Item {idx + 1}
-                        </p>
-                        <button
-                          data-ocid={`achievements.delete_button.${idx + 1}`}
-                          type="button"
-                          onClick={() => removeAch(ach.id)}
-                          className="text-red-400 hover:text-red-600 transition-colors"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                      <Field label="Title">
-                        <Input
-                          className={inputCls}
-                          value={ach.title}
-                          onChange={(e) =>
-                            updateAch(ach.id, "title", e.target.value)
-                          }
-                          placeholder="Dean's List Award"
-                        />
-                      </Field>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Field label="Organization">
-                          <Input
-                            className={inputCls}
-                            value={ach.organization}
-                            onChange={(e) =>
-                              updateAch(ach.id, "organization", e.target.value)
-                            }
-                            placeholder="University"
-                          />
-                        </Field>
-                        <Field label="Year">
-                          <Input
-                            className={inputCls}
-                            value={ach.year}
-                            onChange={(e) =>
-                              updateAch(ach.id, "year", e.target.value)
-                            }
-                            placeholder="2024"
+                            placeholder="What did you accomplish?"
                           />
                         </Field>
                       </div>
-                    </div>
-                  ))}
-                  {data.achievements.length === 0 && (
-                    <p className="text-xs text-slate-400 py-2 text-center">
-                      No achievements added yet
-                    </p>
-                  )}
-                  <Button
-                    data-ocid="achievements.add_button"
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addAchievement}
-                    className="w-full"
-                  >
-                    <Plus size={13} className="mr-1" /> Add Achievement
-                  </Button>
-                </div>
-              </SectionCard>
-
-              <SectionCard
-                id="links"
-                icon={<Link2 size={16} />}
-                title="Social Links"
-                open={socialOpen}
-                onToggle={() => setSocialOpen((v) => !v)}
-              >
-                <div className="space-y-3 mt-2">
-                  <Field label="LinkedIn">
-                    <div className="relative">
-                      <Linkedin
-                        size={14}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
-                      <Input
-                        data-ocid="links.linkedin_input"
-                        className={`${inputCls} pl-8`}
-                        value={data.links.linkedin}
-                        onChange={(e) =>
-                          set("links", {
-                            ...data.links,
-                            linkedin: e.target.value,
-                          })
-                        }
-                        placeholder="linkedin.com/in/yourname"
-                      />
-                    </div>
-                  </Field>
-                  <Field label="GitHub">
-                    <div className="relative">
-                      <Github
-                        size={14}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
-                      <Input
-                        data-ocid="links.github_input"
-                        className={`${inputCls} pl-8`}
-                        value={data.links.github}
-                        onChange={(e) =>
-                          set("links", {
-                            ...data.links,
-                            github: e.target.value,
-                          })
-                        }
-                        placeholder="github.com/yourusername"
-                      />
-                    </div>
-                  </Field>
-                  <Field label="Portfolio Website">
-                    <div className="relative">
-                      <Globe
-                        size={14}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                      />
-                      <Input
-                        data-ocid="links.portfolio_input"
-                        className={`${inputCls} pl-8`}
-                        value={data.links.portfolio}
-                        onChange={(e) =>
-                          set("links", {
-                            ...data.links,
-                            portfolio: e.target.value,
-                          })
-                        }
-                        placeholder="yourportfolio.dev"
-                      />
-                    </div>
-                  </Field>
-                </div>
-              </SectionCard>
-            </div>
-            {/* end 2-col form grid */}
-
-            {/* ── Template Selector ─────────────────────────────── */}
-            <div
-              className="bg-white rounded-xl shadow-sm border border-slate-100 p-4"
-              data-ocid="template.panel"
-            >
-              <h3 className="text-sm font-semibold text-slate-800 mb-3">
-                Resume Template
-              </h3>
-              <div className="grid grid-cols-3 gap-3">
-                {(
-                  [
-                    {
-                      id: "modern" as Template,
-                      label: "Modern",
-                      color: "bg-primary",
-                      desc: "Blue accents",
-                    },
-                    {
-                      id: "professional" as Template,
-                      label: "Professional",
-                      color: "bg-slate-700",
-                      desc: "Dark & formal",
-                    },
-                    {
-                      id: "minimal" as Template,
-                      label: "Minimal",
-                      color: "bg-slate-400",
-                      desc: "Clean & simple",
-                    },
-                  ] as const
-                ).map((t) => (
-                  <button
-                    key={t.id}
-                    data-ocid={`template.${t.id}_button`}
-                    type="button"
-                    onClick={() => setTemplate(t.id)}
-                    className={`relative rounded-xl border-2 p-3 text-left transition-all duration-200 hover:shadow-md ${
-                      template === t.id
-                        ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-slate-200 hover:border-slate-300"
-                    }`}
-                  >
-                    {template === t.id && (
-                      <span className="absolute top-2 right-2 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                        <Check size={10} className="text-white" />
-                      </span>
+                    ))}
+                    {data.experience.length === 0 && (
+                      <p className="text-xs text-slate-400 py-2 text-center">
+                        No experience added yet
+                      </p>
                     )}
-                    <div className={`w-8 h-1 ${t.color} rounded-full mb-2`} />
-                    <p className="text-xs font-semibold text-slate-800">
-                      {t.label}
-                    </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">
-                      {t.desc}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
+                    <Button
+                      data-ocid="experience.add_button"
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addExp}
+                      className="w-full"
+                    >
+                      <Plus size={13} className="mr-1" /> Add Experience
+                    </Button>
+                  </div>
+                </SectionCard>
 
-            {/* ── AI Actions ─────────────────────────────────────── */}
-            <div
-              className="bg-white rounded-xl shadow-sm border border-slate-100 p-4"
-              data-ocid="ai.panel"
-            >
-              <h3 className="text-sm font-semibold text-slate-800 mb-3">
-                AI Actions
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <Button
-                  data-ocid="ai.generate_summary_button"
-                  onClick={handleGenerateSummary}
-                  className="justify-start gap-2"
-                  size="sm"
+                {/* Row 4 */}
+                <SectionCard
+                  id="achievements"
+                  icon={<Award size={16} />}
+                  title="Achievements & Certifications"
+                  open={achievementsOpen}
+                  onToggle={() => setAchievementsOpen((v) => !v)}
                 >
-                  <Sparkles size={14} /> Generate Summary
-                </Button>
-                <Button
-                  data-ocid="ai.improve_button"
-                  onClick={handleImproveResume}
-                  variant="secondary"
-                  className="justify-start gap-2"
-                  size="sm"
-                  disabled={isImproving}
-                >
-                  {isImproving ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <Sparkles size={14} />
-                  )}
-                  {isImproving ? "Improving..." : "Improve My Resume"}
-                </Button>
-                <Button
-                  data-ocid="ai.score_button"
-                  onClick={() => setShowScore(true)}
-                  variant="outline"
-                  className="justify-start gap-2"
-                  size="sm"
-                >
-                  <BarChart2 size={14} /> Check Resume Score
-                </Button>
-              </div>
-            </div>
+                  <div className="space-y-3 mt-2">
+                    {data.achievements.map((ach, idx) => (
+                      <div
+                        key={ach.id}
+                        className="space-y-2 pb-3 border-b border-slate-100 last:border-0 last:pb-0"
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-medium text-slate-500">
+                            Item {idx + 1}
+                          </p>
+                          <button
+                            data-ocid={`achievements.delete_button.${idx + 1}`}
+                            type="button"
+                            onClick={() => removeAch(ach.id)}
+                            className="text-red-400 hover:text-red-600 transition-colors"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                        <Field label="Title">
+                          <Input
+                            className={inputCls}
+                            value={ach.title}
+                            onChange={(e) =>
+                              updateAch(ach.id, "title", e.target.value)
+                            }
+                            placeholder="Dean's List Award"
+                          />
+                        </Field>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Field label="Organization">
+                            <Input
+                              className={inputCls}
+                              value={ach.organization}
+                              onChange={(e) =>
+                                updateAch(
+                                  ach.id,
+                                  "organization",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="University"
+                            />
+                          </Field>
+                          <Field label="Year">
+                            <Input
+                              className={inputCls}
+                              value={ach.year}
+                              onChange={(e) =>
+                                updateAch(ach.id, "year", e.target.value)
+                              }
+                              placeholder="2024"
+                            />
+                          </Field>
+                        </div>
+                      </div>
+                    ))}
+                    {data.achievements.length === 0 && (
+                      <p className="text-xs text-slate-400 py-2 text-center">
+                        No achievements added yet
+                      </p>
+                    )}
+                    <Button
+                      data-ocid="achievements.add_button"
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addAchievement}
+                      className="w-full"
+                    >
+                      <Plus size={13} className="mr-1" /> Add Achievement
+                    </Button>
+                  </div>
+                </SectionCard>
 
-            {/* ── Download Section ───────────────────────────────── */}
-            <div
-              className="bg-white rounded-xl shadow-sm border border-slate-100 p-4"
-              data-ocid="download.panel"
-            >
-              <h3 className="text-sm font-semibold text-slate-800 mb-3">
-                Download & Export
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <Button
-                  data-ocid="download.generate_button"
-                  onClick={handleGenerateFullResume}
-                  variant="outline"
-                  className="justify-start gap-2"
-                  size="sm"
-                  disabled={isGenerating}
+                <SectionCard
+                  id="links"
+                  icon={<Link2 size={16} />}
+                  title="Social Links"
+                  open={socialOpen}
+                  onToggle={() => setSocialOpen((v) => !v)}
                 >
-                  {isGenerating ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <FileText size={14} />
-                  )}
-                  {isGenerating ? "Generating..." : "Generate Full Resume"}
-                </Button>
-                <Button
-                  data-ocid="download.pdf_button"
-                  onClick={handleDownloadPDFBottom}
-                  className="justify-start gap-2"
-                  size="sm"
-                >
-                  <Download size={14} />
-                  Download PDF
-                </Button>
-                <Button
-                  data-ocid="download.copy_button"
-                  onClick={handleCopyResume}
-                  variant="outline"
-                  className="justify-start gap-2"
-                  size="sm"
-                >
-                  <Copy size={14} /> Copy Resume
-                </Button>
+                  <div className="space-y-3 mt-2">
+                    <Field label="LinkedIn">
+                      <div className="relative">
+                        <Linkedin
+                          size={14}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                        />
+                        <Input
+                          data-ocid="links.linkedin_input"
+                          className={`${inputCls} pl-8`}
+                          value={data.links.linkedin}
+                          onChange={(e) =>
+                            set("links", {
+                              ...data.links,
+                              linkedin: e.target.value,
+                            })
+                          }
+                          placeholder="linkedin.com/in/yourname"
+                        />
+                      </div>
+                    </Field>
+                    <Field label="GitHub">
+                      <div className="relative">
+                        <Github
+                          size={14}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                        />
+                        <Input
+                          data-ocid="links.github_input"
+                          className={`${inputCls} pl-8`}
+                          value={data.links.github}
+                          onChange={(e) =>
+                            set("links", {
+                              ...data.links,
+                              github: e.target.value,
+                            })
+                          }
+                          placeholder="github.com/yourusername"
+                        />
+                      </div>
+                    </Field>
+                    <Field label="Portfolio Website">
+                      <div className="relative">
+                        <Globe
+                          size={14}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                        />
+                        <Input
+                          data-ocid="links.portfolio_input"
+                          className={`${inputCls} pl-8`}
+                          value={data.links.portfolio}
+                          onChange={(e) =>
+                            set("links", {
+                              ...data.links,
+                              portfolio: e.target.value,
+                            })
+                          }
+                          placeholder="yourportfolio.dev"
+                        />
+                      </div>
+                    </Field>
+                  </div>
+                </SectionCard>
               </div>
-            </div>
+              {/* end 2-col form grid */}
 
-            {/* Footer */}
-            <p className="text-center text-xs text-slate-400 py-2">
-              © {new Date().getFullYear()}. Built with ❤️ using{" "}
-              <a
-                href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline text-primary"
+              {/* ── Template Selector ─────────────────────────────── */}
+              <div
+                className="bg-white rounded-xl shadow-sm border border-slate-100 p-4"
+                data-ocid="template.panel"
               >
-                caffeine.ai
-              </a>
-            </p>
-          </div>
-          {/* end form + actions col */}
-
-          {/* ── LIVE PREVIEW (sticky col 3) ──────────────────────── */}
-          <div className="lg:sticky lg:top-20">
-            <div
-              className="bg-white rounded-2xl shadow-lg border border-slate-100 p-5"
-              data-ocid="preview.panel"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-semibold text-slate-700">
-                  Live Preview
-                </h2>
-                <div className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-[10px] text-slate-400">Real-time</span>
+                <h3 className="text-sm font-semibold text-slate-800 mb-3">
+                  Resume Template
+                </h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {(
+                    [
+                      {
+                        id: "modern" as Template,
+                        label: "Modern",
+                        color: "bg-primary",
+                        desc: "Blue accents",
+                      },
+                      {
+                        id: "professional" as Template,
+                        label: "Professional",
+                        color: "bg-slate-700",
+                        desc: "Dark & formal",
+                      },
+                      {
+                        id: "minimal" as Template,
+                        label: "Minimal",
+                        color: "bg-slate-400",
+                        desc: "Clean & simple",
+                      },
+                    ] as const
+                  ).map((t) => (
+                    <button
+                      key={t.id}
+                      data-ocid={`template.${t.id}_button`}
+                      type="button"
+                      onClick={() => setTemplate(t.id)}
+                      className={`relative rounded-xl border-2 p-3 text-left transition-all duration-200 hover:shadow-md ${
+                        template === t.id
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      {template === t.id && (
+                        <span className="absolute top-2 right-2 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <Check size={10} className="text-white" />
+                        </span>
+                      )}
+                      <div className={`w-8 h-1 ${t.color} rounded-full mb-2`} />
+                      <p className="text-xs font-semibold text-slate-800">
+                        {t.label}
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        {t.desc}
+                      </p>
+                    </button>
+                  ))}
                 </div>
               </div>
-              {/* This div is the PDF capture target */}
+
+              {/* ── AI Actions ─────────────────────────────────────── */}
               <div
-                ref={previewRef}
-                id="live-preview"
-                className="min-h-[200px] bg-white"
+                className="bg-white rounded-xl shadow-sm border border-slate-100 p-4"
+                data-ocid="ai.panel"
               >
-                <ResumePreview data={data} template={template} />
+                <h3 className="text-sm font-semibold text-slate-800 mb-3">
+                  AI Actions
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <Button
+                    data-ocid="ai.generate_summary_button"
+                    onClick={handleGenerateSummary}
+                    className="justify-start gap-2"
+                    size="sm"
+                  >
+                    <Sparkles size={14} /> Generate Summary
+                  </Button>
+                  <Button
+                    data-ocid="ai.improve_button"
+                    onClick={handleImproveResume}
+                    variant="secondary"
+                    className="justify-start gap-2"
+                    size="sm"
+                    disabled={isImproving}
+                  >
+                    {isImproving ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Sparkles size={14} />
+                    )}
+                    {isImproving ? "Improving..." : "Improve My Resume"}
+                  </Button>
+                  <Button
+                    data-ocid="ai.score_button"
+                    onClick={() => setShowScore(true)}
+                    variant="outline"
+                    className="justify-start gap-2"
+                    size="sm"
+                  >
+                    <BarChart2 size={14} /> Check Resume Score
+                  </Button>
+                </div>
+              </div>
+
+              {/* ── Download Section ───────────────────────────────── */}
+              <div
+                className="bg-white rounded-xl shadow-sm border border-slate-100 p-4"
+                data-ocid="download.panel"
+              >
+                <h3 className="text-sm font-semibold text-slate-800 mb-3">
+                  Download & Export
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <Button
+                    data-ocid="download.generate_button"
+                    onClick={handleGenerateFullResume}
+                    variant="outline"
+                    className="justify-start gap-2"
+                    size="sm"
+                  >
+                    <FileText size={14} />
+                    Generate Full Resume
+                  </Button>
+                  <Button
+                    data-ocid="download.pdf_button"
+                    onClick={handleDownloadPDFBottom}
+                    className="justify-start gap-2"
+                    size="sm"
+                  >
+                    <Download size={14} />
+                    Download PDF
+                  </Button>
+                  <Button
+                    data-ocid="download.copy_button"
+                    onClick={handleCopyResume}
+                    variant="outline"
+                    className="justify-start gap-2"
+                    size="sm"
+                  >
+                    <Copy size={14} /> Copy Resume
+                  </Button>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <p className="text-center text-xs text-slate-400 py-2">
+                © {new Date().getFullYear()}. Built with ❤️ using{" "}
+                <a
+                  href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline text-primary"
+                >
+                  caffeine.ai
+                </a>
+              </p>
+            </div>
+            {/* end form + actions col */}
+
+            {/* ── LIVE PREVIEW (sticky col 3) ──────────────────────── */}
+            <div className="lg:sticky lg:top-20">
+              <div
+                className="bg-white rounded-2xl shadow-lg border border-slate-100 p-5"
+                data-ocid="preview.panel"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-sm font-semibold text-slate-700">
+                    Live Preview
+                  </h2>
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    <span className="text-[10px] text-slate-400">
+                      Real-time
+                    </span>
+                  </div>
+                </div>
+                {/* This div is the PDF capture target */}
+                <div
+                  ref={previewRef}
+                  id="live-preview"
+                  className="min-h-[200px] bg-white"
+                >
+                  <ResumePreview data={data} template={template} />
+                </div>
               </div>
             </div>
           </div>
+          {/* end 3-col grid */}
+        </main>
+
+        {/* ── Floating Action Buttons ─────────────────────────────── */}
+        <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-40">
+          <button
+            data-ocid="fab.improve_button"
+            type="button"
+            onClick={handleImproveResume}
+            disabled={isImproving}
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-sm font-medium disabled:opacity-70"
+          >
+            {isImproving ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Sparkles size={15} />
+            )}
+            {isImproving ? "Improving..." : "Improve Resume"}
+          </button>
+          <button
+            data-ocid="fab.download_button"
+            type="button"
+            onClick={handleDownloadPDFMiddle}
+            className="flex items-center gap-2 bg-white text-primary border-2 border-primary px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-sm font-medium"
+          >
+            <Download size={15} />
+            Download PDF
+          </button>
         </div>
-        {/* end 3-col grid */}
-      </main>
 
-      {/* ── Floating Action Buttons ─────────────────────────────── */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-40">
-        <button
-          data-ocid="fab.improve_button"
-          type="button"
-          onClick={handleImproveResume}
-          disabled={isImproving}
-          className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-sm font-medium disabled:opacity-70"
-        >
-          {isImproving ? (
-            <Loader2 size={15} className="animate-spin" />
-          ) : (
-            <Sparkles size={15} />
-          )}
-          {isImproving ? "Improving..." : "Improve Resume"}
-        </button>
-        <button
-          data-ocid="fab.download_button"
-          type="button"
-          onClick={handleDownloadPDFMiddle}
-          className="flex items-center gap-2 bg-white text-primary border-2 border-primary px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-sm font-medium"
-        >
-          <Download size={15} />
-          Download PDF
-        </button>
+        {/* ── Score Modal ─────────────────────────────────────────── */}
+        {showScore && (
+          <ScoreModal data={data} onClose={() => setShowScore(false)} />
+        )}
       </div>
-
-      {/* ── Score Modal ─────────────────────────────────────────── */}
-      {showScore && (
-        <ScoreModal data={data} onClose={() => setShowScore(false)} />
-      )}
-    </div>
+    </>
   );
 }
