@@ -184,40 +184,98 @@ const SAMPLE_RESUME_DATA: ResumeData = {
 // ─── Print-based PDF download ─────────────────────────────────────────────
 
 function downloadPDF(): void {
-  const preview = document.querySelector("#live-preview") as HTMLElement | null;
-  if (!preview) {
-    alert("Preview not found");
+  const original = document.querySelector(
+    "#live-preview",
+  ) as HTMLElement | null;
+  if (!original) {
+    alert("Resume preview not found");
     return;
   }
-  const printWindow = window.open("", "", "width=800,height=600");
-  if (!printWindow) {
+
+  // Clone clean content
+  const clone = original.cloneNode(true) as HTMLElement;
+
+  // Remove unwanted styles/classes
+  for (const el of clone.querySelectorAll("*")) {
+    (el as HTMLElement).removeAttribute("style");
+    (el as HTMLElement).removeAttribute("class");
+  }
+
+  const win = window.open("", "", "width=900,height=700");
+  if (!win) {
     alert("Could not open print window. Please allow pop-ups.");
     return;
   }
-  printWindow.document.write(`
+
+  win.document.write(`
     <html>
-      <head>
-        <title>Resume</title>
-        <style>
-          body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: white; }
-          #resume { width: 210mm; min-height: 297mm; margin: auto; }
-          h1 { font-size: 18px; }
-          h2 { font-size: 14px; }
-          h3 { font-size: 12px; }
-          p { font-size: 11px; margin: 4px 0; }
-          .section { margin-bottom: 10px; page-break-inside: avoid; }
-        </style>
-      </head>
-      <body>
-        <div id="resume">${preview.innerHTML}</div>
-      </body>
+    <head>
+      <title>Resume</title>
+      <style>
+        @page {
+          size: A4;
+          margin: 12mm;
+        }
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background: white;
+        }
+        #resume {
+          width: 210mm;
+          min-height: 297mm;
+          padding: 10mm;
+          box-sizing: border-box;
+        }
+        img {
+          width: 90px;
+          height: 90px;
+          object-fit: cover;
+          margin-bottom: 10px;
+        }
+        h1 {
+          font-size: 18px;
+          margin: 0;
+        }
+        h2 {
+          font-size: 14px;
+          margin: 10px 0 5px;
+          border-bottom: 1px solid #000;
+        }
+        p {
+          font-size: 11px;
+          margin: 3px 0;
+          line-height: 1.4;
+        }
+        ul {
+          padding-left: 15px;
+          margin: 5px 0;
+        }
+        li {
+          font-size: 11px;
+          margin-bottom: 3px;
+        }
+        * {
+          page-break-inside: avoid;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="resume">
+        ${clone.innerHTML}
+      </div>
+    </body>
     </html>
   `);
-  printWindow.document.close();
-  printWindow.onload = () => {
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+
+  win.document.close();
+
+  win.onload = () => {
+    setTimeout(() => {
+      win.focus();
+      win.print();
+      win.close();
+    }, 500);
   };
 }
 
